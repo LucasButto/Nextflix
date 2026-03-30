@@ -1,0 +1,141 @@
+@use "@/styles/variables" as *;
+
+.login-gate {
+  &__loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: 1rem;
+    p {
+      color: $text-muted;
+      font-size: 0.9rem;
+    }
+  }
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $bg-elevated;
+    border-top-color: $accent-primary;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login-screen {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+  background: $bg-primary;
+  overflow: hidden;
+
+  &__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse at 20% 50%,
+        rgba($accent-primary, 0.12) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 80% 20%,
+        rgba(88, 28, 135, 0.15) 0%,
+        transparent 50%
+      );
+  }
+
+  &__card {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 420px;
+    width: 100%;
+    padding: 3rem 2.5rem;
+    @include glass-effect;
+    border-radius: 20px;
+    text-align: center;
+    animation: fadeInUp 0.6s ease;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  }
+
+  &__brand {
+    font-family: $font-display;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+    margin-bottom: 1.5rem;
+    span {
+      color: $accent-primary;
+    }
+  }
+
+  &__heading {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  &__sub {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+  }
+
+  &__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 20px;
+    background: #fff;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: all 0.25s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  &__guest-btn {
+    width: 100%;
+    padding: 13px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: $accent-secondary;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: all 0.25s;
+
+    &:hover {
+      background: rgba($accent-primary, 0.1);
+      border-color: rgba($accent-primary, 0.3);
+    }
+  }
+}

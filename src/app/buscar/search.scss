@@ -1,0 +1,156 @@
+@use "@/styles/variables" as *;
+
+.search-page {
+  padding: 2rem $page-padding;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  &__icon {
+    position: absolute;
+    left: 18px;
+    color: $text-muted;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 16px 50px 16px 52px;
+    font-size: 1.1rem;
+    color: $text-primary;
+    background: $bg-card;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    transition:
+      border-color 0.25s,
+      box-shadow 0.25s;
+    &::placeholder {
+      color: $text-muted;
+    }
+    &:focus {
+      border-color: $accent-primary;
+      box-shadow: 0 0 20px $accent-glow;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 16px;
+    color: $text-muted;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+    &:hover {
+      color: $text-primary;
+    }
+  }
+}
+
+.search-loading-bar {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    $accent-primary,
+    $accent-secondary,
+    $accent-primary
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1s ease infinite;
+  border-radius: 2px;
+  margin-bottom: 2rem;
+}
+
+.search-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 4rem 1rem;
+  text-align: center;
+  p {
+    color: $text-muted;
+    font-size: 0.95rem;
+  }
+  &__icon {
+    font-size: 2.5rem !important;
+  }
+}
+
+.search-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-result {
+  display: flex;
+  gap: 16px;
+  padding: 14px;
+  background: $bg-card;
+  border-radius: $card-radius-lg;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+  animation: fadeInUp 0.3s ease both;
+  &:hover {
+    background: $bg-elevated;
+    transform: translateX(4px);
+  }
+
+  &__img {
+    flex-shrink: 0;
+    width: 80px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: $card-radius;
+    @include respond(md) {
+      width: 100px;
+      height: 150px;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  &__type {
+    font-size: 0.68rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: $accent-secondary;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 500;
+    @include line-clamp(1);
+  }
+  &__meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: $text-muted;
+  }
+  &__sub {
+    font-size: 0.8rem;
+    color: $text-muted;
+  }
+
+  &__overview {
+    font-size: 0.8rem;
+    color: $text-secondary;
+    line-height: 1.5;
+    @include line-clamp(2);
+    margin-top: 4px;
+  }
+}

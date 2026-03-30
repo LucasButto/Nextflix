@@ -1,0 +1,89 @@
+@use "@/styles/variables" as *;
+
+.actor-page {
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+
+.actor-header {
+  display: flex;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: 2rem $page-padding;
+  max-width: 1200px;
+  animation: fadeInUp 0.6s ease;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.actor-photo-wrap {
+  flex-shrink: 0;
+  width: 220px;
+  border-radius: $card-radius-lg;
+  overflow: hidden;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px $accent-glow;
+  @include respond(md) {
+    width: 260px;
+  }
+}
+
+.actor-photo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.actor-bio {
+  flex: 1;
+  padding-top: 1rem;
+}
+
+.actor-name {
+  font-family: $font-display;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  letter-spacing: 1.5px;
+  margin-bottom: 1.2rem;
+}
+
+.actor-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.actor-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  @include glass-effect;
+  border-radius: 10px;
+  font-size: 0.85rem;
+
+  &__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $accent-secondary;
+    font-weight: 500;
+  }
+}
+
+.actor-biography {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: $text-secondary;
+  max-width: 700px;
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+}

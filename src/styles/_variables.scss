@@ -1,0 +1,165 @@
+@use "sass:color";
+
+// ─── Color Palette ───
+$bg-primary: #0a0a0a;
+$bg-secondary: #141414;
+$bg-card: #1a1a1a;
+$bg-elevated: #222;
+
+$text-primary: #fff;
+$text-secondary: #b3b3b3;
+$text-muted: #737373;
+
+$accent-primary: #e50914; // Nextflix red
+$accent-secondary: #ff3333;
+$accent-glow: rgba(229, 9, 20, 0.3);
+$accent-hover: #b8070f;
+
+$danger: #e50914;
+$success: #46d369;
+$warning: #f5c518;
+$star: #f5c518;
+
+// ─── Typography ───
+$font-display: "Bebas Neue", "Impact", sans-serif;
+$font-body: "DM Sans", "Montserrat", system-ui, sans-serif;
+$font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+// ─── Spacing ───
+$nav-height: 68px;
+$page-padding: clamp(1rem, 4vw, 3.5rem);
+$section-gap: clamp(2rem, 4vw, 3.5rem);
+$card-radius: 8px;
+$card-radius-lg: 12px;
+
+// ─── Breakpoints ───
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+$bp-xxl: 1536px;
+
+// ─── Mixins ───
+@mixin respond($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: $bp-sm) {
+      @content;
+    }
+  }
+  @if $breakpoint == md {
+    @media (min-width: $bp-md) {
+      @content;
+    }
+  }
+  @if $breakpoint == lg {
+    @media (min-width: $bp-lg) {
+      @content;
+    }
+  }
+  @if $breakpoint == xl {
+    @media (min-width: $bp-xl) {
+      @content;
+    }
+  }
+  @if $breakpoint == xxl {
+    @media (min-width: $bp-xxl) {
+      @content;
+    }
+  }
+}
+
+@mixin card-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.35s ease;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.6),
+      0 0 30px $accent-glow;
+    z-index: 10;
+  }
+}
+
+@mixin gradient-overlay($direction: to top) {
+  background: linear-gradient(
+    $direction,
+    rgba($bg-primary, 1) 0%,
+    rgba($bg-primary, 0.85) 20%,
+    rgba($bg-primary, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin glass-effect {
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@mixin scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@mixin shimmer {
+  background: linear-gradient(
+    90deg,
+    $bg-card 25%,
+    color.adjust($bg-card, $lightness: 5%) 50%,
+    $bg-card 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,375 @@
+@use "@/styles/variables" as *;
+
+.detail-page {
+  min-height: 100vh;
+}
+
+/* ─── Hero Section ─── */
+.detail-hero {
+  position: relative;
+  height: 70vh;
+  min-height: 450px;
+  max-height: 700px;
+  overflow: hidden;
+}
+
+.detail-hero-bg {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.detail-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      $bg-primary 0%,
+      rgba($bg-primary, 0.6) 40%,
+      transparent 70%
+    ),
+    linear-gradient(to right, rgba($bg-primary, 0.8) 0%, transparent 50%);
+}
+
+/* ─── Main Info ─── */
+.detail-info {
+  position: relative;
+  z-index: 2;
+  padding: 0 $page-padding;
+  margin-top: -180px;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 1400px;
+  animation: fadeInUp 0.6s ease;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    margin-top: -120px;
+    text-align: center;
+  }
+}
+
+.detail-poster-wrap {
+  flex-shrink: 0;
+  width: 220px;
+  border-radius: $card-radius-lg;
+  overflow: hidden;
+  box-shadow:
+    0 16px 50px rgba(0, 0, 0, 0.6),
+    0 0 40px $accent-glow;
+  @include respond(md) {
+    width: 260px;
+  }
+  @include respond(lg) {
+    width: 300px;
+  }
+}
+
+.detail-poster {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.detail-details {
+  flex: 1;
+  padding-top: 60px;
+  @media (max-width: 768px) {
+    padding-top: 1rem;
+  }
+}
+
+.detail-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.detail-title {
+  font-family: $font-display;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  letter-spacing: 1.5px;
+  line-height: 1.1;
+}
+
+.detail-year {
+  font-size: 1.2rem;
+  color: $text-muted;
+  font-weight: 400;
+}
+
+.detail-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.detail-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  font-size: 1rem;
+  color: $star;
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: $star;
+  }
+}
+
+.detail-runtime,
+.detail-seasons-badge {
+  font-size: 0.88rem;
+  color: $text-secondary;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.detail-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.detail-overview {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: $text-secondary;
+  max-width: 700px;
+  margin-bottom: 20px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.detail-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: $accent-primary;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.25s;
+
+  &:hover {
+    background: $accent-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px $accent-glow;
+  }
+
+  &--added {
+    background: rgba($success, 0.2);
+    color: $success;
+    border: 1px solid rgba($success, 0.3);
+
+    &:hover {
+      background: rgba($danger, 0.2);
+      color: $danger;
+      border-color: rgba($danger, 0.3);
+      box-shadow: none;
+    }
+  }
+}
+
+/* ─── Providers ─── */
+.detail-providers-section {
+  padding: 0 $page-padding;
+  margin: 2rem 0;
+}
+
+.detail-providers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.detail-provider-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  @include glass-effect;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.detail-provider-logo {
+  border-radius: 6px;
+}
+
+/* ─── Cast ─── */
+.detail-section {
+  padding: 0 $page-padding;
+  margin: $section-gap 0;
+}
+
+.detail-cast-grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-top: 5px;
+  padding-bottom: 12px;
+  @include scrollbar-hidden;
+}
+
+.detail-cast-card {
+  flex-shrink: 0;
+  width: 120px;
+  text-align: center;
+  transition: transform 0.25s;
+  &:hover {
+    transform: translateY(-4px);
+  }
+  @include respond(md) {
+    width: 130px;
+  }
+}
+
+.detail-cast-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 8px;
+  border: 2px solid $bg-elevated;
+  transition: border-color 0.3s;
+  .detail-cast-card:hover & {
+    border-color: $accent-primary;
+  }
+}
+
+.detail-cast-name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  @include line-clamp(1);
+}
+
+.detail-cast-char {
+  font-size: 0.7rem;
+  color: $text-muted;
+  @include line-clamp(1);
+  margin-top: 2px;
+}
+
+/* ─── Seasons / Episodes ─── */
+.detail-season-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.detail-season-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: $bg-card;
+  color: $text-secondary;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: $bg-elevated;
+    color: $text-primary;
+  }
+
+  &--active {
+    background: rgba($accent-primary, 0.2);
+    color: $accent-secondary;
+    border-color: rgba($accent-primary, 0.3);
+  }
+}
+
+.detail-episode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-episode-card {
+  display: flex;
+  gap: 16px;
+  padding: 14px 18px;
+  background: $bg-card;
+  border-radius: $card-radius-lg;
+  transition: background 0.2s;
+  align-items: flex-start;
+  &:hover {
+    background: $bg-elevated;
+  }
+}
+
+.detail-ep-number {
+  font-family: $font-display;
+  font-size: 1.8rem;
+  color: $text-muted;
+  min-width: 40px;
+  line-height: 1;
+}
+
+.detail-ep-info {
+  flex: 1;
+}
+
+.detail-ep-title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.detail-ep-meta {
+  font-size: 0.75rem;
+  color: $text-muted;
+  margin-bottom: 6px;
+  display: flex;
+  gap: 10px;
+}
+
+.detail-ep-overview {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  line-height: 1.5;
+  @include line-clamp(2);
+}
+
+.detail-ep-still {
+  flex-shrink: 0;
+  width: 160px;
+  height: 90px;
+  border-radius: $card-radius;
+  object-fit: cover;
+  display: none;
+  order: -1;
+  @include respond(md) {
+    display: block;
+  }
+}
