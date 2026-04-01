@@ -1,0 +1,62 @@
+@use "@/styles/variables" as *;
+
+.cast-carousel {
+  position: relative;
+
+  &__track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-top: 5px;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+    @include scrollbar-hidden;
+
+    > * {
+      scroll-snap-align: start;
+    }
+  }
+
+  &__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba($bg-elevated, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      background: $accent-primary;
+      border-color: $accent-primary;
+      box-shadow: 0 4px 20px $accent-glow;
+    }
+
+    &--left {
+      left: -16px;
+    }
+
+    &--right {
+      right: -16px;
+    }
+
+    &--hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+}

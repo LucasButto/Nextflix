@@ -1,11 +1,18 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getMovieDetails } from "@/services/movies";
+import { getMovieDetails, getCollectionDetails } from "@/services/movies";
 import { posterUrl, backdropUrl, profileUrl, IMG_BASE } from "@/services/tmdb";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
+import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
 import Carousel from "@/components/shared/Carousel/Carousel";
+import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
+import TransitionLink from "@/components/layout/TransitionLink/TransitionLink";
+import { formatSpanishDate, isUpcoming, extractYear } from "@/utils/dates";
+import { formatRuntime } from "@/utils/format";
+import { getProviders, getTrailerKey } from "@/utils/media";
+import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
   MovieDetails,
@@ -44,27 +51,48 @@ export default async function PeliculaDetailPage({
   }
 
   const cast = movie.credits?.cast?.slice(0, 20) ?? [];
-  const providers =
-    movie["watch/providers"]?.results?.AR?.flatrate ??
-    movie["watch/providers"]?.results?.US?.flatrate ??
-    [];
-  const similar = movie.similar?.results?.slice(0, 15) ?? [];
-  const recommendations = movie.recommendations?.results?.slice(0, 15) ?? [];
-  const year = (movie.release_date ?? "").slice(0, 4);
-  const hours = Math.floor((movie.runtime ?? 0) / 60);
-  const mins = (movie.runtime ?? 0) % 60;
+  const providers = getProviders(movie);
+  const trailerKey = getTrailerKey(movie.videos);
+  const year = extractYear(movie.release_date);
+  const runtime = formatRuntime(movie.runtime ?? 0);
+  const upcoming = isUpcoming(movie.release_date);
+
+  /* ── Recomendaciones: priorizar películas de la misma colección ─────── */
+  let collectionMovies: Movie[] = [];
+  if (movie.belongs_to_collection) {
+    try {
+      const collection = await getCollectionDetails(
+        movie.belongs_to_collection.id,
+      );
+      collectionMovies = (collection.parts ?? [])
+        .filter((m) => m.id !== movie.id)
+        .sort(
+          (a, b) =>
+            new Date(a.release_date ?? "").getTime() -
+            new Date(b.release_date ?? "").getTime(),
+        );
+    } catch {
+      // Si falla el fetch de la colección, seguimos sin ella
+    }
+  }
+
+  const regularRecs = movie.recommendations?.results ?? [];
+  const collectionIds = new Set(collectionMovies.map((m) => m.id));
+  const filteredRecs = regularRecs.filter((m) => !collectionIds.has(m.id));
+  const recommendations = [...collectionMovies, ...filteredRecs].slice(0, 15);
 
   return (
     <div className="detail-page">
       <div className="detail-hero">
         {movie.backdrop_path && (
-          <Image
+          <FadeImage
             src={backdropUrl(movie.backdrop_path)!}
             alt={movie.title}
             fill
-            priority
             className="detail-hero-bg"
+            priority
             sizes="100vw"
+            skeletonVariant="fill"
           />
         )}
         <div className="detail-hero-gradient" />
@@ -72,7 +100,7 @@ export default async function PeliculaDetailPage({
 
       <div className="detail-info">
         <div className="detail-poster-wrap">
-          <Image
+          <FadeImage
             src={posterUrl(movie.poster_path, "lg")}
             alt={movie.title}
             width={300}
@@ -84,22 +112,42 @@ export default async function PeliculaDetailPage({
         <div className="detail-details">
           <div className="detail-title-row">
             <h1 className="detail-title">{movie.title}</h1>
-            {year && <span className="detail-year">({year})</span>}
+            {movie.tagline && (
+              <span className="detail-tagline">{movie.tagline}</span>
+            )}
           </div>
-          <div className="detail-meta-row">
+          <div className="detail-meta">
+            <span className="detail-type-badge detail-type-badge--movie">
+              Película
+            </span>
             {movie.vote_average > 0 && (
               <span className="detail-rating">
                 <StarRateRoundedIcon />
                 {movie.vote_average.toFixed(1)}
               </span>
             )}
-            {movie.runtime > 0 && (
-              <span className="detail-runtime">
-                {hours > 0 && `${hours}h `}
-                {mins}min
-              </span>
-            )}
+            {year && <span className="detail-year">{year}</span>}
+            {runtime && <span className="detail-runtime">{runtime}</span>}
           </div>
+
+          {/* ── Próximo estreno ── */}
+          {upcoming && movie.release_date && (
+            <div className="detail-upcoming-release">
+              <span className="detail-upcoming-release__label">
+                Próximo estreno
+              </span>
+              <span
+                className="detail-upcoming-release__divider"
+                aria-hidden="true"
+              >
+                /
+              </span>
+              <span className="detail-upcoming-release__date">
+                {formatSpanishDate(movie.release_date)}
+              </span>
+            </div>
+          )}
+
           <div className="detail-genres">
             {movie.genres?.map((g) => (
               <span key={g.id} className="genre-tag">
@@ -112,6 +160,7 @@ export default async function PeliculaDetailPage({
           )}
           <div className="detail-actions">
             <WatchlistButton item={movie} mediaType="movie" />
+            <WatchedButton item={movie} mediaType="movie" />
           </div>
         </div>
       </div>
@@ -136,38 +185,40 @@ export default async function PeliculaDetailPage({
         </div>
       )}
 
+      {trailerKey && (
+        <div className="detail-section">
+          <h3 className="section-title">Trailer</h3>
+          <TrailerPlayer videoKey={trailerKey} title={movie.title} />
+        </div>
+      )}
+
       {cast.length > 0 && (
         <div className="detail-section">
           <h3 className="section-title">Reparto</h3>
-          <div className="detail-cast-grid">
+          <CastCarousel>
             {cast.map((actor: CastMember) => (
-              <Link
+              <TransitionLink
                 key={actor.id}
                 href={`/actor/${actor.id}`}
                 className="detail-cast-card"
               >
-                <Image
+                <FadeImage
                   src={profileUrl(actor.profile_path, "sm")}
                   alt={actor.name}
                   width={100}
                   height={100}
                   className="detail-cast-img"
+                  skeletonVariant="circle"
+                  loading="lazy"
                 />
                 <p className="detail-cast-name">{actor.name}</p>
                 <p className="detail-cast-char">{actor.character}</p>
-              </Link>
+              </TransitionLink>
             ))}
-          </div>
+          </CastCarousel>
         </div>
       )}
 
-      {similar.length > 0 && (
-        <Carousel title="Similares">
-          {similar.map((m: Movie) => (
-            <MediaCard key={m.id} item={m} mediaType="movie" />
-          ))}
-        </Carousel>
-      )}
       {recommendations.length > 0 && (
         <Carousel title="Recomendaciones">
           {recommendations.map((m: Movie) => (
@@ -175,6 +226,7 @@ export default async function PeliculaDetailPage({
           ))}
         </Carousel>
       )}
+
       <div style={{ height: "4rem" }} />
     </div>
   );

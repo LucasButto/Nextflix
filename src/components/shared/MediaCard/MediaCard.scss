@@ -65,6 +65,17 @@
     opacity: 1;
   }
 
+  // En el variant wide el título siempre es visible
+  &--wide .media-card__overlay {
+    opacity: 1;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(0, 0, 0, 0.4) 45%,
+      transparent 70%
+    );
+  }
+
   &__meta {
     display: flex;
     align-items: center;
@@ -125,6 +136,14 @@
 
     @include respond(md) {
       font-size: 9rem;
+    }
+
+    &--sm {
+      font-size: 5rem;
+
+      @include respond(md) {
+        font-size: 6.5rem;
+      }
     }
   }
 

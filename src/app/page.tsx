@@ -44,26 +44,30 @@ export default async function HomePage() {
     <>
       <HeroBanner items={heroItems} />
       <Carousel title="Top 10 Películas de Hoy">
-        {trendingMovies.slice(0, 10).map((m: Movie, i: number) => (
-          <MediaCard
-            key={m.id}
-            item={m}
-            mediaType="movie"
-            rank={i + 1}
-            variant="top10"
-          />
-        ))}
+        {[...trendingMovies.slice(0, 10)]
+          .sort((a, b) => b.vote_average - a.vote_average)
+          .map((m: Movie, i: number) => (
+            <MediaCard
+              key={m.id}
+              item={m}
+              mediaType="movie"
+              rank={i + 1}
+              variant="top10"
+            />
+          ))}
       </Carousel>
       <Carousel title="Top 10 Series de Hoy">
-        {trendingSeries.slice(0, 10).map((s: Series, i: number) => (
-          <MediaCard
-            key={s.id}
-            item={s}
-            mediaType="tv"
-            rank={i + 1}
-            variant="top10"
-          />
-        ))}
+        {[...trendingSeries.slice(0, 10)]
+          .sort((a, b) => b.vote_average - a.vote_average)
+          .map((s: Series, i: number) => (
+            <MediaCard
+              key={s.id}
+              item={s}
+              mediaType="tv"
+              rank={i + 1}
+              variant="top10"
+            />
+          ))}
       </Carousel>
       <Carousel title="Películas Populares">
         {popularMovies.map((m: Movie) => (

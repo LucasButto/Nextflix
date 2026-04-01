@@ -1,0 +1,488 @@
+@use "./variables" as *;
+
+// ─── Hero Skeleton ─────────────────────────────────────────────────────────
+.sk-hero {
+  position: relative;
+  width: 100%;
+  height: 85vh;
+  min-height: 500px;
+  max-height: 900px;
+  @include shimmer;
+
+  &__gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, $bg-primary 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  &__content {
+    position: absolute;
+    bottom: 12%;
+    left: 0;
+    padding: 0 $page-padding;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__badge {
+    width: 90px;
+    height: 14px;
+    @include shimmer;
+    border-radius: 4px;
+    opacity: 0.45;
+  }
+
+  &__title {
+    width: 340px;
+    height: 52px;
+    @include shimmer;
+    border-radius: 6px;
+    opacity: 0.4;
+    @include respond(md) {
+      width: 500px;
+      height: 68px;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 14px;
+  }
+
+  &__meta-item {
+    width: 56px;
+    height: 18px;
+    @include shimmer;
+    border-radius: 4px;
+    opacity: 0.35;
+    &:nth-child(2) {
+      width: 80px;
+    }
+  }
+
+  &__overview {
+    height: 15px;
+    @include shimmer;
+    border-radius: 4px;
+    opacity: 0.3;
+    &:nth-child(2) {
+      width: 85%;
+    }
+    &:nth-child(3) {
+      width: 60%;
+    }
+  }
+
+  &__btns {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  &__btn {
+    height: 44px;
+    width: 150px;
+    @include shimmer;
+    border-radius: 8px;
+    opacity: 0.3;
+    &:last-child {
+      width: 120px;
+      opacity: 0.2;
+    }
+  }
+}
+
+// ─── Carousel Skeleton ─────────────────────────────────────────────────────
+.sk-carousel {
+  padding: 2.5rem $page-padding 0;
+
+  &__title {
+    width: 220px;
+    height: 30px;
+    @include shimmer;
+    border-radius: 6px;
+    margin-bottom: 1.2rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: 14px;
+    overflow: hidden;
+  }
+
+  &__card {
+    flex-shrink: 0;
+    width: 150px;
+    @include respond(md) {
+      width: 175px;
+    }
+    @include respond(lg) {
+      width: 190px;
+    }
+  }
+
+  &__img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    @include shimmer;
+    border-radius: $card-radius;
+  }
+
+  &__line {
+    height: 13px;
+    margin-top: 9px;
+    @include shimmer;
+    border-radius: 4px;
+    &--short {
+      width: 60%;
+      margin-top: 6px;
+    }
+  }
+}
+
+// ─── Detail Page Skeleton ──────────────────────────────────────────────────
+.sk-detail-hero {
+  position: relative;
+  height: 70vh;
+  min-height: 450px;
+  max-height: 700px;
+  @include shimmer;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65%;
+    background: linear-gradient(to top, $bg-primary 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
+
+.sk-detail-info {
+  position: relative;
+  z-index: 2;
+  padding: 0 $page-padding;
+  margin-top: -180px;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 1400px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    margin-top: -120px;
+    text-align: center;
+  }
+
+  &__poster {
+    flex-shrink: 0;
+    width: 220px;
+    aspect-ratio: 2 / 3;
+    @include shimmer;
+    border-radius: $card-radius-lg;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+    @include respond(md) {
+      width: 260px;
+    }
+    @include respond(lg) {
+      width: 300px;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    padding-top: 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    @media (max-width: 768px) {
+      padding-top: 1rem;
+    }
+  }
+
+  &__title {
+    height: 46px;
+    width: 65%;
+    @include shimmer;
+    border-radius: 6px;
+    @media (max-width: 768px) {
+      align-self: center;
+      width: 80%;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 12px;
+    @media (max-width: 768px) {
+      justify-content: center;
+    }
+  }
+
+  &__meta-item {
+    height: 18px;
+    width: 56px;
+    @include shimmer;
+    border-radius: 4px;
+    &:nth-child(2) {
+      width: 72px;
+    }
+    &:nth-child(3) {
+      width: 48px;
+    }
+  }
+
+  &__genres {
+    display: flex;
+    gap: 8px;
+    @media (max-width: 768px) {
+      justify-content: center;
+    }
+  }
+
+  &__genre {
+    height: 26px;
+    width: 82px;
+    @include shimmer;
+    border-radius: 20px;
+    &:nth-child(2) {
+      width: 68px;
+    }
+    &:nth-child(3) {
+      width: 90px;
+    }
+  }
+
+  &__overview-line {
+    height: 14px;
+    @include shimmer;
+    border-radius: 4px;
+    &:nth-child(2) {
+      width: 90%;
+    }
+    &:nth-child(3) {
+      width: 75%;
+    }
+    &:nth-child(4) {
+      width: 55%;
+    }
+  }
+
+  &__btn {
+    height: 44px;
+    width: 170px;
+    @include shimmer;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+}
+
+// ─── Cast Grid Skeleton ────────────────────────────────────────────────────
+.sk-cast {
+  padding: 3rem $page-padding 0;
+
+  &__title {
+    width: 110px;
+    height: 30px;
+    @include shimmer;
+    border-radius: 6px;
+    margin-bottom: 1.4rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 18px;
+    @include respond(md) {
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    @include shimmer;
+    @include respond(md) {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  &__name {
+    width: 64px;
+    height: 12px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+
+  &__char {
+    width: 48px;
+    height: 10px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+}
+
+// ─── Actor Page Skeleton ───────────────────────────────────────────────────
+.sk-actor-header {
+  padding: calc($nav-height + 2rem) $page-padding 0;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 1400px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__photo {
+    flex-shrink: 0;
+    width: 220px;
+    aspect-ratio: 2 / 3;
+    @include shimmer;
+    border-radius: $card-radius-lg;
+    @include respond(md) {
+      width: 260px;
+    }
+  }
+
+  &__bio {
+    flex: 1;
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__name {
+    height: 52px;
+    width: 55%;
+    @include shimmer;
+    border-radius: 6px;
+    @media (max-width: 768px) {
+      align-self: center;
+      width: 75%;
+    }
+  }
+
+  &__facts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__fact {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    @media (max-width: 768px) {
+      justify-content: center;
+    }
+  }
+
+  &__fact-label {
+    width: 88px;
+    height: 14px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+
+  &__fact-val {
+    width: 140px;
+    height: 14px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+
+  &__text-line {
+    height: 13px;
+    @include shimmer;
+    border-radius: 4px;
+    &:nth-child(2) {
+      width: 92%;
+    }
+    &:nth-child(3) {
+      width: 84%;
+    }
+    &:nth-child(4) {
+      width: 76%;
+    }
+    &:nth-child(5) {
+      width: 60%;
+    }
+  }
+}
+
+// ─── Watchlist Skeleton ────────────────────────────────────────────────────
+.sk-watchlist {
+  padding: 2rem $page-padding;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    width: 140px;
+    height: 36px;
+    @include shimmer;
+    border-radius: 6px;
+  }
+
+  &__count {
+    width: 52px;
+    height: 14px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+    @include respond(md) {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+  }
+
+  &__card-img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    @include shimmer;
+    border-radius: $card-radius-lg;
+  }
+
+  &__card-title {
+    height: 13px;
+    margin-top: 10px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+
+  &__card-sub {
+    height: 11px;
+    width: 55%;
+    margin-top: 6px;
+    @include shimmer;
+    border-radius: 4px;
+  }
+}

@@ -2,8 +2,10 @@ import "@/styles/globals.scss";
 import "@/styles/detail.scss";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WatchlistProvider } from "@/contexts/WatchlistContext";
+import { WatchedProvider } from "@/contexts/WatchedContext";
 import LoginGate from "@/components/auth/LoginGate/LoginGate";
 import NavBar from "@/components/layout/NavBar/NavBar";
+import ScrollToTop from "@/components/layout/ScrollToTop/ScrollToTop";
 import { ReactNode } from "react";
 
 export const metadata = {
@@ -18,10 +20,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <AuthProvider>
           <WatchlistProvider>
-            <LoginGate>
-              <NavBar />
-              <main className="page-container">{children}</main>
-            </LoginGate>
+            <WatchedProvider>
+              <LoginGate>
+                <ScrollToTop />
+                <NavBar />
+                <main className="page-container">{children}</main>
+              </LoginGate>
+            </WatchedProvider>
           </WatchlistProvider>
         </AuthProvider>
       </body>

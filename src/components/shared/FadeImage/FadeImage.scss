@@ -1,0 +1,37 @@
+@use "@/styles/variables" as *;
+
+.fade-image {
+  position: relative;
+  overflow: hidden;
+
+  &--fill {
+    position: absolute;
+    inset: 0;
+  }
+
+  &__skeleton {
+    position: absolute;
+    inset: 0;
+    @include shimmer;
+    z-index: 1;
+    border-radius: inherit;
+
+    &--circle {
+      border-radius: 50%;
+    }
+
+    &--fill {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  &__img {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+
+    &--visible {
+      opacity: 1;
+    }
+  }
+}

@@ -67,6 +67,24 @@ export interface Videos {
   results: Video[];
 }
 
+// ─── Collections ──────────────────────────────────────────────────────────────
+
+export interface CollectionInfo {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+}
+
+export interface CollectionDetails {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  parts: Movie[];
+}
+
 // ─── Movies ───────────────────────────────────────────────────────────────────
 
 export interface Movie {
@@ -76,10 +94,12 @@ export interface Movie {
   overview: string;
   poster_path: string | null;
   backdrop_path: string | null;
+  profile_path: string | null;
   release_date: string;
   vote_average: number;
   vote_count: number;
   popularity: number;
+  original_language: string;
   genre_ids?: number[];
   genres?: Genre[];
   runtime?: number;
@@ -95,10 +115,10 @@ export interface MovieDetails extends Movie {
   tagline: string;
   genres: Genre[];
   production_companies: ProductionCompany[];
+  belongs_to_collection: CollectionInfo | null;
   credits: Credits;
   "watch/providers": WatchProviders;
   videos: Videos;
-  similar: { results: Movie[] };
   recommendations: { results: Movie[] };
 }
 
@@ -138,6 +158,7 @@ export interface Series {
   vote_average: number;
   vote_count: number;
   popularity: number;
+  original_language: string;
   genre_ids?: number[];
   genres?: Genre[];
   number_of_seasons?: number;
@@ -157,8 +178,9 @@ export interface SeriesDetails extends Series {
   credits: Credits;
   "watch/providers": WatchProviders;
   videos: Videos;
-  similar: { results: Series[] };
   recommendations: { results: Series[] };
+  next_episode_to_air: Episode | null;
+  last_episode_to_air: Episode | null;
 }
 
 export interface SeasonDetails {

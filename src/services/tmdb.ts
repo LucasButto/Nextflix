@@ -3,14 +3,20 @@ const BASE_URL = "https://api.themoviedb.org/3";
 export const IMG_BASE = "https://image.tmdb.org/t/p";
 
 export const IMAGE_SIZES = {
-  poster: { sm: "/w342", md: "/w500", lg: "/w780", original: "/original" },
+  poster: {
+    xs: "/w185",
+    sm: "/w342",
+    md: "/w500",
+    lg: "/w780",
+    original: "/original",
+  },
   backdrop: { sm: "/w780", md: "/w1280", original: "/original" },
   profile: { sm: "/w185", md: "/w342", lg: "/h632", original: "/original" },
 };
 
 export function posterUrl(
   path: string | null,
-  size: "sm" | "md" | "lg" | "original" = "md",
+  size: "xs" | "sm" | "md" | "lg" | "original" = "md",
 ) {
   if (!path) return "/no-poster.svg";
   return `${IMG_BASE}${IMAGE_SIZES.poster[size]}${path}`;
@@ -38,13 +44,23 @@ type TmdbCacheEntry = { data: unknown; timestamp: number };
 const cache = new Map<string, TmdbCacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000;
 
-export async function tmdbFetch(
+// ─── Tipos de respuesta TMDB ───────────────────────────────────────────────
+export interface TmdbListResponse<T> {
+  results: T[];
+  total_pages: number;
+  total_results: number;
+  page: number;
+}
+
+// tmdbFetch genérico: inferí el tipo de retorno en el callsite
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function tmdbFetch<T = any>(
   endpoint: string,
   params: TmdbParams = {},
-): Promise<unknown> {
+): Promise<T> {
   const queryParams = new URLSearchParams({
     api_key: TMDB_API_KEY ?? "",
-    language: "es-ES",
+    language: "es-MX",
     ...Object.fromEntries(
       Object.entries(params).map(([k, v]) => [k, String(v)]),
     ),
@@ -53,17 +69,64 @@ export async function tmdbFetch(
 
   const cached = cache.get(url);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
+    return cached.data as T;
   }
 
   const res = await fetch(url, { next: { revalidate: 600 } } as RequestInit);
   if (!res.ok) throw new Error(`TMDB Error: ${res.status}`);
-  const data: unknown = await res.json();
+  const data = (await res.json()) as T;
 
   cache.set(url, { data, timestamp: Date.now() });
   return data;
 }
 
+// ─── Filtro de idiomas con script no-latino ────────────────────────────────
+// Excluye contenido cuyo idioma original usa caracteres no-latinos.
+// Si TMDB no tiene poster en español, el poster viene en el idioma original
+// (coreano, japonés, árabe, etc.), lo cual queda mal en la interfaz.
+const NON_LATIN_LANGUAGES = new Set([
+  "ja",
+  "ko",
+  "zh", // Este asiático
+  "th",
+  "hi",
+  "bn",
+  "ta",
+  "te", // Sur y Sudeste asiático
+  "ml",
+  "kn",
+  "mr",
+  "gu",
+  "pa",
+  "si",
+  "my",
+  "km",
+  "lo",
+  "ar",
+  "fa",
+  "he",
+  "ur", // Oriente Medio
+  "ru",
+  "uk",
+  "bg",
+  "mk",
+  "be",
+  "sr", // Cirílico
+  "ka",
+  "am",
+  "hy",
+  "mn", // Otros scripts
+]);
+
+export function filterLatinScript<T extends { original_language: string }>(
+  items: T[],
+): T[] {
+  return items.filter(
+    (item) => !NON_LATIN_LANGUAGES.has(item.original_language),
+  );
+}
+
+// ─── Géneros ───────────────────────────────────────────────────────────────
 export const MOVIE_GENRES = [
   { id: 28, name: "Acción", slug: "accion" },
   { id: 12, name: "Aventura", slug: "aventura" },

@@ -1,46 +1,71 @@
-import { tmdbFetch } from './tmdb';
+import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
+import type { Series, SeriesDetails, SeasonDetails } from "@/types/tmdb";
 
-export async function getTrendingSeries(timeWindow: 'day' | 'week' = 'day') {
-  const data = await tmdbFetch(`/trending/tv/${timeWindow}`);
-  return data.results;
+export async function getTrendingSeries(timeWindow: "day" | "week" = "day") {
+  const data = await tmdbFetch<TmdbListResponse<Series>>(
+    `/trending/tv/${timeWindow}`,
+  );
+  return filterLatinScript(data.results);
 }
 
 export async function getPopularSeries(page = 1) {
-  const data = await tmdbFetch('/tv/popular', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/popular", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getTopRatedSeries(page = 1) {
-  const data = await tmdbFetch('/tv/top_rated', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getAiringTodaySeries(page = 1) {
-  const data = await tmdbFetch('/tv/airing_today', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/airing_today", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getOnTheAirSeries(page = 1) {
-  const data = await tmdbFetch('/tv/on_the_air', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/on_the_air", {
+    page,
+  });
+  return filterLatinScript(data.results);
+}
+
+export async function getTop100Series() {
+  const pages = await Promise.all(
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((page) =>
+      tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", { page })
+        .then((d) => filterLatinScript(d.results))
+        .catch(() => [] as Series[]),
+    ),
+  );
+  return pages.flat().slice(0, 100);
 }
 
 export async function getSeriesByGenre(genreId: number, page = 1) {
-  const data = await tmdbFetch('/discover/tv', {
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
     with_genres: genreId,
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 50,
+    sort_by: "popularity.desc",
+    "vote_count.gte": 50,
     page,
   });
-  return data.results;
+  return filterLatinScript(data.results);
 }
 
 export async function getSeriesDetails(seriesId: string | number) {
-  return tmdbFetch(`/tv/${seriesId}`, {
-    append_to_response: 'credits,watch/providers,videos,similar,recommendations',
+  return tmdbFetch<SeriesDetails>(`/tv/${seriesId}`, {
+    append_to_response: "credits,watch/providers,videos,recommendations",
   });
 }
 
-export async function getSeasonDetails(seriesId: string | number, seasonNumber: number) {
-  return tmdbFetch(`/tv/${seriesId}/season/${seasonNumber}`);
+export async function getSeasonDetails(
+  seriesId: string | number,
+  seasonNumber: number,
+) {
+  return tmdbFetch<SeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`);
 }

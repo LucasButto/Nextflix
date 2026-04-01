@@ -1,9 +1,10 @@
-import Image from "next/image";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { notFound } from "next/navigation";
 import { getActorDetails } from "@/services/actors";
 import { profileUrl } from "@/services/tmdb";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
+import { formatDate, calculateAge } from "@/utils/dates";
 import type { ActorDetails, Movie, Series, PageParams } from "@/types/tmdb";
 import "./actor.scss";
 
@@ -19,16 +20,6 @@ export async function generateMetadata({
   } catch {
     return { title: "Actor — Nextflix" };
   }
-}
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("es-AR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 }
 
 export default async function ActorPage({
@@ -53,21 +44,13 @@ export default async function ActorPage({
     .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
     .slice(0, 20);
 
-  const birth = actor.birthday;
-  const death = actor.deathday;
-  const age =
-    birth && !death
-      ? Math.floor(
-          new Date().getFullYear() -
-            new Date(birth + "T00:00:00").getFullYear(),
-        )
-      : null;
+  const age = calculateAge(actor.birthday, actor.deathday);
 
   return (
     <div className="actor-page">
       <div className="actor-header">
         <div className="actor-photo-wrap">
-          <Image
+          <FadeImage
             src={profileUrl(actor.profile_path, "lg")}
             alt={actor.name}
             width={300}
@@ -79,19 +62,19 @@ export default async function ActorPage({
         <div className="actor-bio">
           <h1 className="actor-name">{actor.name}</h1>
           <div className="actor-facts">
-            {birth && (
+            {actor.birthday && (
               <div className="actor-fact">
                 <span className="actor-fact__label">Nacimiento</span>
                 <span>
-                  {formatDate(birth)}
+                  {formatDate(actor.birthday)}
                   {age ? ` (${age} años)` : ""}
                 </span>
               </div>
             )}
-            {death && (
+            {actor.deathday && (
               <div className="actor-fact">
                 <span className="actor-fact__label">Fallecimiento</span>
-                <span>{formatDate(death)}</span>
+                <span>{formatDate(actor.deathday)}</span>
               </div>
             )}
             {actor.place_of_birth && (

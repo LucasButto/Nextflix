@@ -1,6 +1,10 @@
 "use client";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import type { Movie, Series } from "@/types/tmdb";
 
 type WatchlistButtonItem = Pick<
@@ -23,6 +27,7 @@ export default function WatchlistButton({
 }: WatchlistButtonProps) {
   const { isLoggedIn } = useAuth();
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
+  const [hovering, setHovering] = useState(false);
 
   if (!isLoggedIn) return null;
 
@@ -42,12 +47,31 @@ export default function WatchlistButton({
     }
   };
 
+  const icon = inList ? (
+    hovering ? (
+      <CloseRoundedIcon />
+    ) : (
+      <CheckRoundedIcon />
+    )
+  ) : (
+    <AddRoundedIcon />
+  );
+
+  const label = inList
+    ? hovering
+      ? "Quitar"
+      : "En tu lista"
+    : "Agregar a mi lista";
+
   return (
     <button
       className={`detail-btn-add ${inList ? "detail-btn-add--added" : ""}`}
       onClick={handleClick}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
     >
-      {inList ? "✓ En tu lista" : "+ Agregar a Mi Lista"}
+      {icon}
+      {label}
     </button>
   );
 }

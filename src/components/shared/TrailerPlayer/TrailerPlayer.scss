@@ -1,0 +1,101 @@
+@use "@/styles/variables" as *;
+
+.trailer {
+  padding: 0 $page-padding;
+  margin: $section-gap 0;
+
+  &__wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 16 / 9;
+    border-radius: $card-radius-lg;
+    overflow: hidden;
+    background: $bg-card;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  &__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  &__thumbnail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: none;
+
+    &:focus-visible {
+      outline: 2px solid $accent-primary;
+      outline-offset: 3px;
+    }
+  }
+
+  &__thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition:
+      transform 0.4s ease,
+      filter 0.4s ease;
+
+    .trailer__thumbnail:hover & {
+      transform: scale(1.03);
+      filter: brightness(0.7);
+    }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    transition: background 0.3s ease;
+
+    .trailer__thumbnail:hover & {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &__play-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: $accent-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 0 6px rgba($accent-primary, 0.25),
+      0 8px 30px rgba(0, 0, 0, 0.5);
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease,
+      background 0.25s ease;
+
+    svg {
+      width: 40px;
+      height: 40px;
+      color: #fff;
+      margin-left: 4px; // óptico para centrar el ícono de play
+    }
+
+    .trailer__thumbnail:hover & {
+      transform: scale(1.1);
+      background: $accent-secondary;
+      box-shadow:
+        0 0 0 8px rgba($accent-primary, 0.3),
+        0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+  }
+}

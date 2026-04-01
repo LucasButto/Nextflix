@@ -17,18 +17,39 @@
   &__backdrop {
     position: absolute;
     inset: 0;
+    opacity: 0;
+    pointer-events: none;
 
     &--fade-in {
       animation: heroFadeIn 0.6s ease forwards;
+      pointer-events: auto;
     }
     &--fade-out {
       animation: heroFadeOut 0.4s ease forwards;
+    }
+    &--hidden {
+      opacity: 0;
     }
   }
 
   &__bg-image {
     object-fit: cover;
     object-position: center 20%;
+
+    &--desktop {
+      display: none;
+      @include respond(md) {
+        display: block;
+      }
+    }
+
+    &--mobile {
+      display: block;
+      object-position: center top;
+      @include respond(md) {
+        display: none;
+      }
+    }
   }
 
   &__gradient-bottom {
@@ -67,7 +88,13 @@
     padding: 0 $page-padding;
     max-width: 650px;
     z-index: 5;
-    animation: fadeInUp 0.8s ease 0.2s both;
+
+    &--fade-in {
+      animation: heroContentIn 0.5s ease 0.15s both;
+    }
+    &--fade-out {
+      animation: heroContentOut 0.3s ease forwards;
+    }
   }
 
   &__badge {
@@ -144,8 +171,10 @@
   &__btn-secondary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 12px 24px;
+    min-width: 150px;
     @include glass-effect;
     border-radius: 8px;
     font-weight: 500;
@@ -160,6 +189,14 @@
       background: rgba($success, 0.2);
       border-color: rgba($success, 0.4);
       color: $success;
+
+      &:hover {
+        background: rgba($danger, 0.2);
+        color: $danger;
+        border-color: rgba($danger, 0.3);
+        box-shadow: none;
+        transform: none;
+      }
     }
   }
 
@@ -209,5 +246,27 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes heroContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroContentOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }

@@ -6,7 +6,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100svh;
     gap: 1rem;
     p {
       color: $text-muted;
@@ -35,7 +35,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 1.5rem;
   background: $bg-primary;
   overflow: hidden;

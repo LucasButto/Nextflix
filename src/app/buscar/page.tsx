@@ -1,9 +1,10 @@
 "use client";
 import { useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { searchMulti } from "@/services/search";
 import { posterUrl, profileUrl } from "@/services/tmdb";
+import { extractYear } from "@/utils/dates";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import type {
   SearchResult,
@@ -114,12 +115,13 @@ export default function BuscarPage() {
                 href={`/actor/${person.id}`}
                 className="search-result"
               >
-                <Image
+                <FadeImage
                   src={profileUrl(person.profile_path, "sm")}
                   alt={person.name}
                   width={120}
                   height={180}
                   className="search-result__img"
+                  loading="lazy"
                 />
                 <div className="search-result__info">
                   <span className="search-result__type">Actor</span>
@@ -136,19 +138,20 @@ export default function BuscarPage() {
 
           if (item.media_type === "tv") {
             const series = item as SeriesResult;
-            const year = (series.first_air_date ?? "").slice(0, 4);
+            const year = extractYear(series.first_air_date);
             return (
               <Link
                 key={`tv-${series.id}`}
                 href={`/serie/${series.id}`}
                 className="search-result"
               >
-                <Image
+                <FadeImage
                   src={posterUrl(series.poster_path, "sm")}
                   alt={series.name}
                   width={120}
                   height={180}
                   className="search-result__img"
+                  loading="lazy"
                 />
                 <div className="search-result__info">
                   <span className="search-result__type">Serie</span>
@@ -168,19 +171,20 @@ export default function BuscarPage() {
           }
 
           const movie = item as MovieResult;
-          const year = (movie.release_date ?? "").slice(0, 4);
+          const year = extractYear(movie.release_date);
           return (
             <Link
               key={`movie-${movie.id}`}
               href={`/pelicula/${movie.id}`}
               className="search-result"
             >
-              <Image
+              <FadeImage
                 src={posterUrl(movie.poster_path, "sm")}
                 alt={movie.title}
                 width={120}
                 height={180}
                 className="search-result__img"
+                loading="lazy"
               />
               <div className="search-result__info">
                 <span className="search-result__type">Película</span>

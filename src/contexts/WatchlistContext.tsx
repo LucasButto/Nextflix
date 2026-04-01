@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -40,12 +41,16 @@ interface WatchlistContextType {
 const WatchlistContext = createContext<WatchlistContextType | null>(null);
 
 export function WatchlistProvider({ children }: { children: ReactNode }) {
-  const { user, isLoggedIn, isGuest } = useAuth();
+  const { user, isLoggedIn, isGuest, loading: authLoading } = useAuth();
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const loadedForRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
     async function load() {
+      setLoaded(false);
       if (isLoggedIn && user?.uid) {
         try {
           const docRef = doc(db, "watchlists", user.uid);
@@ -58,25 +63,37 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
               setWatchlist(local);
               await setDoc(docRef, { items: local });
               localStorage.removeItem("fw_watchlist");
+            } else {
+              setWatchlist([]);
             }
           }
+          loadedForRef.current = user.uid;
         } catch {
           setWatchlist(getLocalWatchlist());
+          loadedForRef.current = user.uid;
         }
       } else if (isGuest) {
         setWatchlist(getLocalWatchlist());
+        loadedForRef.current = "guest";
+      } else {
+        setWatchlist([]);
+        loadedForRef.current = "anonymous";
       }
       setLoaded(true);
     }
+    loadedForRef.current = null;
     load();
-  }, [isLoggedIn, isGuest, user?.uid]);
+  }, [isLoggedIn, isGuest, user?.uid, authLoading]);
 
   useEffect(() => {
     if (!loaded) return;
+
     if (isLoggedIn && user?.uid) {
+      if (loadedForRef.current !== user.uid) return;
       const docRef = doc(db, "watchlists", user.uid);
       setDoc(docRef, { items: watchlist }).catch(console.error);
     } else if (isGuest) {
+      if (loadedForRef.current !== "guest") return;
       saveLocalWatchlist(watchlist);
     }
   }, [watchlist, loaded, isLoggedIn, isGuest, user?.uid]);

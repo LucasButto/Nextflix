@@ -24,6 +24,16 @@ body {
   overflow-x: hidden;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-display;
+  font-weight: 500;
+}
+
 a {
   color: inherit;
   text-decoration: none;

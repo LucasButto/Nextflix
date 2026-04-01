@@ -160,3 +160,97 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+/* ─── Tabs ─── */
+.watchlist-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.watchlist-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 22px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: $text-muted;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+
+  &:hover {
+    color: $text-primary;
+
+    svg {
+      opacity: 0.8;
+    }
+  }
+
+  &--active {
+    color: $text-primary;
+    border-bottom-color: $accent-primary;
+
+    svg {
+      opacity: 1;
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $text-muted;
+    transition: all 0.2s;
+  }
+
+  &--active &__badge {
+    background: rgba($accent-primary, 0.2);
+    color: $accent-secondary;
+  }
+}
+
+/* ─── Empty state inline ─── */
+.watchlist-empty--inline {
+  min-height: 40vh;
+
+  .watchlist-empty__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 0.5rem;
+    font-size: 0;
+
+    svg {
+      width: 36px;
+      height: 36px;
+      color: $text-muted;
+    }
+  }
+}

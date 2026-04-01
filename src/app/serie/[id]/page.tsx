@@ -1,12 +1,24 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSeriesDetails } from "@/services/series";
 import { posterUrl, backdropUrl, profileUrl, IMG_BASE } from "@/services/tmdb";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
+import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
+import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import SeasonEpisodes from "@/components/series/SeasonEpisodes/SeasonEpisodes";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
+import TransitionLink from "@/components/layout/TransitionLink/TransitionLink";
+import { formatSpanishDate } from "@/utils/dates";
+import { formatEpCode } from "@/utils/format";
+import {
+  getProviders,
+  getSeriesStatusInfo,
+  getSeriesYearDisplay,
+  getTrailerKey,
+} from "@/utils/media";
+import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
   SeriesDetails,
@@ -45,40 +57,33 @@ export default async function SerieDetailPage({
   }
 
   const cast = series.credits?.cast?.slice(0, 20) ?? [];
-  const providers =
-    series["watch/providers"]?.results?.AR?.flatrate ??
-    series["watch/providers"]?.results?.US?.flatrate ??
-    [];
-  const similar = series.similar?.results?.slice(0, 15) ?? [];
+  const providers = getProviders(series);
+  const trailerKey = getTrailerKey(series.videos);
   const recommendations = series.recommendations?.results?.slice(0, 15) ?? [];
-  const year = (series.first_air_date ?? "").slice(0, 4);
-  const lastYear = (series.last_air_date ?? "").slice(0, 4);
-  const yearDisplay =
-    lastYear && lastYear !== year ? `${year}–${lastYear}` : year;
+  const yearDisplay = getSeriesYearDisplay(
+    series.first_air_date,
+    series.last_air_date,
+  );
   const totalSeasons = series.number_of_seasons ?? 0;
+  const { label: statusLabel, color: statusColor } = getSeriesStatusInfo(
+    series.status,
+  );
 
-  const statusLabel =
-    series.status === "Returning Series"
-      ? "En emisión"
-      : series.status === "Ended"
-        ? "Finalizada"
-        : series.status === "Canceled"
-          ? "Cancelada"
-          : series.status;
-  const statusColor =
-    series.status === "Returning Series" ? "#46d369" : "#b3b3b3";
+  const isReturning = series.status === "Returning Series";
+  const nextEp = series.next_episode_to_air ?? null;
 
   return (
     <div className="detail-page">
       <div className="detail-hero">
         {series.backdrop_path && (
-          <Image
+          <FadeImage
             src={backdropUrl(series.backdrop_path)!}
             alt={series.name}
             fill
-            priority
             className="detail-hero-bg"
+            priority
             sizes="100vw"
+            skeletonVariant="fill"
           />
         )}
         <div className="detail-hero-gradient" />
@@ -86,7 +91,7 @@ export default async function SerieDetailPage({
 
       <div className="detail-info">
         <div className="detail-poster-wrap">
-          <Image
+          <FadeImage
             src={posterUrl(series.poster_path, "lg")}
             alt={series.name}
             width={300}
@@ -98,19 +103,23 @@ export default async function SerieDetailPage({
         <div className="detail-details">
           <div className="detail-title-row">
             <h1 className="detail-title">{series.name}</h1>
-            {yearDisplay && (
-              <span className="detail-year">({yearDisplay})</span>
+            {series.tagline && (
+              <span className="detail-tagline">{series.tagline}</span>
             )}
           </div>
-          <div className="detail-meta-row">
+          <div className="detail-meta">
+            <span className="detail-type-badge detail-type-badge--series">
+              Serie
+            </span>
             {series.vote_average > 0 && (
               <span className="detail-rating">
                 <StarRateRoundedIcon />
                 {series.vote_average.toFixed(1)}
               </span>
             )}
+            {yearDisplay && <span className="detail-year">{yearDisplay}</span>}
             {totalSeasons > 0 && (
-              <span className="detail-seasons-badge">
+              <span className="detail-runtime">
                 {totalSeasons} temporada{totalSeasons !== 1 ? "s" : ""}
               </span>
             )}
@@ -123,6 +132,33 @@ export default async function SerieDetailPage({
               {statusLabel}
             </span>
           </div>
+
+          {/* ── Próximo episodio ── */}
+          {isReturning && nextEp && nextEp.air_date && (
+            <div className="detail-next-episode">
+              <span className="detail-next-episode__dot" aria-hidden="true" />
+              <span className="detail-next-episode__label">
+                Próximo episodio
+              </span>
+              <span className="detail-next-episode__divider" aria-hidden="true">
+                /
+              </span>
+              <span className="detail-next-episode__info">
+                <span className="detail-next-episode__ep">
+                  {formatEpCode(nextEp)}
+                </span>
+                {nextEp.name && (
+                  <span className="detail-next-episode__name">
+                    {nextEp.name}
+                  </span>
+                )}
+                <span className="detail-next-episode__date">
+                  {formatSpanishDate(nextEp.air_date)}
+                </span>
+              </span>
+            </div>
+          )}
+
           <div className="detail-genres">
             {series.genres?.map((g) => (
               <span key={g.id} className="genre-tag">
@@ -135,6 +171,7 @@ export default async function SerieDetailPage({
           )}
           <div className="detail-actions">
             <WatchlistButton item={series} mediaType="tv" />
+            <WatchedButton item={series} mediaType="tv" />
           </div>
         </div>
       </div>
@@ -159,28 +196,37 @@ export default async function SerieDetailPage({
         </div>
       )}
 
+      {trailerKey && (
+        <div className="detail-section">
+          <h3 className="section-title">Trailer</h3>
+          <TrailerPlayer videoKey={trailerKey} title={series.name} />
+        </div>
+      )}
+
       {cast.length > 0 && (
         <div className="detail-section">
           <h3 className="section-title">Reparto</h3>
-          <div className="detail-cast-grid">
+          <CastCarousel>
             {cast.map((actor: CastMember) => (
-              <Link
+              <TransitionLink
                 key={actor.id}
                 href={`/actor/${actor.id}`}
                 className="detail-cast-card"
               >
-                <Image
+                <FadeImage
                   src={profileUrl(actor.profile_path, "sm")}
                   alt={actor.name}
                   width={100}
                   height={100}
                   className="detail-cast-img"
+                  skeletonVariant="circle"
+                  loading="lazy"
                 />
                 <p className="detail-cast-name">{actor.name}</p>
                 <p className="detail-cast-char">{actor.character}</p>
-              </Link>
+              </TransitionLink>
             ))}
-          </div>
+          </CastCarousel>
         </div>
       )}
 
@@ -188,13 +234,6 @@ export default async function SerieDetailPage({
         <SeasonEpisodes seriesId={series.id} seasons={series.seasons} />
       )}
 
-      {similar.length > 0 && (
-        <Carousel title="Series Similares">
-          {similar.map((s: Series) => (
-            <MediaCard key={s.id} item={s} mediaType="tv" />
-          ))}
-        </Carousel>
-      )}
       {recommendations.length > 0 && (
         <Carousel title="Recomendaciones">
           {recommendations.map((s: Series) => (
@@ -202,6 +241,7 @@ export default async function SerieDetailPage({
           ))}
         </Carousel>
       )}
+
       <div style={{ height: "4rem" }} />
     </div>
   );

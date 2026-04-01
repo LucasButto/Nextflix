@@ -1,42 +1,74 @@
-import { tmdbFetch } from './tmdb';
+import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
+import type { Movie, MovieDetails, CollectionDetails } from "@/types/tmdb";
 
-export async function getTrendingMovies(timeWindow: 'day' | 'week' = 'day') {
-  const data = await tmdbFetch(`/trending/movie/${timeWindow}`);
-  return data.results;
+export async function getTrendingMovies(timeWindow: "day" | "week" = "day") {
+  const data = await tmdbFetch<TmdbListResponse<Movie>>(
+    `/trending/movie/${timeWindow}`,
+  );
+  return filterLatinScript(data.results);
 }
 
 export async function getPopularMovies(page = 1) {
-  const data = await tmdbFetch('/movie/popular', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/popular", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getTopRatedMovies(page = 1) {
-  const data = await tmdbFetch('/movie/top_rated', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getNowPlayingMovies(page = 1) {
-  const data = await tmdbFetch('/movie/now_playing', { page });
-  return data.results;
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/now_playing", {
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getUpcomingMovies(page = 1) {
-  const data = await tmdbFetch('/movie/upcoming', { page });
-  return data.results;
-}
-
-export async function getMoviesByGenre(genreId: number, page = 1) {
-  const data = await tmdbFetch('/discover/movie', {
-    with_genres: genreId,
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 50,
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/upcoming", {
     page,
   });
-  return data.results;
+  return filterLatinScript(data.results);
+}
+
+export async function getTop100Movies() {
+  const pages = await Promise.all(
+    [1, 2, 3, 4, 5, 6, 7, 8].map((page) =>
+      tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", { page }),
+    ),
+  );
+
+  const seen = new Set<number>();
+  return pages
+    .flatMap((page) => page.results)
+    .filter((m) => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    })
+    .slice(0, 100);
+}
+export async function getMoviesByGenre(genreId: number, page = 1) {
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/discover/movie", {
+    with_genres: genreId,
+    sort_by: "popularity.desc",
+    "vote_count.gte": 50,
+    page,
+  });
+  return filterLatinScript(data.results);
 }
 
 export async function getMovieDetails(movieId: string | number) {
-  return tmdbFetch(`/movie/${movieId}`, {
-    append_to_response: 'credits,watch/providers,videos,similar,recommendations',
+  return tmdbFetch<MovieDetails>(`/movie/${movieId}`, {
+    append_to_response: "credits,watch/providers,videos,recommendations",
   });
+}
+
+export async function getCollectionDetails(collectionId: number) {
+  return tmdbFetch<CollectionDetails>(`/collection/${collectionId}`);
 }

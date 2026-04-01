@@ -48,6 +48,7 @@
     }
   }
 
+  // ── Desktop nav links ──────────────────────────────────────────────────────
   &__links {
     display: none;
     gap: 6px;
@@ -70,28 +71,9 @@
         background: rgba(255, 255, 255, 0.06);
       }
     }
-
-    &--open {
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      inset: 0;
-      top: $nav-height;
-      background: rgba($bg-primary, 0.98);
-      backdrop-filter: blur(30px);
-      padding: 2rem $page-padding;
-      gap: 4px;
-      z-index: 999;
-      animation: fadeIn 0.2s ease;
-
-      li a {
-        font-size: 1.2rem;
-        padding: 14px 20px;
-        border-radius: 10px;
-      }
-    }
   }
 
+  // ── Active link indicator ──────────────────────────────────────────────────
   &__link--active {
     color: $text-primary !important;
 
@@ -108,6 +90,7 @@
     }
   }
 
+  // ── Right section ──────────────────────────────────────────────────────────
   &__right {
     display: flex;
     align-items: center;
@@ -127,8 +110,17 @@
     }
   }
 
+  // ── Profile / avatar (solo desktop) ───────────────────────────────────────
   &__profile {
     position: relative;
+
+    &--desktop {
+      display: none;
+
+      @include respond(md) {
+        display: block;
+      }
+    }
   }
 
   &__avatar {
@@ -182,6 +174,7 @@
     font-weight: 500;
     font-size: 0.9rem;
   }
+
   &__user-email {
     font-size: 0.75rem;
     color: $text-muted;
@@ -208,6 +201,7 @@
     }
   }
 
+  // ── Hamburger button ───────────────────────────────────────────────────────
   &__hamburger {
     display: flex;
     flex-direction: column;
@@ -239,6 +233,197 @@
       span:nth-child(3) {
         transform: rotate(-45deg) translate(5px, -5px);
       }
+    }
+  }
+
+  // ── Overlay oscuro ─────────────────────────────────────────────────────────
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    transition: background 0.35s ease;
+
+    @include respond(md) {
+      display: none;
+    }
+
+    &--visible {
+      background: rgba(0, 0, 0, 0.65);
+      pointer-events: all;
+    }
+  }
+
+  // ── Drawer mobile (desliza desde la derecha) ───────────────────────────────
+  &__drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1002;
+    width: 72%;
+    max-width: 300px;
+    background: rgba(12, 12, 18, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: -12px 0 48px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    padding: $nav-height 1.5rem 1.5rem;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+
+    @include respond(md) {
+      display: none;
+    }
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+
+  // Botón de cierre dentro del drawer
+  &__drawer-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-secondary;
+    border-radius: 8px;
+    transition:
+      color 0.2s,
+      background 0.2s;
+
+    &:hover {
+      color: $text-primary;
+      background: rgba(255, 255, 255, 0.07);
+    }
+  }
+
+  // Perfil de usuario en el drawer
+  &__drawer-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem 0 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    margin-bottom: 0.5rem;
+  }
+
+  &__drawer-avatar {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba($accent-primary, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $bg-elevated;
+  }
+
+  &__drawer-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__drawer-avatar-letter {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $accent-secondary;
+  }
+
+  &__drawer-user-info {
+    overflow: hidden;
+  }
+
+  &__drawer-user-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__drawer-user-email {
+    font-size: 0.72rem;
+    color: $text-muted;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Links dentro del drawer
+  &__drawer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 0.5rem;
+
+    li a {
+      display: block;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: $text-secondary;
+      border-radius: 10px;
+      transition: all 0.2s;
+      position: relative;
+
+      &:hover {
+        color: $text-primary;
+        background: rgba(255, 255, 255, 0.06);
+      }
+    }
+
+    .navbar__link--active {
+      color: $text-primary !important;
+      background: rgba($accent-primary, 0.08);
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: $accent-primary;
+        border-radius: 0 2px 2px 0;
+      }
+    }
+  }
+
+  // Logout al fondo del drawer
+  &__drawer-logout {
+    margin-top: auto;
+    width: 100%;
+    padding: 13px 16px;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: $text-primary;
+    background: rgba($danger, 0.15);
+    border-radius: 10px;
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    &:hover {
+      background: rgba($danger, 0.28);
+      color: #fff;
     }
   }
 }

@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { getSeasonDetails } from "@/services/series";
 import { posterUrl } from "@/services/tmdb";
+import { formatDate } from "@/utils/dates";
 import type { Season, Episode, SeasonDetails } from "@/types/tmdb";
 
 interface SeasonEpisodesProps {
@@ -14,7 +15,9 @@ export default function SeasonEpisodes({
   seriesId,
   seasons,
 }: SeasonEpisodesProps) {
-  const validSeasons = seasons.filter((s) => s.season_number > 0);
+  const validSeasons = seasons.filter(
+    (s) => s.season_number > 0 && s.episode_count > 0,
+  );
   const [activeSeason, setActiveSeason] = useState(
     validSeasons[0]?.season_number ?? 1,
   );
@@ -44,6 +47,8 @@ export default function SeasonEpisodes({
     setActiveSeason(seasonNumber);
   };
 
+  if (validSeasons.length === 0) return null;
+
   return (
     <div className="detail-section">
       <h3 className="section-title">Temporadas y Episodios</h3>
@@ -69,7 +74,7 @@ export default function SeasonEpisodes({
           {episodes.map((ep) => (
             <div key={ep.id} className="detail-episode-card">
               {ep.still_path && (
-                <Image
+                <FadeImage
                   src={posterUrl(ep.still_path, "sm")}
                   alt={ep.name}
                   width={160}
@@ -83,7 +88,7 @@ export default function SeasonEpisodes({
               <div className="detail-ep-info">
                 <p className="detail-ep-title">{ep.name}</p>
                 <div className="detail-ep-meta">
-                  {ep.air_date && <span>{ep.air_date}</span>}
+                  {ep.air_date && <span>{formatDate(ep.air_date)}</span>}
                   {ep.vote_average > 0 && (
                     <span>⭐ {ep.vote_average.toFixed(1)}</span>
                   )}

@@ -15,6 +15,19 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
+const AUTH_COOKIE = "nextflix_auth";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
+
+function setAuthCookie() {
+  document.cookie = `${AUTH_COOKIE}=1; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+function clearAuthCookie() {
+  document.cookie = `${AUTH_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 interface UserData {
   uid: string;
   email: string | null;
@@ -33,6 +46,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+// ─── Context ──────────────────────────────────────────────────────────────────
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 function getInitialGuest(): boolean {
@@ -43,7 +58,6 @@ function getInitialGuest(): boolean {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  // Inicializar isGuest directamente desde localStorage sin useEffect
   const [isGuest, setIsGuest] = useState<boolean>(getInitialGuest);
 
   useEffect(() => {
@@ -56,9 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           photoURL: firebaseUser.photoURL,
         });
         setIsGuest(false);
-        if (typeof window !== "undefined") localStorage.removeItem("fw_guest");
+        localStorage.removeItem("fw_guest");
+        setAuthCookie();
       } else {
         setUser(null);
+        // Solo limpiar la cookie si tampoco es guest
+        if (!localStorage.getItem("fw_guest")) {
+          clearAuthCookie();
+        }
       }
       setLoading(false);
     });
@@ -69,13 +88,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = async (): Promise<User> => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
+    // onAuthStateChanged se encarga de setear la cookie
     return result.user;
   };
 
   const loginAsGuest = () => {
     setIsGuest(true);
     setUser(null);
-    if (typeof window !== "undefined") localStorage.setItem("fw_guest", "true");
+    localStorage.setItem("fw_guest", "true");
+    // No se setea la cookie → el middleware bloquea /tu-lista para invitados
   };
 
   const logout = async () => {
@@ -84,10 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     setUser(null);
     setIsGuest(false);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("fw_guest");
-      localStorage.removeItem("fw_watchlist");
-    }
+    localStorage.removeItem("fw_guest");
+    localStorage.removeItem("fw_watchlist");
+    clearAuthCookie();
   };
 
   const isLoggedIn = !!user;

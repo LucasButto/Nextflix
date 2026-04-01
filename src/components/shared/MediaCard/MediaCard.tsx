@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
+import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
+import { extractYear } from "@/utils/dates";
 import type { Movie, Series } from "@/types/tmdb";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import "./MediaCard.scss";
@@ -13,6 +14,7 @@ interface MediaCardProps {
   mediaType?: string;
   rank?: number;
   variant?: "default" | "top10" | "wide";
+  smallRank?: boolean;
 }
 
 export default function MediaCard({
@@ -20,6 +22,7 @@ export default function MediaCard({
   mediaType,
   rank,
   variant = "default",
+  smallRank = false,
 }: MediaCardProps) {
   const type =
     mediaType ??
@@ -28,8 +31,8 @@ export default function MediaCard({
   const href = type === "tv" ? `/serie/${item.id}` : `/pelicula/${item.id}`;
   const title = "title" in item ? item.title : item.name;
   const releaseDate =
-    ("release_date" in item ? item.release_date : item.first_air_date) ?? "";
-  const year = releaseDate.slice(0, 4);
+    "release_date" in item ? item.release_date : item.first_air_date;
+  const year = extractYear(releaseDate);
   const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
   const posterPath = item.poster_path;
   const backdropPath = "backdrop_path" in item ? item.backdrop_path : null;
@@ -37,10 +40,14 @@ export default function MediaCard({
   if (variant === "top10") {
     return (
       <Link href={href} className="media-card-top10">
-        <span className="media-card-top10__rank">{rank}</span>
+        <span
+          className={`media-card-top10__rank${smallRank ? " media-card-top10__rank--sm" : ""}`}
+        >
+          {rank}
+        </span>
         <div className="media-card-top10__poster">
-          <Image
-            src={posterUrl(posterPath, "sm")}
+          <FadeImage
+            src={posterUrl(posterPath, smallRank ? "xs" : "sm")}
             alt={title}
             fill
             className="media-card__img"
@@ -65,7 +72,7 @@ export default function MediaCard({
       className={`media-card ${variant === "wide" ? "media-card--wide" : ""}`}
     >
       <div className="media-card__poster-wrap">
-        <Image
+        <FadeImage
           src={
             variant === "wide"
               ? backdropPath
