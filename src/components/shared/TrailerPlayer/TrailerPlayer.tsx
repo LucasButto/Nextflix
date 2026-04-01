@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import "./TrailerPlayer.scss";
 
@@ -9,6 +10,7 @@ interface TrailerPlayerProps {
 }
 
 export default function TrailerPlayer({ videoKey, title }: TrailerPlayerProps) {
+  const t = useTranslations("trailer");
   const [playing, setPlaying] = useState(false);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoKey}/maxresdefault.jpg`;
@@ -29,12 +31,12 @@ export default function TrailerPlayer({ videoKey, title }: TrailerPlayerProps) {
           <button
             className="trailer__thumbnail"
             onClick={() => setPlaying(true)}
-            aria-label={`Reproducir trailer de ${title}`}
+            aria-label={t("play", { title })}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={thumbnailUrl}
-              alt={`Thumbnail trailer ${title}`}
+              alt={title}
               className="trailer__thumb-img"
             />
             <div className="trailer__overlay">

@@ -57,10 +57,18 @@ export async function getSeriesByGenre(genreId: number, page = 1) {
   return filterLatinScript(data.results);
 }
 
-export async function getSeriesDetails(seriesId: string | number) {
-  return tmdbFetch<SeriesDetails>(`/tv/${seriesId}`, {
-    append_to_response: "credits,watch/providers,videos,recommendations",
-  });
+export async function getSeriesDetails(
+  seriesId: string | number,
+  language?: string,
+) {
+  return tmdbFetch<SeriesDetails>(
+    `/tv/${seriesId}`,
+    {
+      append_to_response:
+        "credits,watch/providers,videos,recommendations,content_ratings",
+    },
+    language,
+  );
 }
 
 export async function getSeasonDetails(
@@ -68,4 +76,18 @@ export async function getSeasonDetails(
   seasonNumber: number,
 ) {
   return tmdbFetch<SeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`);
+}
+
+export async function getTVGenreList(): Promise<
+  { id: number; name: string }[]
+> {
+  try {
+    const data = await tmdbFetch<{ genres: { id: number; name: string }[] }>(
+      "/genre/tv/list",
+    );
+    return data.genres;
+  } catch {
+    const { TV_GENRES } = await import("./tmdb");
+    return TV_GENRES;
+  }
 }

@@ -249,6 +249,22 @@
   }
 }
 
+/* ─── Certification Badge ─── */
+.detail-certification {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: $text-secondary;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 /* ─── Type Badge ─── */
 .detail-type-badge {
   font-size: 0.75rem;
@@ -530,6 +546,20 @@
       color: $text-muted;
     }
   }
+
+  &--today {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.3);
+
+    .detail-next-episode__dot {
+      background: #f97316;
+      box-shadow: 0 0 6px rgba(249, 115, 22, 0.7);
+    }
+
+    .detail-next-episode__label {
+      color: #f97316;
+    }
+  }
 }
 
 @keyframes pulse-dot {
@@ -582,5 +612,14 @@
   &__date {
     color: $text-primary;
     font-weight: 500;
+  }
+
+  &--today {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.35);
+
+    .detail-upcoming-release__label {
+      color: #f97316;
+    }
   }
 }

@@ -1,0 +1,120 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "movies": "Películas",
+    "series": "Series",
+    "myList": "Tu Lista",
+    "search": "Buscar",
+    "guest": "Invitado",
+    "logout": "Cerrar sesión"
+  },
+  "home": {
+    "top10Movies": "Top 10 Películas de Hoy",
+    "top10Series": "Top 10 Series de Hoy",
+    "popularMovies": "Películas Populares",
+    "nowPlaying": "En Cartelera",
+    "popularSeries": "Series Populares",
+    "topRatedMovies": "Mejor Valoradas — Películas",
+    "topRatedSeries": "Mejor Valoradas — Series",
+    "metaTitle": "Nextflix — Películas y Series",
+    "metaDesc": "Descubrí películas y series en tendencia. Tu plataforma de streaming favorita."
+  },
+  "movies": {
+    "metaTitle": "Películas — Nextflix",
+    "trendingWeek": "Tendencia Esta Semana",
+    "top100": "Top 100 Películas — Mejor Valoradas"
+  },
+  "series": {
+    "metaTitle": "Series — Nextflix",
+    "trendingWeek": "Series en Tendencia",
+    "top100": "Top 100 Series — Mejor Valoradas"
+  },
+  "detail": {
+    "recommendations": "Recomendaciones",
+    "cast": "Reparto",
+    "whereToWatch": "Dónde ver",
+    "trailer": "Trailer",
+    "seasons": "{count, plural, one {# temporada} other {# temporadas}}",
+    "minPerEp": "~{min} min/ep",
+    "upcoming": "Próximo estreno",
+    "nextEpisode": "Próximo episodio",
+    "movie": "Película",
+    "series": "Serie",
+    "metaMovieFallback": "Película — Nextflix",
+    "metaSeriesFallback": "Serie — Nextflix",
+    "upcomingToday": "¡Estrena hoy!",
+    "nextEpisodeToday": "¡Hoy!"
+  },
+  "watchlist": {
+    "add": "Agregar a mi lista",
+    "inList": "En tu lista",
+    "remove": "Quitar",
+    "markWatched": "Marcar como vista",
+    "watched": "Ya la vi",
+    "markUnwatched": "Marcar como no vista"
+  },
+  "myList": {
+    "pageTitle": "Tu Lista — Nextflix",
+    "headingList": "Tu Lista",
+    "headingWatched": "Ya vistas",
+    "tabMyList": "Mi Lista",
+    "tabWatched": "Ya vistas",
+    "emptyListTitle": "Tu lista está vacía",
+    "emptyWatchedTitle": "Todavía no marcaste nada como visto",
+    "emptyListSub": "Explorá películas y series y agregalas a tu lista para verlas después.",
+    "emptyWatchedSub": "Cuando termines de ver algo, marcalo como visto desde la página de la película o serie.",
+    "explore": "Explorar",
+    "loginTitle": "Iniciá sesión para ver tu lista",
+    "loginSub": "Guardá películas y series para verlas después.",
+    "titles": "{count, plural, one {# título} other {# títulos}}",
+    "movie": "Película",
+    "series": "Serie",
+    "removeItem": "Quitar"
+  },
+  "search": {
+    "metaTitle": "Buscar — Nextflix",
+    "placeholder": "Buscar películas, series o actores...",
+    "hint": "Buscá películas, series o actores por nombre",
+    "noResults": "No se encontraron resultados para \"{query}\"",
+    "actor": "Actor",
+    "movie": "Película",
+    "series": "Serie"
+  },
+  "actor": {
+    "metaFallback": "Actor — Nextflix",
+    "born": "Nacimiento",
+    "died": "Fallecimiento",
+    "birthplace": "Lugar",
+    "knownFor": "Conocido por",
+    "filmographyMovies": "Filmografía — Películas",
+    "filmographySeries": "Filmografía — Series",
+    "years": "{count} años"
+  },
+  "login": {
+    "welcome": "Bienvenido",
+    "subtitle": "Ingresá con tu cuenta de Google o continuá como invitado para explorar películas y series.",
+    "google": "Ingresar con Google",
+    "guest": "Continuar como invitado",
+    "loading": "Cargando..."
+  },
+  "hero": {
+    "trendingSeries": "📺 Serie en Tendencia",
+    "trendingMovie": "🎬 Película en Tendencia",
+    "viewDetails": "Ver Detalles",
+    "addToList": "+ Mi Lista",
+    "inList": "✓ En tu lista",
+    "removeFromList": "✕ Quitar"
+  },
+  "carousel": {
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "trailer": {
+    "play": "Reproducir trailer de {title}"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "subtitle": "La página que buscás no existe o fue movida.",
+    "back": "Volver al inicio"
+  }
+}

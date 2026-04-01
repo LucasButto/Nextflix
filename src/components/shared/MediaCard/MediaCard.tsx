@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
 import { extractYear } from "@/utils/dates";
@@ -28,7 +28,7 @@ export default function MediaCard({
     mediaType ??
     ("media_type" in item ? item.media_type : undefined) ??
     "movie";
-  const href = type === "tv" ? `/serie/${item.id}` : `/pelicula/${item.id}`;
+  const href = type === "tv" ? `/series/${item.id}` : `/movies/${item.id}`;
   const title = "title" in item ? item.title : item.name;
   const releaseDate =
     "release_date" in item ? item.release_date : item.first_air_date;

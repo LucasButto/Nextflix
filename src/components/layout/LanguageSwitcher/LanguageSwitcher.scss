@@ -1,0 +1,72 @@
+@use "@/styles/variables" as *;
+
+$h: 28px;
+$pad: 3px;
+$label-w: 36px;
+
+.lang-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: $h;
+  width: calc(#{$label-w} * 2 + #{$pad} * 2);
+  border-radius: $h;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  padding: $pad;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.13);
+  }
+
+  &--pending {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  // Knob deslizante — mismo ancho que un label
+  &__knob {
+    position: absolute;
+    top: 2px;
+    bottom: $pad;
+    width: $label-w;
+    height: 22px;
+    border-radius: $h;
+    background: $accent-primary;
+    box-shadow: 0 2px 8px rgba($accent-primary, 0.45);
+    pointer-events: none;
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  // ES activo → knob a la izquierda
+  &--es &__knob {
+    left: $pad;
+  }
+
+  // EN activo → knob a la derecha
+  &--en &__knob {
+    left: calc(#{$pad} + #{$label-w} - 1px);
+  }
+
+  &__label {
+    position: relative;
+    z-index: 1;
+    width: $label-w;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: $text-muted;
+    transition: color 0.25s;
+    pointer-events: none;
+    line-height: 1;
+
+    &--active {
+      color: #fff;
+    }
+  }
+}

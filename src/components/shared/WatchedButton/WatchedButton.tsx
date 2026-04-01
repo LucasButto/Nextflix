@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatched } from "@/contexts/WatchedContext";
+import { useTranslations } from "next-intl";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -22,6 +23,7 @@ interface WatchedButtonProps {
 }
 
 export default function WatchedButton({ item, mediaType }: WatchedButtonProps) {
+  const t = useTranslations("watchlist");
   const { isLoggedIn } = useAuth();
   const { addToWatched, removeFromWatched, isWatched } = useWatched();
   const [hovering, setHovering] = useState(false);
@@ -45,20 +47,16 @@ export default function WatchedButton({ item, mediaType }: WatchedButtonProps) {
   };
 
   const icon = seen ? (
-    hovering ? (
-      <VisibilityOffRoundedIcon />
-    ) : (
-      <CheckRoundedIcon />
-    )
+    hovering ? <VisibilityOffRoundedIcon /> : <CheckRoundedIcon />
   ) : (
     <VisibilityRoundedIcon />
   );
 
   const label = seen
     ? hovering
-      ? "Marcar como no vista"
-      : "Ya la vi"
-    : "Marcar como vista";
+      ? t("markUnwatched")
+      : t("watched")
+    : t("markWatched");
 
   return (
     <button

@@ -109,6 +109,32 @@ export interface Movie {
   media_type?: string;
 }
 
+// ─── Content Ratings / Certifications ────────────────────────────────────────
+
+export interface ReleaseDateEntry {
+  certification: string;
+  release_date: string;
+  type: number;
+}
+
+export interface ReleaseDateRegion {
+  iso_3166_1: string;
+  release_dates: ReleaseDateEntry[];
+}
+
+export interface ReleaseDates {
+  results: ReleaseDateRegion[];
+}
+
+export interface ContentRatingEntry {
+  iso_3166_1: string;
+  rating: string;
+}
+
+export interface ContentRatings {
+  results: ContentRatingEntry[];
+}
+
 export interface MovieDetails extends Movie {
   runtime: number;
   status: string;
@@ -120,6 +146,7 @@ export interface MovieDetails extends Movie {
   "watch/providers": WatchProviders;
   videos: Videos;
   recommendations: { results: Movie[] };
+  release_dates?: ReleaseDates;
 }
 
 // ─── Series ───────────────────────────────────────────────────────────────────
@@ -181,6 +208,7 @@ export interface SeriesDetails extends Series {
   recommendations: { results: Series[] };
   next_episode_to_air: Episode | null;
   last_episode_to_air: Episode | null;
+  content_ratings?: ContentRatings;
 }
 
 export interface SeasonDetails {

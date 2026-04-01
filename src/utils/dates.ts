@@ -69,3 +69,17 @@ export function calculateAge(
     new Date().getFullYear() - new Date(birthday + "T00:00:00").getFullYear(),
   );
 }
+
+/**
+ * Returns true if the date string is exactly today (UTC).
+ */
+export function isToday(dateStr: string | null | undefined): boolean {
+  if (!dateStr) return false;
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const now = new Date();
+  return (
+    year === now.getUTCFullYear() &&
+    month === now.getUTCMonth() + 1 &&
+    day === now.getUTCDate()
+  );
+}

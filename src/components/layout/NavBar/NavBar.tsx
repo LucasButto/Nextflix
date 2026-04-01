@@ -1,21 +1,17 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, Link } from "@/navigation";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import TransitionLink from "@/components/layout/TransitionLink/TransitionLink";
-import { useRouter } from "next/navigation";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher/LanguageSwitcher";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import "./NavBar.scss";
 
-const NAV_LINKS = [
-  { href: "/", label: "Inicio" },
-  { href: "/peliculas", label: "Películas" },
-  { href: "/series", label: "Series" },
-];
-
 export default function NavBar() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoggedIn, isGuest, logout } = useAuth();
@@ -24,13 +20,18 @@ export default function NavBar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
+  const NAV_LINKS = [
+    { href: "/", label: t("home") },
+    { href: "/movies", label: t("movies") },
+    { href: "/series", label: t("series") },
+  ];
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Bloquear scroll del body cuando el drawer está abierto
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -38,7 +39,6 @@ export default function NavBar() {
     };
   }, [menuOpen]);
 
-  // Cerrar al presionar Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeAll();
@@ -88,23 +88,25 @@ export default function NavBar() {
             {isLoggedIn && (
               <li>
                 <TransitionLink
-                  href="/tu-lista"
+                  href="/my-list"
                   className={
-                    pathname === "/tu-lista" ? "navbar__link--active" : ""
+                    pathname === "/my-list" ? "navbar__link--active" : ""
                   }
                   onClick={closeAll}
                 >
-                  Tu Lista
+                  {t("myList")}
                 </TransitionLink>
               </li>
             )}
           </ul>
 
           <div className="navbar__right">
+            <LanguageSwitcher />
+
             <TransitionLink
-              href="/buscar"
+              href="/search"
               className="navbar__search-btn"
-              aria-label="Buscar"
+              aria-label={t("search")}
               onClick={closeAll}
             >
               <SearchRoundedIcon />
@@ -114,7 +116,7 @@ export default function NavBar() {
               <button
                 className="navbar__avatar"
                 onClick={() => setProfileOpen(!profileOpen)}
-                aria-label="Perfil"
+                aria-label={t("search")}
               >
                 {isLoggedIn && user?.photoURL ? (
                   <Image
@@ -141,9 +143,11 @@ export default function NavBar() {
                       <p className="navbar__user-email">{user.email}</p>
                     </div>
                   )}
-                  {isGuest && <p className="navbar__guest-label">Invitado</p>}
+                  {isGuest && (
+                    <p className="navbar__guest-label">{t("guest")}</p>
+                  )}
                   <button onClick={handleLogout} className="navbar__logout-btn">
-                    Cerrar sesión
+                    {t("logout")}
                   </button>
                 </div>
               )}
@@ -175,7 +179,6 @@ export default function NavBar() {
         className={`navbar__drawer ${menuOpen ? "navbar__drawer--open" : ""}`}
         aria-hidden={!menuOpen}
       >
-        {/* Botón cerrar */}
         <button
           className="navbar__drawer-close"
           onClick={closeAll}
@@ -184,7 +187,6 @@ export default function NavBar() {
           <CloseRoundedIcon />
         </button>
 
-        {/* Perfil de usuario */}
         <div className="navbar__drawer-user">
           <div className="navbar__drawer-avatar">
             {isLoggedIn && user?.photoURL ? (
@@ -205,7 +207,7 @@ export default function NavBar() {
           </div>
           <div className="navbar__drawer-user-info">
             <p className="navbar__drawer-user-name">
-              {isLoggedIn && user?.displayName ? user.displayName : "Invitado"}
+              {isLoggedIn && user?.displayName ? user.displayName : t("guest")}
             </p>
             {isLoggedIn && user?.email && (
               <p className="navbar__drawer-user-email">{user.email}</p>
@@ -213,7 +215,11 @@ export default function NavBar() {
           </div>
         </div>
 
-        {/* Links de navegación */}
+        {/* Language switcher en drawer */}
+        <div style={{ padding: "0 1.5rem 1rem" }}>
+          <LanguageSwitcher />
+        </div>
+
         <ul className="navbar__drawer-links">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
@@ -229,21 +235,20 @@ export default function NavBar() {
           {isLoggedIn && (
             <li>
               <TransitionLink
-                href="/tu-lista"
+                href="/my-list"
                 className={
-                  pathname === "/tu-lista" ? "navbar__link--active" : ""
+                  pathname === "/my-list" ? "navbar__link--active" : ""
                 }
                 onClick={closeAll}
               >
-                Tu Lista
+                {t("myList")}
               </TransitionLink>
             </li>
           )}
         </ul>
 
-        {/* Botón cerrar sesión al fondo */}
         <button className="navbar__drawer-logout" onClick={handleLogout}>
-          Cerrar sesión
+          {t("logout")}
         </button>
       </div>
     </>

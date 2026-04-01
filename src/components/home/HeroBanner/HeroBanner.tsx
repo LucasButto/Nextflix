@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { backdropUrl, posterUrl } from "@/services/tmdb";
 import { useWatchlist } from "@/contexts/WatchlistContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslations } from "next-intl";
 import { extractYear } from "@/utils/dates";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import type { HeroBannerItem } from "@/types/tmdb";
@@ -15,6 +16,7 @@ interface HeroBannerProps {
 }
 
 export default function HeroBanner({ items = [] }: HeroBannerProps) {
+  const t = useTranslations("hero");
   const [current, setCurrent] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
@@ -49,14 +51,12 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
     "release_date" in item ? item.release_date : item.first_air_date;
   const mediaType =
     item.media_type ?? ("first_air_date" in item ? "tv" : "movie");
-  const href =
-    mediaType === "tv" ? `/serie/${item.id}` : `/pelicula/${item.id}`;
+  const href = mediaType === "tv" ? `/series/${item.id}` : `/movies/${item.id}`;
   const inList = isInWatchlist(item.id, mediaType);
   const [hoveringBtn, setHoveringBtn] = useState(false);
 
   return (
     <section className="hero-banner">
-      {/* Todas las imágenes apiladas, precargadas, solo la activa visible */}
       {items.map((slide, i) => {
         const bgUrl = backdropUrl(slide.backdrop_path);
         const pUrl = posterUrl(slide.poster_path, "lg");
@@ -74,7 +74,6 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
                   : "hero-banner__backdrop--fade-out"
             }`}
           >
-            {/* Backdrop horizontal — visible en desktop */}
             {bgUrl && (
               <Image
                 src={bgUrl}
@@ -83,10 +82,9 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
                 priority={i === 0}
                 loading={i === 0 ? "eager" : "lazy"}
                 className="hero-banner__bg-image hero-banner__bg-image--desktop"
-                sizes="100vw"
+                sizes="(max-width: 767px) 1px, 100vw"
               />
             )}
-            {/* Poster vertical — visible en mobile */}
             <Image
               src={pUrl}
               alt={slideTitle}
@@ -94,7 +92,7 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
               priority={i === 0}
               loading={i === 0 ? "eager" : "lazy"}
               className="hero-banner__bg-image hero-banner__bg-image--mobile"
-              sizes="100vw"
+              sizes="(max-width: 767px) 100vw, 1px"
             />
             <div className="hero-banner__gradient-bottom" />
             <div className="hero-banner__gradient-left" />
@@ -106,7 +104,7 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
         className={`hero-banner__content ${transitioning ? "hero-banner__content--fade-out" : "hero-banner__content--fade-in"}`}
       >
         <span className="hero-banner__badge">
-          {mediaType === "tv" ? "📺 Serie" : "🎬 Película"} en Tendencia
+          {mediaType === "tv" ? t("trendingSeries") : t("trendingMovie")}
         </span>
         <h1 className="hero-banner__title">{title}</h1>
         <p className="hero-banner__overview">{overview}</p>
@@ -120,7 +118,7 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
         </div>
         <div className="hero-banner__actions">
           <Link href={href} className="hero-banner__btn-primary">
-            <PlayArrowRoundedIcon /> Ver Detalles
+            <PlayArrowRoundedIcon /> {t("viewDetails")}
           </Link>
           {isLoggedIn && (
             <button
@@ -135,9 +133,9 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
             >
               {inList
                 ? hoveringBtn
-                  ? "✕ Quitar"
-                  : "✓ En tu lista"
-                : "+ Mi Lista"}
+                  ? t("removeFromList")
+                  : t("inList")
+                : t("addToList")}
             </button>
           )}
         </div>

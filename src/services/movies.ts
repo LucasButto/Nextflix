@@ -63,12 +63,35 @@ export async function getMoviesByGenre(genreId: number, page = 1) {
   return filterLatinScript(data.results);
 }
 
-export async function getMovieDetails(movieId: string | number) {
-  return tmdbFetch<MovieDetails>(`/movie/${movieId}`, {
-    append_to_response: "credits,watch/providers,videos,recommendations",
-  });
+export async function getMovieDetails(
+  movieId: string | number,
+  language?: string,
+) {
+  return tmdbFetch<MovieDetails>(
+    `/movie/${movieId}`,
+    {
+      append_to_response:
+        "credits,watch/providers,videos,recommendations,release_dates",
+    },
+    language,
+  );
 }
 
 export async function getCollectionDetails(collectionId: number) {
   return tmdbFetch<CollectionDetails>(`/collection/${collectionId}`);
+}
+
+export async function getMovieGenreList(): Promise<
+  { id: number; name: string }[]
+> {
+  try {
+    const data = await tmdbFetch<{ genres: { id: number; name: string }[] }>(
+      "/genre/movie/list",
+    );
+    return data.genres;
+  } catch {
+    // Fallback a géneros en español si falla
+    const { MOVIE_GENRES } = await import("./tmdb");
+    return MOVIE_GENRES;
+  }
 }

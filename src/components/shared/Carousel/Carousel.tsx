@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState, useEffect, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 import "./Carousel.scss";
@@ -15,6 +16,7 @@ export default function Carousel({
   children,
   className = "",
 }: CarouselProps) {
+  const t = useTranslations("carousel");
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -42,10 +44,7 @@ export default function Carousel({
     const el = trackRef.current;
     if (!el) return;
     const amount = el.clientWidth * 0.85;
-    el.scrollBy({
-      left: dir === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
   return (
@@ -56,7 +55,7 @@ export default function Carousel({
           <button
             className="carousel-arrow carousel-arrow--left"
             onClick={() => scroll("left")}
-            aria-label="Anterior"
+            aria-label={t("prev")}
           >
             <ArrowBackIosRoundedIcon />
           </button>
@@ -68,7 +67,7 @@ export default function Carousel({
           <button
             className="carousel-arrow carousel-arrow--right"
             onClick={() => scroll("right")}
-            aria-label="Siguiente"
+            aria-label={t("next")}
           >
             <ArrowForwardIosRoundedIcon />
           </button>
