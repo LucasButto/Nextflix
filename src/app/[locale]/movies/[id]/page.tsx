@@ -19,6 +19,7 @@ import {
 } from "@/utils/dates";
 import { formatRuntime } from "@/utils/format";
 import { getProviders, getTrailerKey, getCertification } from "@/utils/media";
+import { getUserTimezone } from "@/utils/timezone";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
   MovieDetails,
@@ -60,7 +61,10 @@ export default async function PeliculaDetailPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-  const t = await getTranslations("detail");
+  const [t, tz] = await Promise.all([
+    getTranslations("detail"),
+    getUserTimezone(),
+  ]);
 
   let movie: MovieDetails;
   try {
@@ -75,8 +79,8 @@ export default async function PeliculaDetailPage({
   const certification = getCertification(movie);
   const year = extractYear(movie.release_date);
   const runtime = formatRuntime(movie.runtime ?? 0);
-  const upcoming = isUpcoming(movie.release_date);
-  const todayRelease = isToday(movie.release_date);
+  const upcoming = isUpcoming(movie.release_date, tz);
+  const todayRelease = isToday(movie.release_date, tz);
 
   let collectionMovies: Movie[] = [];
   if (movie.belongs_to_collection) {

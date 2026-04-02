@@ -36,17 +36,51 @@ export function formatSpanishDate(dateStr: string): string {
 }
 
 /**
- * Returns true if the date string is today or in the future.
- * Compares at UTC midnight so "today" counts as upcoming until the day ends.
+ * Returns the user's local "today" as { year, month, day }.
+ * If an IANA timezone is provided (e.g. "America/Argentina/Buenos_Aires"),
+ * it computes today in that timezone; otherwise falls back to the
+ * server/runtime's local time.
  */
-export function isUpcoming(dateStr: string | null | undefined): boolean {
+function getLocalToday(tz?: string): {
+  year: number;
+  month: number;
+  day: number;
+} {
+  const now = new Date();
+  if (tz) {
+    // Intl formats in the target timezone — parse "MM/DD/YYYY" from en-US
+    const parts = now.toLocaleDateString("en-US", {
+      timeZone: tz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const [month, day, year] = parts.split("/").map(Number);
+    return { year, month, day };
+  }
+  return {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+    day: now.getDate(),
+  };
+}
+
+/**
+ * Returns true if the date string is today or in the future.
+ * Pass the user's IANA timezone to compare against their local date.
+ */
+export function isUpcoming(
+  dateStr: string | null | undefined,
+  tz?: string,
+): boolean {
   if (!dateStr) return false;
   const [year, month, day] = dateStr.split("-").map(Number);
-  // Comparar en tiempo local para respetar la zona horaria del servidor/usuario
-  const release = new Date(year, month - 1, day);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return release >= today;
+  const today = getLocalToday(tz);
+
+  // Comparar como enteros YYYYMMDD para evitar problemas de hora
+  const releaseNum = year * 10000 + month * 100 + day;
+  const todayNum = today.year * 10000 + today.month * 100 + today.day;
+  return releaseNum >= todayNum;
 }
 
 /**
@@ -72,15 +106,15 @@ export function calculateAge(
 }
 
 /**
- * Returns true if the date string is exactly today (UTC).
+ * Returns true if the date string is exactly today.
+ * Pass the user's IANA timezone to compare against their local date.
  */
-export function isToday(dateStr: string | null | undefined): boolean {
+export function isToday(
+  dateStr: string | null | undefined,
+  tz?: string,
+): boolean {
   if (!dateStr) return false;
   const [year, month, day] = dateStr.split("-").map(Number);
-  const now = new Date();
-  return (
-    year === now.getFullYear() &&
-    month === now.getMonth() + 1 &&
-    day === now.getDate()
-  );
+  const today = getLocalToday(tz);
+  return year === today.year && month === today.month && day === today.day;
 }
