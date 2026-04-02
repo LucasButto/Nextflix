@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
+import { useTranslations } from "next-intl";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -25,6 +26,7 @@ export default function WatchlistButton({
   item,
   mediaType,
 }: WatchlistButtonProps) {
+  const t = useTranslations("watchlist");
   const { isLoggedIn } = useAuth();
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
   const [hovering, setHovering] = useState(false);
@@ -48,20 +50,16 @@ export default function WatchlistButton({
   };
 
   const icon = inList ? (
-    hovering ? (
-      <CloseRoundedIcon />
-    ) : (
-      <CheckRoundedIcon />
-    )
+    hovering ? <CloseRoundedIcon /> : <CheckRoundedIcon />
   ) : (
     <AddRoundedIcon />
   );
 
   const label = inList
     ? hovering
-      ? "Quitar"
-      : "En tu lista"
-    : "Agregar a mi lista";
+      ? t("remove")
+      : t("inList")
+    : t("add");
 
   return (
     <button

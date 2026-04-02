@@ -42,10 +42,11 @@ export function formatSpanishDate(dateStr: string): string {
 export function isUpcoming(dateStr: string | null | undefined): boolean {
   if (!dateStr) return false;
   const [year, month, day] = dateStr.split("-").map(Number);
-  const release = new Date(Date.UTC(year, month - 1, day));
-  const todayUTC = new Date();
-  todayUTC.setUTCHours(0, 0, 0, 0);
-  return release >= todayUTC;
+  // Comparar en tiempo local para respetar la zona horaria del servidor/usuario
+  const release = new Date(year, month - 1, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return release >= today;
 }
 
 /**
@@ -67,5 +68,19 @@ export function calculateAge(
   if (!birthday || deathday) return null;
   return Math.floor(
     new Date().getFullYear() - new Date(birthday + "T00:00:00").getFullYear(),
+  );
+}
+
+/**
+ * Returns true if the date string is exactly today (UTC).
+ */
+export function isToday(dateStr: string | null | undefined): boolean {
+  if (!dateStr) return false;
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const now = new Date();
+  return (
+    year === now.getFullYear() &&
+    month === now.getMonth() + 1 &&
+    day === now.getDate()
   );
 }

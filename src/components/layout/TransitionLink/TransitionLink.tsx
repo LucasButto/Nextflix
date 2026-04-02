@@ -1,6 +1,5 @@
 "use client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/navigation";
 import { ComponentProps, MouseEvent } from "react";
 
 export type TransitionLinkProps = ComponentProps<typeof Link>;

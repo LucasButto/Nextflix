@@ -1,3 +1,5 @@
+import { getLocale } from "next-intl/server";
+
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 export const IMG_BASE = "https://image.tmdb.org/t/p";
@@ -38,6 +40,22 @@ export function profileUrl(
   return `${IMG_BASE}${IMAGE_SIZES.profile[size]}${path}`;
 }
 
+// ─── Locale → idioma TMDB ──────────────────────────────────────────────────
+const LOCALE_TO_TMDB_LANG: Record<string, string> = {
+  es: "es-MX", // Español Latino
+  en: "en-US",
+};
+
+async function getTmdbLanguage(): Promise<string> {
+  try {
+    const locale = await getLocale();
+    return LOCALE_TO_TMDB_LANG[locale] ?? "es-MX";
+  } catch {
+    // Fuera de contexto de request (ej: build estático)
+    return "es-MX";
+  }
+}
+
 type TmdbParams = Record<string, string | number | boolean>;
 type TmdbCacheEntry = { data: unknown; timestamp: number };
 
@@ -57,10 +75,14 @@ export interface TmdbListResponse<T> {
 export async function tmdbFetch<T = any>(
   endpoint: string,
   params: TmdbParams = {},
+  languageOverride?: string,
 ): Promise<T> {
+  // languageOverride permite que componentes client pasen el locale explícitamente
+  const language = languageOverride ?? (await getTmdbLanguage());
+
   const queryParams = new URLSearchParams({
     api_key: TMDB_API_KEY ?? "",
-    language: "es-MX",
+    language,
     ...Object.fromEntries(
       Object.entries(params).map(([k, v]) => [k, String(v)]),
     ),
@@ -81,18 +103,15 @@ export async function tmdbFetch<T = any>(
 }
 
 // ─── Filtro de idiomas con script no-latino ────────────────────────────────
-// Excluye contenido cuyo idioma original usa caracteres no-latinos.
-// Si TMDB no tiene poster en español, el poster viene en el idioma original
-// (coreano, japonés, árabe, etc.), lo cual queda mal en la interfaz.
 const NON_LATIN_LANGUAGES = new Set([
   "ja",
   "ko",
-  "zh", // Este asiático
+  "zh",
   "th",
   "hi",
   "bn",
   "ta",
-  "te", // Sur y Sudeste asiático
+  "te",
   "ml",
   "kn",
   "mr",
@@ -105,17 +124,17 @@ const NON_LATIN_LANGUAGES = new Set([
   "ar",
   "fa",
   "he",
-  "ur", // Oriente Medio
+  "ur",
   "ru",
   "uk",
   "bg",
   "mk",
   "be",
-  "sr", // Cirílico
+  "sr",
   "ka",
   "am",
   "hy",
-  "mn", // Otros scripts
+  "mn",
 ]);
 
 export function filterLatinScript<T extends { original_language: string }>(
@@ -126,41 +145,53 @@ export function filterLatinScript<T extends { original_language: string }>(
   );
 }
 
-// ─── Géneros ───────────────────────────────────────────────────────────────
+// ─── IDs de géneros (para filtrar por género) ─────────────────────────────
+// Los nombres se obtienen dinámicamente de la API según el locale
+// usando getMovieGenreList() / getTVGenreList() en services/movies.ts y series.ts
+export const MOVIE_GENRE_IDS = [
+  28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 53,
+  10752, 37,
+];
+
+export const TV_GENRE_IDS = [
+  10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10768, 37,
+];
+
+// Fallback: nombres en español por si falla la API de géneros
 export const MOVIE_GENRES = [
-  { id: 28, name: "Acción", slug: "accion" },
-  { id: 12, name: "Aventura", slug: "aventura" },
-  { id: 16, name: "Animación", slug: "animacion" },
-  { id: 35, name: "Comedia", slug: "comedia" },
-  { id: 80, name: "Crimen", slug: "crimen" },
-  { id: 99, name: "Documental", slug: "documental" },
-  { id: 18, name: "Drama", slug: "drama" },
-  { id: 10751, name: "Familia", slug: "familia" },
-  { id: 14, name: "Fantasía", slug: "fantasia" },
-  { id: 36, name: "Historia", slug: "historia" },
-  { id: 27, name: "Terror", slug: "terror" },
-  { id: 10402, name: "Música", slug: "musica" },
-  { id: 9648, name: "Misterio", slug: "misterio" },
-  { id: 10749, name: "Romance", slug: "romance" },
-  { id: 878, name: "Ciencia ficción", slug: "ciencia-ficcion" },
-  { id: 53, name: "Suspenso", slug: "suspenso" },
-  { id: 10752, name: "Bélica", slug: "belica" },
-  { id: 37, name: "Western", slug: "western" },
+  { id: 28, name: "Acción" },
+  { id: 12, name: "Aventura" },
+  { id: 16, name: "Animación" },
+  { id: 35, name: "Comedia" },
+  { id: 80, name: "Crimen" },
+  { id: 99, name: "Documental" },
+  { id: 18, name: "Drama" },
+  { id: 10751, name: "Familia" },
+  { id: 14, name: "Fantasía" },
+  { id: 36, name: "Historia" },
+  { id: 27, name: "Terror" },
+  { id: 10402, name: "Música" },
+  { id: 9648, name: "Misterio" },
+  { id: 10749, name: "Romance" },
+  { id: 878, name: "Ciencia ficción" },
+  { id: 53, name: "Suspenso" },
+  { id: 10752, name: "Bélica" },
+  { id: 37, name: "Western" },
 ];
 
 export const TV_GENRES = [
-  { id: 10759, name: "Acción y Aventura", slug: "accion-aventura" },
-  { id: 16, name: "Animación", slug: "animacion" },
-  { id: 35, name: "Comedia", slug: "comedia" },
-  { id: 80, name: "Crimen", slug: "crimen" },
-  { id: 99, name: "Documental", slug: "documental" },
-  { id: 18, name: "Drama", slug: "drama" },
-  { id: 10751, name: "Familia", slug: "familia" },
-  { id: 10762, name: "Kids", slug: "kids" },
-  { id: 9648, name: "Misterio", slug: "misterio" },
-  { id: 10763, name: "Noticias", slug: "noticias" },
-  { id: 10764, name: "Reality", slug: "reality" },
-  { id: 10765, name: "Sci-Fi & Fantasy", slug: "sci-fi-fantasy" },
-  { id: 10768, name: "Bélica & Política", slug: "belica-politica" },
-  { id: 37, name: "Western", slug: "western" },
+  { id: 10759, name: "Acción y Aventura" },
+  { id: 16, name: "Animación" },
+  { id: 35, name: "Comedia" },
+  { id: 80, name: "Crimen" },
+  { id: 99, name: "Documental" },
+  { id: 18, name: "Drama" },
+  { id: 10751, name: "Familia" },
+  { id: 10762, name: "Kids" },
+  { id: 9648, name: "Misterio" },
+  { id: 10763, name: "Noticias" },
+  { id: 10764, name: "Reality" },
+  { id: 10765, name: "Sci-Fi & Fantasy" },
+  { id: 10768, name: "Bélica & Política" },
+  { id: 37, name: "Western" },
 ];

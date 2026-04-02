@@ -15,6 +15,11 @@ import {
 } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
+// ─── Cookie helpers ───────────────────────────────────────────────────────────
+// El middleware de Next.js no puede acceder al SDK de Firebase (Edge Runtime),
+// así que usamos una cookie liviana como señal de autenticación.
+// La seguridad real de los datos sigue siendo responsabilidad de Firestore Rules.
+
 const AUTH_COOKIE = "nextflix_auth";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 

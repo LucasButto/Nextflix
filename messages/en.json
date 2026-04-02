@@ -1,0 +1,120 @@
+{
+  "nav": {
+    "home": "Home",
+    "movies": "Movies",
+    "series": "Series",
+    "myList": "My List",
+    "search": "Search",
+    "guest": "Guest",
+    "logout": "Sign out"
+  },
+  "home": {
+    "top10Movies": "Top 10 Movies Today",
+    "top10Series": "Top 10 Series Today",
+    "popularMovies": "Popular Movies",
+    "nowPlaying": "Now Playing",
+    "popularSeries": "Popular Series",
+    "topRatedMovies": "Top Rated — Movies",
+    "topRatedSeries": "Top Rated — Series",
+    "metaTitle": "Nextflix — Movies & Series",
+    "metaDesc": "Discover trending movies and series. Your favorite streaming platform."
+  },
+  "movies": {
+    "metaTitle": "Movies — Nextflix",
+    "trendingWeek": "Trending This Week",
+    "top100": "Top 100 Movies — Best Rated"
+  },
+  "series": {
+    "metaTitle": "Series — Nextflix",
+    "trendingWeek": "Trending Series",
+    "top100": "Top 100 Series — Best Rated"
+  },
+  "detail": {
+    "recommendations": "Recommendations",
+    "cast": "Cast",
+    "whereToWatch": "Where to Watch",
+    "trailer": "Trailer",
+    "seasons": "{count, plural, one {# season} other {# seasons}}",
+    "minPerEp": "~{min} min/ep",
+    "upcoming": "Upcoming release",
+    "nextEpisode": "Next episode",
+    "movie": "Movie",
+    "series": "Series",
+    "metaMovieFallback": "Movie — Nextflix",
+    "metaSeriesFallback": "Series — Nextflix",
+    "upcomingToday": "Out today!",
+    "nextEpisodeToday": "Today!"
+  },
+  "watchlist": {
+    "add": "Add to my list",
+    "inList": "In your list",
+    "remove": "Remove",
+    "markWatched": "Mark as watched",
+    "watched": "Watched",
+    "markUnwatched": "Mark as unwatched"
+  },
+  "myList": {
+    "pageTitle": "My List — Nextflix",
+    "headingList": "My List",
+    "headingWatched": "Already watched",
+    "tabMyList": "My List",
+    "tabWatched": "Watched",
+    "emptyListTitle": "Your list is empty",
+    "emptyWatchedTitle": "You haven't marked anything as watched yet",
+    "emptyListSub": "Explore movies and series and add them to your list to watch later.",
+    "emptyWatchedSub": "When you finish watching something, mark it as watched from the movie or series page.",
+    "explore": "Explore",
+    "loginTitle": "Sign in to see your list",
+    "loginSub": "Save movies and series to watch later.",
+    "titles": "{count, plural, one {# title} other {# titles}}",
+    "movie": "Movie",
+    "series": "Series",
+    "removeItem": "Remove"
+  },
+  "search": {
+    "metaTitle": "Search — Nextflix",
+    "placeholder": "Search movies, series or actors...",
+    "hint": "Search movies, series or actors by name",
+    "noResults": "No results found for \"{query}\"",
+    "actor": "Actor",
+    "movie": "Movie",
+    "series": "Series"
+  },
+  "actor": {
+    "metaFallback": "Actor — Nextflix",
+    "born": "Born",
+    "died": "Died",
+    "birthplace": "Birthplace",
+    "knownFor": "Known for",
+    "filmographyMovies": "Filmography — Movies",
+    "filmographySeries": "Filmography — Series",
+    "years": "{count} years old"
+  },
+  "login": {
+    "welcome": "Welcome",
+    "subtitle": "Sign in with your Google account or continue as a guest to explore movies and series.",
+    "google": "Sign in with Google",
+    "guest": "Continue as guest",
+    "loading": "Loading..."
+  },
+  "hero": {
+    "trendingSeries": "📺 Trending Series",
+    "trendingMovie": "🎬 Trending Movie",
+    "viewDetails": "View Details",
+    "addToList": "+ My List",
+    "inList": "✓ In your list",
+    "removeFromList": "✕ Remove"
+  },
+  "carousel": {
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "trailer": {
+    "play": "Play trailer for {title}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "The page you're looking for doesn't exist or has been moved.",
+    "back": "Back to home"
+  }
+}

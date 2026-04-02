@@ -1,16 +1,16 @@
-import { tmdbFetch } from './tmdb';
+import { tmdbFetch } from "./tmdb";
 
-export async function searchMulti(query: string, page = 1) {
-  if (!query || query.trim() === '') return { results: [], total_pages: 0 };
-  return tmdbFetch('/search/multi', { query, page });
+export async function searchMulti(query: string, language?: string, page = 1) {
+  if (!query || query.trim() === "") return { results: [], total_pages: 0 };
+  return tmdbFetch("/search/multi", { query, page }, language);
 }
 
-export async function searchMovies(query: string, page = 1) {
+export async function searchMovies(query: string, language?: string, page = 1) {
   if (!query) return { results: [], total_pages: 0 };
-  return tmdbFetch('/search/movie', { query, page });
+  return tmdbFetch("/search/movie", { query, page }, language);
 }
 
-export async function searchSeries(query: string, page = 1) {
+export async function searchSeries(query: string, language?: string, page = 1) {
   if (!query) return { results: [], total_pages: 0 };
-  return tmdbFetch('/search/tv', { query, page });
+  return tmdbFetch("/search/tv", { query, page }, language);
 }

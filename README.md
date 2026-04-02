@@ -1,294 +1,350 @@
-# FutureWatch — Migración a Next.js
+# 🎬 Nextflix
 
-## 🧩 1. Análisis del Proyecto Original (Vite)
+Una plataforma de descubrimiento de películas y series inspirada en Netflix, construida con Next.js 16, React 19 y la API de TMDB.
 
-### Estructura original detectada
-
-```
-src/
-├── App.jsx                              → Componente raíz (routing por estado)
-├── App.css                              → Estilos globales mínimos
-├── main.jsx                             → Entry point con providers
-├── index.css                            → Reset + fuente Montserrat
-├── firebase/config.js                   → Firebase init (auth + firestore)
-├── contexts/
-│   ├── UserContext.jsx                  → Estado de usuario (localStorage)
-│   ├── AuthContext.jsx                  → Login Google con Firebase
-│   └── StatesContext.jsx                → Estado global (navbar, carousel, width)
-├── service/Movies.jsx                   → Llamadas a OMDB + TMDB
-├── helpers/mocks/
-│   ├── with-result.json                 → Mock hardcodeado (Avengers)
-│   └── no-results.json                  → Mock vacío
-└── components/
-    ├── Login/Login.jsx + .scss          → Pantalla de login
-    ├── Home/Home.jsx + .scss            → Página principal
-    ├── NavBar/NavBar.jsx + .scss        → Navegación
-    ├── CarouselMovies/CarouselMovies.jsx + .scss → Banner carousel
-    └── TopList/TopList.jsx + .scss      → Lista top (hardcodeada)
-```
-
-### Dependencias originales
-
-- React 18, Vite 5, SWC
-- Firebase 10 (auth + firestore)
-- MUI Material 5 (Avatar, Menu, MenuItem, Icons)
-- React Bootstrap (Carousel)
-- Sass
-
-### Lo que sirve ✅
-
-- Firebase config y autenticación Google
-- Estructura de contexts (concepto)
-- Servicio TMDB (getPopularMovies, getPopularSeries)
-- Diseño base del NavBar y Login
-- Fuente Montserrat como base tipográfica
-
-### Lo que debe reescribirse 🔄
-
-- **Routing**: De estado `navBar` a rutas reales de Next.js
-- **CarouselMovies**: De React Bootstrap a componente custom
-- **StatesContext**: Mezcla muchas responsabilidades → separar en hooks
-- **NavBar**: De MUI Menu/Avatar a componente custom (elimina MUI)
-- **TopList**: Completamente hardcodeado → datos dinámicos de TMDB
-- **Servicios**: API key expuesta → variables de entorno
-
-### Lo que se elimina 🗑️
-
-- OMDB API (getMovies con apikey `43c3103b`) → no se usa
-- Mock `with-result.json` / `no-results.json` → datos reales
-- MUI Material completo → diseño custom más liviano
-- React Bootstrap → carousel custom sin dependencia
-- `window.innerWidth` en useEffect dependency → hook `useWindowSize`
-
-### Bugs detectados y corregidos
-
-1. **StatesContext**: `useEffect` con `[window.innerWidth]` causa renders infinitos
-2. **CarouselMovies.scss**: `object-fit: fill` distorsiona imágenes → `cover`
-3. **Provider nesting**: `StatesProvider` envuelve `UserProvider`, pero `AuthProvider` necesita `UserContext` → reordenado
-4. **API keys en código fuente**: Movidas a `.env.local`
-5. **No hay manejo de errores** en llamadas API → `try/catch` con fallbacks
+![Nextflix](public/Logo.png)
 
 ---
 
-## 🔁 2. Guía de Migración: Vite → Next.js
+## 📋 Tabla de contenidos
 
-### Paso 1: Crear el proyecto
+- [Características](#-características)
+- [Stack tecnológico](#-stack-tecnológico)
+- [Estructura del proyecto](#-estructura-del-proyecto)
+- [Páginas y rutas](#-páginas-y-rutas)
+- [Configuración del entorno](#-configuración-del-entorno)
+- [Instalación y uso](#-instalación-y-uso)
+- [Internacionalización](#-internacionalización)
+- [Autenticación](#-autenticación)
+- [Watchlist y Ya vistas](#-watchlist-y-ya-vistas)
+- [Open Graph / SEO](#-open-graph--seo)
+- [Arquitectura de servicios](#-arquitectura-de-servicios)
 
-```bash
-npx create-next-app@14 futurewatch-next --js --no-tailwind --no-src-dir --eslint
-# O usar este proyecto directamente:
-cd futurewatch-next
-npm install
+---
+
+## ✨ Características
+
+### Contenido
+- **Hero Banner** rotativo con las películas y series más populares del día
+- **Carruseles** por categoría: Top 10, Populares, Mejor valoradas, En cartelera, por género
+- **Páginas de detalle** para películas y series con:
+  - Poster, backdrop, título, tagline, sinopsis
+  - Clasificación de contenido (ATP, TV-MA, R, +16, etc.)
+  - Rating, año, duración/temporadas, géneros
+  - Estado de la serie (En emisión / Finalizada / Cancelada)
+  - Próximo episodio o próximo estreno (con resaltado especial si es hoy)
+  - Dónde ver (plataformas de streaming disponibles por región)
+  - Trailer de YouTube integrado con click-to-play
+  - Reparto (top 20 actores con foto y personaje)
+  - Recomendaciones y colecciones relacionadas
+- **Página de actor** con biografía, datos, filmografía de películas y series
+- **Buscador** en tiempo real con debounce de películas, series y actores — ordenado por relevancia de TMDB
+
+### Cuenta y listas
+- Login con Google (Firebase Auth)
+- Modo invitado con watchlist local en `localStorage`
+- **Tu Lista** — guardá películas y series para ver después (sincronizado en Firestore)
+- **Ya vistas** — marcá contenido como visto
+
+### UX / UI
+- Diseño oscuro estilo Netflix con colores de marca
+- Skeleton loading en todas las páginas (sin spinners)
+- View Transitions API para navegación fluida entre páginas
+- Skeleton con animación shimmer
+- Scroll to top automático en cambio de ruta
+- Badge de tipo (Película / Serie) en páginas de detalle
+- Filtro de script no-latino (excluye contenido con posters en coreano, árabe, etc.)
+- Imágenes con fade-in progresivo
+
+### Internacionalización
+- Soporte para **Español latino (es-MX)** e **Inglés (en-US)**
+- Switcher de idioma tipo toggle en la navbar
+- Todos los textos de la API de TMDB se obtienen en el idioma activo
+- URLs localizadas: `/` para español (default), `/en/` para inglés
+
+### SEO y Open Graph
+- Open Graph images dinámicas para películas y series (backdrop + poster + info)
+- OG image estática para home y listados
+- `generateMetadata` con `openGraph` y `twitter` en todas las páginas de detalle
+- `metadataBase` configurable por variable de entorno
+
+### Seguridad
+- Middleware de autenticación (`proxy.ts`) protege `/my-list` para usuarios no logueados
+- Cookie `nextflix_auth` como señal de sesión para el middleware (Edge-compatible)
+- Firestore como fuente de verdad para datos del usuario
+
+---
+
+## 🛠 Stack tecnológico
+
+| Categoría | Tecnología |
+|---|---|
+| Framework | Next.js 16.2 (App Router) |
+| UI | React 19 |
+| Lenguaje | TypeScript 5 |
+| Estilos | SCSS + BEM |
+| Iconos | Material UI Icons v7 |
+| Auth | Firebase Authentication (Google) |
+| Base de datos | Firebase Firestore |
+| API de contenido | TMDB (The Movie Database) |
+| i18n | next-intl 4 |
+| OG Images | @vercel/og (ImageResponse) |
+
+---
+
+## 🗂 Estructura del proyecto
+
+```
+nextflix/
+├── messages/               # Traducciones
+│   ├── es.json             # Español latino
+│   └── en.json             # Inglés
+├── public/                 # Assets estáticos
+│   ├── Logo.png / Logo.svg
+│   ├── no-poster.svg
+│   └── no-avatar.svg
+└── src/
+    ├── app/
+    │   └── [locale]/       # Todas las rutas bajo el locale
+    │       ├── layout.tsx  # Layout principal con providers
+    │       ├── page.tsx    # Home
+    │       ├── opengraph-image.tsx
+    │       ├── movies/
+    │       │   ├── page.tsx
+    │       │   └── [id]/
+    │       │       ├── page.tsx
+    │       │       └── opengraph-image.tsx
+    │       ├── series/
+    │       │   ├── page.tsx
+    │       │   └── [id]/
+    │       │       ├── page.tsx
+    │       │       └── opengraph-image.tsx
+    │       ├── actor/[id]/
+    │       ├── search/
+    │       ├── my-list/
+    │       └── not-found.tsx
+    ├── components/
+    │   ├── auth/LoginGate/         # Pantalla de login
+    │   ├── home/HeroBanner/        # Slider hero rotativo
+    │   ├── layout/
+    │   │   ├── NavBar/             # Navegación principal
+    │   │   ├── LanguageSwitcher/   # Toggle ES/EN
+    │   │   ├── TransitionLink/     # Links con View Transitions
+    │   │   └── ScrollToTop/
+    │   ├── series/SeasonEpisodes/  # Selector de temporadas/episodios
+    │   └── shared/
+    │       ├── Carousel/           # Carrusel horizontal scrolleable
+    │       ├── CastCarousel/
+    │       ├── FadeImage/          # Next/Image con fade-in
+    │       ├── MediaCard/          # Card de película/serie
+    │       ├── TrailerPlayer/      # YouTube embed con thumbnail
+    │       ├── WatchlistButton/
+    │       └── WatchedButton/
+    ├── contexts/
+    │   ├── AuthContext.tsx         # Sesión y cookie de auth
+    │   ├── WatchlistContext.tsx    # Lista para ver (Firestore + localStorage)
+    │   └── WatchedContext.tsx      # Contenido ya visto
+    ├── firebase/config.ts          # Inicialización Firebase
+    ├── i18n/
+    │   ├── routing.ts              # Configuración de locales
+    │   └── request.ts              # next-intl server config
+    ├── navigation.ts               # Link/router/pathname locale-aware
+    ├── proxy.ts                    # Middleware: auth guard + intl routing
+    ├── services/
+    │   ├── tmdb.ts                 # tmdbFetch + tipos base + géneros
+    │   ├── tmdb-client.ts          # tmdbFetch para client components
+    │   ├── movies.ts               # Funciones de películas
+    │   ├── series.ts               # Funciones de series
+    │   ├── actors.ts               # Funciones de actores
+    │   └── search.ts               # Búsqueda multi
+    ├── styles/
+    │   ├── _variables.scss         # Colores, tipografía, mixins
+    │   ├── _skeletons.scss         # Skeletons de carga
+    │   ├── globals.scss
+    │   ├── detail.scss             # Estilos compartidos de detalle
+    │   └── pages/
+    │       ├── actor/
+    │       ├── search/
+    │       └── my-list/
+    ├── types/tmdb.ts               # Todos los tipos de TMDB
+    └── utils/
+        ├── dates.ts                # Formateo y comparación de fechas
+        ├── format.ts               # Runtime, episodios, etc.
+        └── media.ts                # getProviders, getCertification, getTrailerKey, etc.
 ```
 
-### Paso 2: Instalar dependencias
+---
 
-```bash
-npm install firebase sass
-npm install -D eslint eslint-config-next
+## 📄 Páginas y rutas
+
+| Ruta | Descripción |
+|---|---|
+| `/` | Home con hero banner y carruseles |
+| `/movies` | Listado de películas por género |
+| `/movies/[id]` | Detalle de película |
+| `/series` | Listado de series por género |
+| `/series/[id]` | Detalle de serie con episodios |
+| `/actor/[id]` | Perfil y filmografía de actor |
+| `/search` | Búsqueda de películas, series y actores |
+| `/my-list` | Watchlist personal (requiere login) |
+| `/en/*` | Versión en inglés de cualquier ruta |
+
+---
+
+## ⚙️ Configuración del entorno
+
+Creá un archivo `.env.local` en la raíz con las siguientes variables:
+
+```env
+# TMDB API
+NEXT_PUBLIC_TMDB_API_KEY=tu_api_key_de_tmdb
+
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
+# URL pública (para metadataBase y OG images en producción)
+NEXT_PUBLIC_SITE_URL=https://tu-dominio.com
 ```
 
-### Paso 3: Configurar paths y aliases
+### Obtener claves
 
-**jsconfig.json** (ya incluido):
+- **TMDB API Key**: registrate en [themoviedb.org](https://www.themoviedb.org/settings/api) → Configuración → API
+- **Firebase**: creá un proyecto en [console.firebase.google.com](https://console.firebase.google.com), habilitá Authentication (Google) y Firestore
 
-```json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+### Reglas de Firestore
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /watchlists/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /watched/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
 ```
 
-Reemplaza el alias `@` de Vite (`vite.config.js`) por el de Next.js.
-
-### Paso 4: Variables de entorno
-
-Mover API keys de código a `.env.local`:
-
-- `NEXT_PUBLIC_TMDB_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_*`
-
-En Vite se usa `import.meta.env`; en Next.js se usa `process.env`.
-
-### Paso 5: Transformación del código
-
-| Vite (antes)                         | Next.js (después)                        |
-| ------------------------------------ | ---------------------------------------- |
-| `src/main.jsx` (ReactDOM.createRoot) | `src/app/layout.js` (providers + layout) |
-| `src/App.jsx` (estado navBar)        | Eliminado → routing por carpetas         |
-| `src/App.css`                        | `src/styles/globals.scss`                |
-| `src/index.css`                      | Merged en `globals.scss`                 |
-| `index.html` (Bootstrap CDN)         | Eliminado → sin CDN externo              |
-| `src/components/Home/Home.jsx`       | `src/app/page.js` (Server Component)     |
-| `src/components/Login/Login.jsx`     | `src/components/auth/LoginGate/`         |
-| `src/components/NavBar/NavBar.jsx`   | `src/components/layout/NavBar/` (Link)   |
-| `src/contexts/StatesContext.jsx`     | Eliminado → hooks individuales           |
-| `src/contexts/UserContext.jsx`       | Fusionado en `AuthContext.jsx`           |
-| `src/service/Movies.jsx`             | `src/services/movies.js` + `series.js`   |
-| CSS imports (`./Home.scss`)          | SCSS por componente (`./Home.scss` BEM)  |
-| React Bootstrap `<Carousel>`         | `src/components/shared/Carousel/`        |
-| MUI `<Avatar>`, `<Menu>`             | Componentes HTML/CSS custom              |
-
-### Paso 6: Routing
-
-| Ruta de la app   | Archivo Next.js                 | Antes                    |
-| ---------------- | ------------------------------- | ------------------------ |
-| `/`              | `src/app/page.js`               | `navBar === "Home"`      |
-| `/peliculas`     | `src/app/peliculas/page.js`     | `navBar === "Movies"`    |
-| `/series`        | `src/app/series/page.js`        | `navBar === "Series"`    |
-| `/tu-lista`      | `src/app/tu-lista/page.js`      | `navBar === "WatchList"` |
-| `/pelicula/[id]` | `src/app/pelicula/[id]/page.js` | No existía               |
-| `/serie/[id]`    | `src/app/serie/[id]/page.js`    | No existía               |
-| `/actor/[id]`    | `src/app/actor/[id]/page.js`    | No existía               |
-| `/buscar`        | `src/app/buscar/page.js`        | No existía               |
-
 ---
 
-## 📁 Estructura Final del Proyecto
-
-```
-futurewatch-next/
-├── .env.local                    ← Variables de entorno (API keys)
-├── .gitignore
-├── jsconfig.json                 ← Alias @/ → src/
-├── next.config.js                ← Config de imágenes remotas + env
-├── package.json
-│
-├── public/
-│   ├── no-poster.svg             ← Placeholder para posters
-│   └── no-avatar.svg             ← Placeholder para actores
-│
-└── src/
-    ├── app/                      ← RUTAS (App Router)
-    │   ├── layout.js             ← Layout raíz + Providers
-    │   ├── page.js               ← HOME (Server Component)
-    │   ├── loading.js            ← Loading global
-    │   ├── not-found.js          ← 404 custom
-    │   ├── peliculas/page.js     ← PELÍCULAS por género
-    │   ├── series/page.js        ← SERIES por género
-    │   ├── tu-lista/
-    │   │   ├── page.js           ← TU LISTA (Client)
-    │   │   └── watchlist.module.scss
-    │   ├── buscar/
-    │   │   ├── page.js           ← BÚSQUEDA (Client)
-    │   │   └── search.module.scss
-    │   ├── pelicula/[id]/page.js ← DETALLE PELÍCULA
-    │   ├── serie/[id]/page.js    ← DETALLE SERIE
-    │   └── actor/[id]/
-    │       ├── page.js           ← PÁGINA ACTOR
-    │       └── actor.module.scss
-    │
-    ├── components/
-    │   ├── auth/
-    │   │   └── LoginGate/        ← Login + Gate de autenticación
-    │   ├── home/
-    │   │   └── HeroBanner/       ← Banner hero con slideshow
-    │   ├── layout/
-    │   │   └── NavBar/           ← Navegación principal
-    │   ├── series/
-    │   │   └── SeasonEpisodes/   ← Selector de temporadas/episodios
-    │   └── shared/
-    │       ├── Carousel/         ← Carrusel horizontal reutilizable
-    │       ├── MediaCard/        ← Card para películas/series
-    │       └── WatchlistButton/  ← Botón "Agregar a mi lista"
-    │
-    ├── contexts/
-    │   ├── AuthContext.jsx       ← Auth Firebase + guest mode
-    │   └── WatchlistContext.jsx  ← Watchlist con Firestore + localStorage
-    │
-    ├── hooks/
-    │   └── useFetch.js           ← useFetch, useDebounce, useWindowSize
-    │
-    ├── services/
-    │   ├── tmdb.js               ← Config base, cache, helpers de imágenes
-    │   ├── movies.js             ← Endpoints de películas
-    │   ├── series.js             ← Endpoints de series
-    │   ├── actors.js             ← Endpoints de actores
-    │   └── search.js             ← Búsqueda multi
-    │
-    ├── firebase/
-    │   └── config.js             ← Firebase init
-    │
-    └── styles/
-        ├── _variables.scss       ← Variables, mixins, breakpoints
-        ├── globals.scss          ← Reset + estilos globales
-        └── detail.module.scss    ← Estilos compartidos de detalle
-```
-
----
-
-## 🚀 Cómo Ejecutar
+## 🚀 Instalación y uso
 
 ```bash
-cd futurewatch-next
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/nextflix.git
+cd nextflix
+
+# Instalar dependencias
 npm install
+
+# Desarrollo (usa webpack por compatibilidad con next-intl)
 npm run dev
-```
 
-Abrir `http://localhost:3000`
-
-### Build de producción
-
-```bash
+# Build de producción
 npm run build
+
+# Servidor de producción
 npm start
 ```
 
----
-
-## 🎨 Cambios de Diseño (estilo Netflix)
-
-| Elemento       | Antes             | Después                                    |
-| -------------- | ----------------- | ------------------------------------------ |
-| Tipografía     | Solo Montserrat   | Bebas Neue (títulos) + DM Sans (cuerpo)    |
-| Color primario | `#ad65e0` (claro) | `#a855f7` (vibrante, con glow effect)      |
-| Fondo          | `#121212`         | `#0a0a0a` (más oscuro, más contraste)      |
-| Navbar         | Gradient simple   | Glass effect con blur + scroll detection   |
-| Cards          | Básicas sin hover | Scale + shadow + glow en hover             |
-| Carousel       | React Bootstrap   | Custom con flechas glass, scroll suave     |
-| Hero banner    | Carousel simple   | Fullscreen con gradient overlay + autoplay |
-| Top 10         | Hardcodeado       | Números stroke con glow purple             |
-| Loading        | Ninguno           | Shimmer skeletons + spinners               |
-| Transiciones   | Mínimas           | fadeInUp, slideInRight, scale en hover     |
+> **Nota**: El servidor de desarrollo con Turbopack no es compatible con next-intl en esta versión. Usá `--webpack` (ya configurado en el script `dev`).
 
 ---
 
-## 📡 API (TMDB) — Endpoints Utilizados
+## 🌍 Internacionalización
 
-| Servicio    | Endpoint                              | Uso                         |
-| ----------- | ------------------------------------- | --------------------------- |
-| `movies.js` | `/trending/movie/{day\|week}`         | Top 10, Hero                |
-| `movies.js` | `/movie/popular`                      | Carousel popular            |
-| `movies.js` | `/movie/top_rated`                    | Mejor valoradas             |
-| `movies.js` | `/movie/now_playing`                  | En cartelera                |
-| `movies.js` | `/discover/movie?with_genres=X`       | Películas por género        |
-| `movies.js` | `/movie/{id}?append_to_response=...`  | Detalle completo            |
-| `series.js` | `/trending/tv/{day\|week}`            | Top 10 series, Hero         |
-| `series.js` | `/tv/popular`                         | Series populares            |
-| `series.js` | `/discover/tv?with_genres=X`          | Series por género           |
-| `series.js` | `/tv/{id}?append_to_response=...`     | Detalle completo            |
-| `series.js` | `/tv/{id}/season/{n}`                 | Episodios de temporada      |
-| `actors.js` | `/person/{id}?append_to_response=...` | Detalle actor + filmografía |
-| `search.js` | `/search/multi`                       | Búsqueda global             |
+El proyecto usa **next-intl 4** con la configuración `localePrefix: "as-needed"`:
 
-Todos los endpoints pasan por `tmdbFetch()` en `tmdb.js` que:
+- **`/`** → Español latino (locale por defecto, sin prefijo en la URL)
+- **`/en/`** → Inglés americano
 
-- Agrega `api_key` y `language=es-ES` automáticamente
-- Cachea respuestas por 10 minutos en memoria
-- Usa `next: { revalidate: 600 }` para ISR de Next.js
+El switcher de idioma en la navbar alterna entre los dos idiomas manteniendo la ruta actual.
+
+La API de TMDB se consulta en el idioma activo:
+- Español → `es-MX`
+- Inglés → `en-US`
+
+Los archivos de traducción están en `messages/es.json` y `messages/en.json` con los namespaces: `nav`, `home`, `movies`, `series`, `detail`, `watchlist`, `myList`, `search`, `actor`, `login`, `hero`, `carousel`, `trailer`, `notFound`.
 
 ---
 
-## 🧠 13. Sugerencias Adicionales
+## 🔐 Autenticación
 
-1. **Server Actions para watchlist**: Usar Server Actions de Next.js para operaciones de Firestore más seguras
-2. **Infinite scroll**: Agregar paginación infinita en las páginas de género
-3. **PWA**: Agregar manifest.json y service worker para instalación nativa
-4. **Internacionalización**: Soporte multi-idioma con `next-intl`
-5. **OG Images**: Generar imágenes de Open Graph dinámicas para compartir en redes
-6. **Analytics**: Integrar Firebase Analytics o Vercel Analytics
-7. **Dark/Light mode**: Toggle de tema con CSS variables
-8. **Testing**: Agregar tests con Jest + React Testing Library
-9. **Rate limiting**: Implementar rate limiting en las llamadas a TMDB para evitar bloqueos
+El sistema de auth tiene tres estados:
+
+| Estado | Acceso | Lista |
+|---|---|---|
+| Sin sesión | Solo lectura | — |
+| Invitado | Completo | `localStorage` |
+| Logueado (Google) | Completo + `/my-list` | Firestore |
+
+El middleware (`proxy.ts`) protege la ruta `/my-list` verificando la cookie `nextflix_auth`. Esta cookie se setea al loguear con Google y se elimina al cerrar sesión.
+
+---
+
+## 📋 Watchlist y Ya vistas
+
+Ambas listas se sincronizan automáticamente con Firestore para usuarios logueados y con `localStorage` para invitados. La estructura en Firestore:
+
+```
+watchlists/{uid}/
+  items: [{ id, media_type, title, poster_path, vote_average, added_at }]
+
+watched/{uid}/
+  items: [{ id, media_type, title, poster_path, vote_average, added_at }]
+```
+
+---
+
+## 🖼 Open Graph / SEO
+
+Se generan imágenes OG dinámicas para cada película y serie usando `ImageResponse` de Next.js:
+
+- **`/movies/[id]/opengraph-image`** — backdrop + poster + título + rating + año + tagline + clasificación + plataformas de streaming + logo
+- **`/series/[id]/opengraph-image`** — igual que películas + temporadas
+- **`/opengraph-image`** — imagen estática de la plataforma (localizada ES/EN)
+
+Para producción, configurá `NEXT_PUBLIC_SITE_URL` para que los meta tags usen la URL correcta.
+
+---
+
+## 🔧 Arquitectura de servicios
+
+### `tmdb.ts` (server-side)
+
+- `tmdbFetch<T>(endpoint, params, languageOverride?)` — fetch genérico con caché en memoria (10 min TTL), detección automática de locale via next-intl
+- `filterLatinScript(items)` — filtra contenido con scripts no-latinos para mejorar la calidad de los posters
+- Constantes de géneros para películas (`MOVIE_GENRE_IDS`) y series (`TV_GENRE_IDS`)
+
+### `tmdb-client.ts` (client-side)
+
+- `tmdbClientFetch<T>(endpoint, locale, params)` — versión sin `next-intl/server` para usar en client components, recibe el locale explícitamente
+
+### Servicios de películas (`movies.ts`)
+
+`getTrendingMovies` · `getPopularMovies` · `getTopRatedMovies` · `getNowPlayingMovies` · `getUpcomingMovies` · `getTop100Movies` · `getMoviesByGenre` · `getMovieDetails` · `getCollectionDetails` · `getMovieGenreList`
+
+### Servicios de series (`series.ts`)
+
+`getTrendingSeries` · `getPopularSeries` · `getTopRatedSeries` · `getAiringTodaySeries` · `getOnTheAirSeries` · `getTop100Series` · `getSeriesByGenre` · `getSeriesDetails` · `getSeasonDetails` · `getTVGenreList`
+
+### Utilidades (`utils/`)
+
+- **`dates.ts`**: `formatDate` · `formatSpanishDate` · `isUpcoming` · `isToday` · `extractYear` · `calculateAge`
+- **`format.ts`**: `formatRuntime` · `formatEpCode`
+- **`media.ts`**: `getProviders` · `getTrailerKey` · `getCertification` · `getSeriesStatusInfo` · `getSeriesYearDisplay`
+
+---
+
+## 📝 Licencia
+
+Proyecto personal de uso educativo. Los datos de películas y series son provistos por [TMDB](https://www.themoviedb.org/).
+
+> This product uses the TMDB API but is not endorsed or certified by TMDB.
