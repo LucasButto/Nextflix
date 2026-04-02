@@ -8,6 +8,7 @@ import { WatchedProvider } from "@/contexts/WatchedContext";
 import LoginGate from "@/components/auth/LoginGate/LoginGate";
 import NavBar from "@/components/layout/NavBar/NavBar";
 import ScrollToTop from "@/components/layout/ScrollToTop/ScrollToTop";
+import TimezoneSync from "@/components/layout/TimezoneSync/TimezoneSync";
 import { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
@@ -37,6 +38,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} data-scroll-behavior="smooth">
       <body>
+        <TimezoneSync />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <WatchlistProvider>

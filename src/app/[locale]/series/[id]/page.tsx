@@ -14,6 +14,7 @@ import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import { Link } from "@/navigation";
 import { formatSpanishDate, isToday } from "@/utils/dates";
 import { formatEpCode } from "@/utils/format";
+import { getUserTimezone } from "@/utils/timezone";
 import {
   getCertification,
   getProviders,
@@ -62,7 +63,10 @@ export default async function SerieDetailPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-  const t = await getTranslations("detail");
+  const [t, tz] = await Promise.all([
+    getTranslations("detail"),
+    getUserTimezone(),
+  ]);
 
   let series: SeriesDetails;
   try {
@@ -87,7 +91,7 @@ export default async function SerieDetailPage({
 
   const isReturning = series.status === "Returning Series";
   const nextEp = series.next_episode_to_air ?? null;
-  const todayEpisode = isToday(nextEp?.air_date);
+  const todayEpisode = isToday(nextEp?.air_date, tz);
 
   return (
     <div className="detail-page">
