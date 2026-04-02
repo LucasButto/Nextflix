@@ -472,8 +472,8 @@
   gap: 10px;
   margin-bottom: 18px;
   padding: 9px 16px;
-  background: rgba(70, 211, 105, 0.08);
-  border: 1px solid rgba(70, 211, 105, 0.22);
+  background: rgba(245, 197, 24, 0.08);
+  border: 1px solid rgba(245, 197, 24, 0.22);
   border-radius: 10px;
   font-size: 0.85rem;
   color: $text-secondary;
@@ -491,15 +491,15 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: $success;
+    background: $warning;
     flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(70, 211, 105, 0.7);
+    box-shadow: 0 0 6px rgba(245, 197, 24, 0.7);
     animation: pulse-dot 2s ease-in-out infinite;
   }
 
   &__label {
     font-weight: 600;
-    color: $success;
+    color: $warning;
     white-space: nowrap;
   }
 
@@ -548,16 +548,16 @@
   }
 
   &--today {
-    background: rgba(249, 115, 22, 0.1);
-    border-color: rgba(249, 115, 22, 0.3);
+    background: rgba(70, 211, 105, 0.1);
+    border-color: rgba(70, 211, 105, 0.3);
 
     .detail-next-episode__dot {
-      background: #f97316;
-      box-shadow: 0 0 6px rgba(249, 115, 22, 0.7);
+      background: $success;
+      box-shadow: 0 0 6px rgba(70, 211, 105, 0.7);
     }
 
     .detail-next-episode__label {
-      color: #f97316;
+      color: $success;
     }
   }
 }
@@ -615,11 +615,11 @@
   }
 
   &--today {
-    background: rgba(249, 115, 22, 0.1);
-    border-color: rgba(249, 115, 22, 0.35);
+    background: rgba(70, 211, 105, 0.1);
+    border-color: rgba(70, 211, 105, 0.35);
 
     .detail-upcoming-release__label {
-      color: #f97316;
+      color: $success;
     }
   }
 }

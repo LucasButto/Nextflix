@@ -42,10 +42,11 @@ export function formatSpanishDate(dateStr: string): string {
 export function isUpcoming(dateStr: string | null | undefined): boolean {
   if (!dateStr) return false;
   const [year, month, day] = dateStr.split("-").map(Number);
-  const release = new Date(Date.UTC(year, month - 1, day));
-  const todayUTC = new Date();
-  todayUTC.setUTCHours(0, 0, 0, 0);
-  return release >= todayUTC;
+  // Comparar en tiempo local para respetar la zona horaria del servidor/usuario
+  const release = new Date(year, month - 1, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return release >= today;
 }
 
 /**
@@ -78,8 +79,8 @@ export function isToday(dateStr: string | null | undefined): boolean {
   const [year, month, day] = dateStr.split("-").map(Number);
   const now = new Date();
   return (
-    year === now.getUTCFullYear() &&
-    month === now.getUTCMonth() + 1 &&
-    day === now.getUTCDate()
+    year === now.getFullYear() &&
+    month === now.getMonth() + 1 &&
+    day === now.getDate()
   );
 }
