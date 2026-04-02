@@ -82,14 +82,14 @@ export default async function HomePage() {
             />
           ))}
       </Carousel>
-      <Carousel title={t("popularMovies")}>
-        {popularMovies.map((m: Movie) => (
-          <MediaCard key={m.id} item={m} mediaType="movie" />
-        ))}
-      </Carousel>
       <Carousel title={t("nowPlaying")}>
         {nowPlaying.map((m: Movie) => (
           <MediaCard key={m.id} item={m} mediaType="movie" variant="wide" />
+        ))}
+      </Carousel>
+      <Carousel title={t("popularMovies")}>
+        {popularMovies.map((m: Movie) => (
+          <MediaCard key={m.id} item={m} mediaType="movie" />
         ))}
       </Carousel>
       <Carousel title={t("popularSeries")}>

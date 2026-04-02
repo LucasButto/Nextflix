@@ -46,7 +46,7 @@ function LoginScreen() {
     <div className="login-screen">
       <div className="login-screen__bg-overlay" />
       <div className="login-screen__card">
-        <Image src="/logo.png" alt="Logo" width={300} height={90} priority />
+        <Image src="/Logo.png" alt="Logo" width={300} height={90} priority />
         <h2 className="login-screen__heading">{t("welcome")}</h2>
         <p className="login-screen__sub">{t("subtitle")}</p>
         <div className="login-screen__buttons">
