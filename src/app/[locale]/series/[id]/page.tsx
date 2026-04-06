@@ -161,9 +161,11 @@ export default async function SerieDetailPage({
             <div
               className={`detail-next-episode${todayEpisode ? " detail-next-episode--today" : ""}`}
             >
-              <span className="detail-next-episode__dot" aria-hidden="true" />
-              <span className="detail-next-episode__label">
-                {todayEpisode ? t("nextEpisodeToday") : t("nextEpisode")}
+              <span className="detail-next-episode__dot-label">
+                <span className="detail-next-episode__dot" aria-hidden="true" />
+                <span className="detail-next-episode__label">
+                  {todayEpisode ? t("nextEpisodeToday") : t("nextEpisode")}
+                </span>
               </span>
               <span className="detail-next-episode__divider" aria-hidden="true">
                 /

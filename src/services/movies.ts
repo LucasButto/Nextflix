@@ -1,11 +1,23 @@
 import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
+import { getLocale } from "next-intl/server";
 import type { Movie, MovieDetails, CollectionDetails } from "@/types/tmdb";
 
 export async function getTrendingMovies(timeWindow: "day" | "week" = "day") {
-  const data = await tmdbFetch<TmdbListResponse<Movie>>(
-    `/trending/movie/${timeWindow}`,
+  const pages = await Promise.all(
+    [1, 2].map((page) =>
+      tmdbFetch<TmdbListResponse<Movie>>(`/trending/movie/${timeWindow}`, {
+        page,
+      })
+        .then((d) => filterLatinScript(d.results))
+        .catch(() => [] as Movie[]),
+    ),
   );
-  return filterLatinScript(data.results);
+  const seen = new Set<number>();
+  return pages.flat().filter((m) => {
+    if (seen.has(m.id)) return false;
+    seen.add(m.id);
+    return true;
+  });
 }
 
 export async function getPopularMovies(page = 1) {

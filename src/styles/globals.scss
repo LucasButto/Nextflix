@@ -14,11 +14,12 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: $bg-primary;
 }
 
 body {
   font-family: $font-body;
-  background-color: $bg-primary;
+  background: $bg-primary;
   color: $text-primary;
   min-height: 100vh;
   overflow-x: hidden;
@@ -72,17 +73,28 @@ textarea {
 }
 
 /* ─── Scrollbar ─── */
-::-webkit-scrollbar {
-  width: 6px;
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: $bg-primary;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: $bg-elevated;
+    border-radius: 3px;
+    &:hover {
+      background: $text-muted;
+    }
+  }
 }
-::-webkit-scrollbar-track {
-  background: $bg-primary;
-}
-::-webkit-scrollbar-thumb {
-  background: $bg-elevated;
-  border-radius: 3px;
-  &:hover {
-    background: $text-muted;
+
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  html {
+    scrollbar-width: none;
   }
 }
 
@@ -90,6 +102,7 @@ textarea {
 .page-container {
   min-height: 100vh;
   padding-top: $nav-height;
+  background: $bg-primary;
 }
 
 .section-title {

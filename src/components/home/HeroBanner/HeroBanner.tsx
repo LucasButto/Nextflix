@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { Link } from "@/navigation";
 import { backdropUrl, posterUrl } from "@/services/tmdb";
@@ -22,6 +22,11 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
   const { isLoggedIn } = useAuth();
 
+  // Touch swipe state
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const isSwiping = useRef(false);
+
   const goTo = useCallback(
     (idx: number) => {
       if (transitioning) return;
@@ -34,11 +39,51 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
     [transitioning],
   );
 
+  const goNext = useCallback(() => {
+    goTo((current + 1) % items.length);
+  }, [current, items.length, goTo]);
+
+  const goPrev = useCallback(() => {
+    goTo((current - 1 + items.length) % items.length);
+  }, [current, items.length, goTo]);
+
   useEffect(() => {
     if (items.length <= 1) return;
-    const timer = setInterval(() => goTo((current + 1) % items.length), 7000);
+    const timer = setInterval(goNext, 7000);
     return () => clearInterval(timer);
-  }, [current, items.length, goTo]);
+  }, [items.length, goNext]);
+
+  // Touch handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isSwiping.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const deltaX = Math.abs(e.touches[0].clientX - touchStartX.current);
+    const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+    // If horizontal movement is dominant, mark as swiping
+    if (deltaX > deltaY && deltaX > 10) {
+      isSwiping.current = true;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isSwiping.current) return;
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      const SWIPE_THRESHOLD = 50;
+      if (Math.abs(deltaX) >= SWIPE_THRESHOLD) {
+        if (deltaX < 0) {
+          goNext();
+        } else {
+          goPrev();
+        }
+      }
+    },
+    [goNext, goPrev],
+  );
 
   if (!items.length)
     return <div className="hero-banner hero-banner--skeleton" />;
@@ -56,9 +101,14 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
   const [hoveringBtn, setHoveringBtn] = useState(false);
 
   return (
-    <section className="hero-banner">
+    <section
+      className="hero-banner"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {items.map((slide, i) => {
-        const bgUrl = backdropUrl(slide.backdrop_path);
+        const bgUrl = backdropUrl(slide.backdrop_path, "original");
         const pUrl = posterUrl(slide.poster_path, "lg");
         const slideTitle = ("title" in slide ? slide.title : slide.name) ?? "";
         const isActive = i === current;

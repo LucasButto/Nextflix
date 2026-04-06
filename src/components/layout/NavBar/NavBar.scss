@@ -105,6 +105,17 @@
     height: 40px;
     color: $text-secondary;
     transition: color 0.2s;
+
+    svg {
+      width: 26px;
+      height: 26px;
+
+      @include respond(md) {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
     &:hover {
       color: $text-primary;
     }
@@ -268,7 +279,7 @@
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-left: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: -12px 0 48px rgba(0, 0, 0, 0.6);
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     padding: $nav-height 1.5rem 1.5rem;
@@ -282,6 +293,7 @@
 
     &--open {
       transform: translateX(0);
+      box-shadow: -12px 0 48px rgba(0, 0, 0, 0.6);
     }
   }
 
