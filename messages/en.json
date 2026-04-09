@@ -43,7 +43,22 @@
     "metaMovieFallback": "Movie — Nextflix",
     "metaSeriesFallback": "Series — Nextflix",
     "upcomingToday": "Out today!",
-    "nextEpisodeToday": "Today!"
+    "nextEpisodeToday": "Today!",
+    "funFacts": "Quick Facts",
+    "factDirector": "Director",
+    "factWriter": "Writer",
+    "factBudget": "Budget",
+    "factRevenue": "Box Office",
+    "factROI": "Return",
+    "factOriginalTitle": "Original Title",
+    "factCountry": "Country",
+    "factLanguages": "Languages",
+    "factProduction": "Production",
+    "factVotes": "TMDB Votes",
+    "factCreatedBy": "Created By",
+    "factNetwork": "Network",
+    "factEpisodes": "Total Episodes",
+    "factType": "Type"
   },
   "watchlist": {
     "add": "Add to my list",

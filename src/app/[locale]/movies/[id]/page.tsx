@@ -10,6 +10,7 @@ import Carousel from "@/components/shared/Carousel/Carousel";
 import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
+import FunFacts from "@/components/shared/FunFacts/FunFacts";
 import { Link } from "@/navigation";
 import {
   formatSpanishDate,
@@ -19,6 +20,7 @@ import {
 } from "@/utils/dates";
 import { formatRuntime } from "@/utils/format";
 import { getProviders, getTrailerKey, getCertification } from "@/utils/media";
+import { buildMovieFunFacts } from "@/utils/funFacts";
 import { getUserTimezone } from "@/utils/timezone";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
@@ -102,6 +104,7 @@ export default async function PeliculaDetailPage({
   const collectionIds = new Set(collectionMovies.map((m) => m.id));
   const filteredRecs = regularRecs.filter((m) => !collectionIds.has(m.id));
   const recommendations = [...collectionMovies, ...filteredRecs].slice(0, 15);
+  const funFacts = buildMovieFunFacts(movie, t);
 
   return (
     <div className="detail-page">
@@ -244,6 +247,8 @@ export default async function PeliculaDetailPage({
           <TrailerPlayer videoKey={trailerKey} title={movie.title} />
         </div>
       )}
+
+      <FunFacts title={t("funFacts")} facts={funFacts} />
 
       {recommendations.length > 0 && (
         <Carousel title={t("recommendations")}>

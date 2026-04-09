@@ -4,6 +4,9 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 
 ![Nextflix](public/Logo.png)
 
+>[!NOTE]
+> Puedes visualizar una version de este proyecto en [Nextflix-Web](https://nextflix-web.vercel.app/).
+
 ---
 
 ## 📋 Tabla de contenidos
