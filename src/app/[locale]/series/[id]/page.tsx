@@ -11,6 +11,7 @@ import SeasonEpisodes from "@/components/series/SeasonEpisodes/SeasonEpisodes";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
+import FunFacts from "@/components/shared/FunFacts/FunFacts";
 import { Link } from "@/navigation";
 import { formatSpanishDate, isToday } from "@/utils/dates";
 import { formatEpCode } from "@/utils/format";
@@ -22,6 +23,7 @@ import {
   getSeriesYearDisplay,
   getTrailerKey,
 } from "@/utils/media";
+import { buildSeriesFunFacts } from "@/utils/funFacts";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
   SeriesDetails,
@@ -92,6 +94,7 @@ export default async function SerieDetailPage({
   const isReturning = series.status === "Returning Series";
   const nextEp = series.next_episode_to_air ?? null;
   const todayEpisode = isToday(nextEp?.air_date, tz);
+  const funFacts = buildSeriesFunFacts(series, t);
 
   return (
     <div className="detail-page">
@@ -256,6 +259,8 @@ export default async function SerieDetailPage({
           <TrailerPlayer videoKey={trailerKey} title={series.name} />
         </div>
       )}
+
+      <FunFacts title={t("funFacts")} facts={funFacts} />
 
       {series.seasons?.length > 0 && (
         <SeasonEpisodes seriesId={series.id} seasons={series.seasons} />

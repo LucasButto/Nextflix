@@ -135,6 +135,30 @@ export interface ContentRatings {
   results: ContentRatingEntry[];
 }
 
+export interface SpokenLanguage {
+  iso_639_1: string;
+  english_name: string;
+  name: string;
+}
+
+export interface ProductionCountry {
+  iso_3166_1: string;
+  name: string;
+}
+
+export interface NetworkInfo {
+  id: number;
+  name: string;
+  logo_path: string | null;
+  origin_country: string;
+}
+
+export interface CreatedBy {
+  id: number;
+  name: string;
+  profile_path: string | null;
+}
+
 export interface MovieDetails extends Movie {
   runtime: number;
   status: string;
@@ -147,6 +171,11 @@ export interface MovieDetails extends Movie {
   videos: Videos;
   recommendations: { results: Movie[] };
   release_dates?: ReleaseDates;
+  budget?: number;
+  revenue?: number;
+  production_countries?: ProductionCountry[];
+  spoken_languages?: SpokenLanguage[];
+  homepage?: string;
 }
 
 // ─── Series ───────────────────────────────────────────────────────────────────
@@ -209,6 +238,14 @@ export interface SeriesDetails extends Series {
   next_episode_to_air: Episode | null;
   last_episode_to_air: Episode | null;
   content_ratings?: ContentRatings;
+  created_by?: CreatedBy[];
+  networks?: NetworkInfo[];
+  production_countries?: ProductionCountry[];
+  production_companies?: ProductionCompany[];
+  spoken_languages?: SpokenLanguage[];
+  origin_country?: string[];
+  homepage?: string;
+  type?: string;
 }
 
 export interface SeasonDetails {
