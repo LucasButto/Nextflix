@@ -1,5 +1,4 @@
 import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
-import { getLocale } from "next-intl/server";
 import type { Movie, MovieDetails, CollectionDetails } from "@/types/tmdb";
 
 export async function getTrendingMovies(timeWindow: "day" | "week" = "day") {
@@ -48,23 +47,33 @@ export async function getUpcomingMovies(page = 1) {
   return filterLatinScript(data.results);
 }
 
+const TOP100_MOVIES_MIN_VOTES = 2000;
+
 export async function getTop100Movies() {
   const pages = await Promise.all(
-    [1, 2, 3, 4, 5, 6, 7, 8].map((page) =>
-      tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", { page }),
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((page) =>
+      tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", { page })
+        .then((d) => filterLatinScript(d.results))
+        .catch(() => [] as Movie[]),
     ),
   );
 
   const seen = new Set<number>();
   return pages
-    .flatMap((page) => page.results)
+    .flat()
     .filter((m) => {
       if (seen.has(m.id)) return false;
       seen.add(m.id);
-      return true;
+      return m.vote_count >= TOP100_MOVIES_MIN_VOTES;
+    })
+    .sort((a, b) => {
+      const ratingDiff =
+        Math.round(b.vote_average * 10) - Math.round(a.vote_average * 10);
+      return ratingDiff !== 0 ? ratingDiff : b.vote_count - a.vote_count;
     })
     .slice(0, 100);
 }
+
 export async function getMoviesByGenre(genreId: number, page = 1) {
   const data = await tmdbFetch<TmdbListResponse<Movie>>("/discover/movie", {
     with_genres: genreId,
@@ -84,6 +93,7 @@ export async function getMovieDetails(
     {
       append_to_response:
         "credits,watch/providers,videos,recommendations,release_dates",
+      include_video_language: "en,null",
     },
     language,
   );

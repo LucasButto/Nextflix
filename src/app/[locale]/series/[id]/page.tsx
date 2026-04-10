@@ -19,6 +19,7 @@ import { getUserTimezone } from "@/utils/timezone";
 import {
   getCertification,
   getProviders,
+  getProviderHomepage,
   getSeriesStatusInfo,
   getSeriesYearDisplay,
   getTrailerKey,
@@ -41,8 +42,17 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "detail" });
   try {
     const series = (await getSeriesDetails(id)) as SeriesDetails;
-    const title = `${series.name} — Nextflix`;
-    const description = series.overview?.slice(0, 200) ?? title;
+    const year = series.first_air_date?.slice(0, 4) ?? "";
+    const rating = series.vote_average
+      ? `⭐ ${series.vote_average.toFixed(1)}`
+      : "";
+    const meta = [year, rating].filter(Boolean).join(" · ");
+    const title = meta
+      ? `${series.name} (${meta}) — Nextflix`
+      : `${series.name} — Nextflix`;
+    const description =
+      series.overview?.slice(0, 155) +
+        (series.overview && series.overview.length > 155 ? "…" : "") || title;
     return {
       title,
       description,
@@ -78,7 +88,7 @@ export default async function SerieDetailPage({
   }
 
   const cast = series.credits?.cast?.slice(0, 20) ?? [];
-  const providers = getProviders(series);
+  const { providers, link: watchLink } = getProviders(series);
   const trailerKey = getTrailerKey(series.videos);
   const certification = getCertification(series);
   const recommendations = series.recommendations?.results?.slice(0, 15) ?? [];
@@ -210,18 +220,56 @@ export default async function SerieDetailPage({
         <div className="detail-providers-section">
           <h3 className="section-title">{t("whereToWatch")}</h3>
           <div className="detail-providers-list">
-            {providers.map((p: StreamingProvider) => (
-              <div key={p.provider_id} className="detail-provider-badge">
-                <Image
-                  src={`${IMG_BASE}/w45${p.logo_path}`}
-                  alt={p.provider_name}
+            {watchLink && (
+              <a
+                href={watchLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="detail-provider-badge detail-provider-badge"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/justwatch.svg"
+                  alt="JustWatch"
                   width={28}
                   height={28}
                   className="detail-provider-logo"
                 />
-                {p.provider_name}
-              </div>
-            ))}
+                JustWatch
+              </a>
+            )}
+            {providers.map((p: StreamingProvider) => {
+              const href = getProviderHomepage(p.provider_id);
+              return href ? (
+                <a
+                  key={p.provider_id}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="detail-provider-badge"
+                >
+                  <Image
+                    src={`${IMG_BASE}/w45${p.logo_path}`}
+                    alt={p.provider_name}
+                    width={28}
+                    height={28}
+                    className="detail-provider-logo"
+                  />
+                  {p.provider_name}
+                </a>
+              ) : (
+                <div key={p.provider_id} className="detail-provider-badge">
+                  <Image
+                    src={`${IMG_BASE}/w45${p.logo_path}`}
+                    alt={p.provider_name}
+                    width={28}
+                    height={28}
+                    className="detail-provider-logo"
+                  />
+                  {p.provider_name}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -260,11 +308,11 @@ export default async function SerieDetailPage({
         </div>
       )}
 
-      <FunFacts title={t("funFacts")} facts={funFacts} />
-
       {series.seasons?.length > 0 && (
         <SeasonEpisodes seriesId={series.id} seasons={series.seasons} />
       )}
+
+      <FunFacts title={t("funFacts")} facts={funFacts} />
 
       {recommendations.length > 0 && (
         <Carousel title={t("recommendations")}>

@@ -1,6 +1,11 @@
 import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
 import { getLocale } from "next-intl/server";
-import type { Series, SeriesDetails, SeasonDetails } from "@/types/tmdb";
+import type {
+  Series,
+  SeriesDetails,
+  SeasonDetails,
+  Videos,
+} from "@/types/tmdb";
 
 export async function getTrendingSeries(timeWindow: "day" | "week" = "day") {
   const pages = await Promise.all(
@@ -48,6 +53,8 @@ export async function getOnTheAirSeries(page = 1) {
   return filterLatinScript(data.results);
 }
 
+const TOP100_SERIES_MIN_VOTES = 1000;
+
 export async function getTop100Series() {
   const pages = await Promise.all(
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((page) =>
@@ -56,7 +63,21 @@ export async function getTop100Series() {
         .catch(() => [] as Series[]),
     ),
   );
-  return pages.flat().slice(0, 100);
+
+  const seen = new Set<number>();
+  return pages
+    .flat()
+    .filter((s) => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return s.vote_count >= TOP100_SERIES_MIN_VOTES;
+    })
+    .sort((a, b) => {
+      const ratingDiff =
+        Math.round(b.vote_average * 10) - Math.round(a.vote_average * 10);
+      return ratingDiff !== 0 ? ratingDiff : b.vote_count - a.vote_count;
+    })
+    .slice(0, 100);
 }
 
 export async function getSeriesByGenre(genreId: number, page = 1) {
@@ -78,6 +99,7 @@ export async function getSeriesDetails(
     {
       append_to_response:
         "credits,watch/providers,videos,recommendations,content_ratings",
+      include_video_language: "en,null",
     },
     language,
   );
@@ -90,14 +112,23 @@ export async function getSeasonDetails(
   return tmdbFetch<SeasonDetails>(`/tv/${seriesId}/season/${seasonNumber}`);
 }
 
+export async function getSeasonVideos(
+  seriesId: string | number,
+  seasonNumber: number,
+) {
+  return tmdbFetch<Videos>(
+    `/tv/${seriesId}/season/${seasonNumber}/videos`,
+    {},
+    "en-US",
+  );
+}
+
 // Overrides para nombres de géneros que TMDB no traduce correctamente en es-MX
 const TV_GENRE_NAME_OVERRIDES_ES: Record<number, string> = {
   10759: "Acción y Aventura",
   10765: "Ciencia Ficción y Fantasía",
   10768: "Bélica y Política",
 };
-
-const MOVIE_GENRE_NAME_OVERRIDES_ES: Record<number, string> = {};
 
 export async function getTVGenreList(): Promise<
   { id: number; name: string }[]

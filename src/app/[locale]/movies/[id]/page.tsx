@@ -10,6 +10,7 @@ import Carousel from "@/components/shared/Carousel/Carousel";
 import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
+import VideoGrid from "@/components/shared/VideoGrid/VideoGrid";
 import FunFacts from "@/components/shared/FunFacts/FunFacts";
 import { Link } from "@/navigation";
 import {
@@ -19,7 +20,12 @@ import {
   extractYear,
 } from "@/utils/dates";
 import { formatRuntime } from "@/utils/format";
-import { getProviders, getTrailerKey, getCertification } from "@/utils/media";
+import {
+  getProviders,
+  getProviderHomepage,
+  getTrailerKey,
+  getCertification,
+} from "@/utils/media";
 import { buildMovieFunFacts } from "@/utils/funFacts";
 import { getUserTimezone } from "@/utils/timezone";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
@@ -39,8 +45,17 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "detail" });
   try {
     const movie = (await getMovieDetails(id)) as MovieDetails;
-    const title = `${movie.title} — Nextflix`;
-    const description = movie.overview?.slice(0, 200) ?? title;
+    const year = movie.release_date?.slice(0, 4) ?? "";
+    const rating = movie.vote_average
+      ? `⭐ ${movie.vote_average.toFixed(1)}`
+      : "";
+    const meta = [year, rating].filter(Boolean).join(" · ");
+    const title = meta
+      ? `${movie.title} (${meta}) — Nextflix`
+      : `${movie.title} — Nextflix`;
+    const description =
+      movie.overview?.slice(0, 155) +
+        (movie.overview && movie.overview.length > 155 ? "…" : "") || title;
     return {
       title,
       description,
@@ -76,8 +91,11 @@ export default async function PeliculaDetailPage({
   }
 
   const cast = movie.credits?.cast?.slice(0, 20) ?? [];
-  const providers = getProviders(movie);
+  const { providers, link: watchLink } = getProviders(movie);
   const trailerKey = getTrailerKey(movie.videos);
+  const extraVideos = (movie.videos?.results ?? []).filter(
+    (v) => v.site === "YouTube" && v.key !== trailerKey,
+  );
   const certification = getCertification(movie);
   const year = extractYear(movie.release_date);
   const runtime = formatRuntime(movie.runtime ?? 0);
@@ -198,18 +216,56 @@ export default async function PeliculaDetailPage({
         <div className="detail-providers-section">
           <h3 className="section-title">{t("whereToWatch")}</h3>
           <div className="detail-providers-list">
-            {providers.map((p: StreamingProvider) => (
-              <div key={p.provider_id} className="detail-provider-badge">
-                <Image
-                  src={`${IMG_BASE}/w45${p.logo_path}`}
-                  alt={p.provider_name}
+            {watchLink && (
+              <a
+                href={watchLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="detail-provider-badge detail-provider-badge"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/justwatch.svg"
+                  alt="JustWatch"
                   width={28}
                   height={28}
                   className="detail-provider-logo"
                 />
-                {p.provider_name}
-              </div>
-            ))}
+                JustWatch
+              </a>
+            )}
+            {providers.map((p: StreamingProvider) => {
+              const href = getProviderHomepage(p.provider_id);
+              return href ? (
+                <a
+                  key={p.provider_id}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="detail-provider-badge"
+                >
+                  <Image
+                    src={`${IMG_BASE}/w45${p.logo_path}`}
+                    alt={p.provider_name}
+                    width={28}
+                    height={28}
+                    className="detail-provider-logo"
+                  />
+                  {p.provider_name}
+                </a>
+              ) : (
+                <div key={p.provider_id} className="detail-provider-badge">
+                  <Image
+                    src={`${IMG_BASE}/w45${p.logo_path}`}
+                    alt={p.provider_name}
+                    width={28}
+                    height={28}
+                    className="detail-provider-logo"
+                  />
+                  {p.provider_name}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -245,6 +301,12 @@ export default async function PeliculaDetailPage({
         <div className="detail-section">
           <h3 className="section-title">{t("trailer")}</h3>
           <TrailerPlayer videoKey={trailerKey} title={movie.title} />
+        </div>
+      )}
+
+      {extraVideos.length > 0 && (
+        <div className="detail-section">
+          <VideoGrid videos={extraVideos} title={t("videos")} />
         </div>
       )}
 

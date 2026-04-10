@@ -315,6 +315,19 @@
   border-radius: 10px;
   font-size: 0.8rem;
   font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: $text-primary;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+a.detail-provider-badge {
+  cursor: pointer;
 }
 
 .detail-provider-logo {
@@ -413,7 +426,7 @@
 
 .detail-episode-card {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   padding: 14px 18px;
   background: $bg-card;
   border-radius: $card-radius-lg;
@@ -422,18 +435,65 @@
   &:hover {
     background: $bg-elevated;
   }
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
-.detail-ep-number {
-  font-family: $font-display;
-  font-size: 1.8rem;
+.detail-ep-visual {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  @media (max-width: $bp-md) {
+    width: 100%;
+  }
+}
+
+.detail-ep-still {
+  flex-shrink: 0;
+  width: 110px;
+  height: 62px;
+  border-radius: $card-radius;
+  object-fit: cover;
+  display: block;
+  @include respond(md) {
+    width: 160px;
+    height: 90px;
+  }
+}
+
+.detail-ep-meta {
+  font-size: 0.72rem;
   color: $text-muted;
-  min-width: 40px;
-  line-height: 1;
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+
+  &--mobile {
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 2px;
+    @include respond(md) {
+      display: none;
+    }
+  }
+
+  &--desktop {
+    display: none;
+    margin-bottom: 6px;
+    @include respond(md) {
+      display: flex;
+    }
+  }
 }
 
 .detail-ep-info {
   flex: 1;
+  min-width: 0;
 }
 
 .detail-ep-title {
@@ -442,31 +502,14 @@
   margin-bottom: 4px;
 }
 
-.detail-ep-meta {
-  font-size: 0.75rem;
-  color: $text-muted;
-  margin-bottom: 6px;
-  display: flex;
-  gap: 10px;
-}
-
 .detail-ep-overview {
   font-size: 0.8rem;
   color: $text-secondary;
   line-height: 1.5;
   @include line-clamp(2);
-}
 
-.detail-ep-still {
-  flex-shrink: 0;
-  width: 160px;
-  height: 90px;
-  border-radius: $card-radius;
-  object-fit: cover;
-  display: none;
-  order: -1;
   @include respond(md) {
-    display: block;
+    @include line-clamp(3);
   }
 }
 

@@ -6,17 +6,60 @@ import type {
 import { extractYear } from "./dates";
 
 /**
- * Extracts the flatrate streaming providers for AR (fallback to US).
- * Works with both MovieDetails and SeriesDetails.
+ * Maps known TMDB provider IDs to their homepage URLs.
+ * Covers the most common platforms in AR/LATAM/US.
  */
-export function getProviders(
-  detail: MovieDetails | SeriesDetails,
-): StreamingProvider[] {
-  return (
-    detail["watch/providers"]?.results?.AR?.flatrate ??
-    detail["watch/providers"]?.results?.US?.flatrate ??
-    []
-  );
+const PROVIDER_HOMEPAGES: Record<number, string> = {
+  // Global
+  8: "https://www.netflix.com", // Netflix
+  9: "https://www.primevideo.com", // Amazon Prime Video
+  119: "https://www.primevideo.com", // Amazon Prime Video (AR)
+  337: "https://www.disneyplus.com", // Disney Plus
+  350: "https://tv.apple.com", // Apple TV Plus
+  384: "https://www.max.com", // HBO Max / Max
+  1899: "https://www.max.com", // Max
+  531: "https://www.paramountplus.com", // Paramount Plus
+  283: "https://www.crunchyroll.com", // Crunchyroll
+  2: "https://tv.apple.com", // Apple TV
+  3: "https://play.google.com/store/movies", // Google Play Movies
+  192: "https://www.youtube.com", // YouTube
+  15: "https://www.hulu.com", // Hulu
+  386: "https://www.peacocktv.com", // Peacock
+  387: "https://www.peacocktv.com", // Peacock Premium
+  // LATAM / AR
+  339: "https://www.movistarplay.com.ar", // Movistar Play
+  619: "https://www.starplus.com", // Star Plus
+  11: "https://mubi.com", // MUBI
+  307: "https://globoplay.globo.com", // Globoplay
+  31: "https://www.hbo.com", // HBO Go
+  1796: "https://www.netflix.com", // Netflix basic with Ads
+  1825: "https://www.max.com", // Max Amazon Channel
+  1853: "https://www.max.com", // Max Apple TV Channel
+};
+
+/**
+ * Returns the homepage URL for a streaming provider, or null if unknown.
+ */
+export function getProviderHomepage(providerId: number): string | null {
+  return PROVIDER_HOMEPAGES[providerId] ?? null;
+}
+
+/**
+ * Extracts the flatrate streaming providers, watch link, and provider homepages
+ * for AR (fallback to US). Works with both MovieDetails and SeriesDetails.
+ */
+export function getProviders(detail: MovieDetails | SeriesDetails): {
+  providers: StreamingProvider[];
+  link: string | null;
+} {
+  const region =
+    detail["watch/providers"]?.results?.AR ??
+    detail["watch/providers"]?.results?.US ??
+    null;
+  return {
+    providers: region?.flatrate ?? [],
+    link: region?.link ?? null,
+  };
 }
 
 interface StatusInfo {
