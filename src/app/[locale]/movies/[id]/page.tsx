@@ -45,8 +45,17 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "detail" });
   try {
     const movie = (await getMovieDetails(id)) as MovieDetails;
-    const title = `${movie.title} — Nextflix`;
-    const description = movie.overview?.slice(0, 200) ?? title;
+    const year = movie.release_date?.slice(0, 4) ?? "";
+    const rating = movie.vote_average
+      ? `⭐ ${movie.vote_average.toFixed(1)}`
+      : "";
+    const meta = [year, rating].filter(Boolean).join(" · ");
+    const title = meta
+      ? `${movie.title} (${meta}) — Nextflix`
+      : `${movie.title} — Nextflix`;
+    const description =
+      movie.overview?.slice(0, 155) +
+        (movie.overview && movie.overview.length > 155 ? "…" : "") || title;
     return {
       title,
       description,

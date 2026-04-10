@@ -30,20 +30,20 @@ export default async function Image({
   const title = series?.name ?? "Nextflix";
   const tagline = series?.tagline ?? "";
   const overview = series?.overview
-    ? series.overview.slice(0, 400) + (series.overview.length > 400 ? "…" : "")
+    ? series.overview.slice(0, 180) + (series.overview.length > 180 ? "…" : "")
     : "";
   const rating = series?.vote_average ? series.vote_average.toFixed(1) : null;
   const year = series?.first_air_date?.slice(0, 4) ?? null;
   const seasons = series?.number_of_seasons ?? null;
   const backdropSrc = series?.backdrop_path
-    ? backdropUrl(series.backdrop_path, "md")!
+    ? backdropUrl(series.backdrop_path, "sm")!
     : null;
   const posterSrc = series?.poster_path
-    ? posterUrl(series.poster_path, "md")
+    ? posterUrl(series.poster_path, "sm")
     : null;
 
   const providers: StreamingProvider[] = series
-    ? getProviders(series).slice(0, 5)
+    ? getProviders(series).providers.slice(0, 5)
     : [];
 
   return new ImageResponse(

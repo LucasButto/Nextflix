@@ -31,19 +31,19 @@ export default async function Image({
   const title = movie?.title ?? "Nextflix";
   const tagline = movie?.tagline ?? "";
   const overview = movie?.overview
-    ? movie.overview.slice(0, 400) + (movie.overview.length > 400 ? "…" : "")
+    ? movie.overview.slice(0, 180) + (movie.overview.length > 180 ? "…" : "")
     : "";
   const rating = movie?.vote_average ? movie.vote_average.toFixed(1) : null;
   const year = movie?.release_date?.slice(0, 4) ?? null;
   const backdropSrc = movie?.backdrop_path
-    ? backdropUrl(movie.backdrop_path, "md")!
+    ? backdropUrl(movie.backdrop_path, "sm")!
     : null;
   const posterSrc = movie?.poster_path
-    ? posterUrl(movie.poster_path, "md")
+    ? posterUrl(movie.poster_path, "sm")
     : null;
 
   const providers: StreamingProvider[] = movie
-    ? getProviders(movie).slice(0, 5)
+    ? getProviders(movie).providers.slice(0, 5)
     : [];
 
   return new ImageResponse(
