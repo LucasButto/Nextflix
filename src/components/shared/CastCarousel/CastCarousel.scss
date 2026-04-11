@@ -9,11 +9,14 @@
     overflow-x: auto;
     padding-top: 5px;
     padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
     @include scrollbar-hidden;
 
-    > * {
-      scroll-snap-align: start;
+    @include respond(md) {
+      scroll-snap-type: x proximity;
+
+      > * {
+        scroll-snap-align: start;
+      }
     }
   }
 
