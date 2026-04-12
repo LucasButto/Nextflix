@@ -16,6 +16,37 @@
   color: $text-muted;
 }
 
+/* ─── Secciones de películas/series ─── */
+.watchlist-section {
+  margin-bottom: 3rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    color: $text-primary;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: $accent-primary;
+      border-radius: 1px;
+    }
+  }
+}
+
 .watchlist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -38,7 +69,7 @@
 
   &__poster {
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
   }
 

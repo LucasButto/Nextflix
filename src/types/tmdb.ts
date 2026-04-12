@@ -290,6 +290,24 @@ export type PersonResult = Actor & { media_type: "person" };
 export type SearchResult = MovieResult | SeriesResult | PersonResult;
 export type HeroBannerItem = (Movie | Series) & { media_type?: string };
 
+// ─── My List ───────────────────────────────────────────────────────────────────
+
+export type BaseItem = {
+  id: number;
+  media_type: string;
+  title: string;
+  poster_path: string | null;
+  vote_average: number;
+};
+
+export type WatchlistItem = BaseItem & {
+  added_at: string;
+};
+
+export type WatchedItem = BaseItem & {
+  watched_at: string;
+};
+
 export interface SearchResponse {
   results: SearchResult[];
   total_pages: number;

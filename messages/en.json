@@ -86,7 +86,7 @@
     "loginTitle": "Sign in to see your list",
     "loginSub": "Save movies and series to watch later.",
     "titles": "{count, plural, one {# title} other {# titles}}",
-    "movie": "Movie",
+    "movies": "Movies",
     "series": "Series",
     "removeItem": "Remove"
   },
