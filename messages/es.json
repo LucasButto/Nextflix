@@ -86,8 +86,8 @@
     "loginTitle": "Iniciá sesión para ver tu lista",
     "loginSub": "Guardá películas y series para verlas después.",
     "titles": "{count, plural, one {# título} other {# títulos}}",
-    "movie": "Película",
-    "series": "Serie",
+    "movies": "Películas",
+    "series": "Series",
     "removeItem": "Quitar"
   },
   "search": {

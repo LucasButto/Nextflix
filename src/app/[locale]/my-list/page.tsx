@@ -12,6 +12,7 @@ import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import LibraryAddCheckOutlinedIcon from "@mui/icons-material/LibraryAddCheckOutlined";
 import "@/styles/pages/my-list/watchlist.scss";
+import { BaseItem } from "@/types/tmdb";
 
 const SKELETON_COUNT = 12;
 
@@ -77,7 +78,7 @@ export default function TuListaPage() {
       allItems.map(async (item) => {
         try {
           const endpoint =
-            item.media_type === "tv" ? `/tv/${item.id}` : `/movies/${item.id}`;
+            item.media_type === "tv" ? `/tv/${item.id}` : `/movie/${item.id}`;
           const data = await tmdbClientFetch<{
             id: number;
             title?: string;
@@ -104,7 +105,7 @@ export default function TuListaPage() {
       });
       setLocalizedData(map);
     });
-  }, [watchlistLoaded, watchedLoaded, locale]); // re-fetch si cambia el locale
+  }, [watchlistLoaded, watchedLoaded, locale, watchlist, watched]);
 
   if (!isLoggedIn && !isGuest) {
     return (
@@ -118,6 +119,71 @@ export default function TuListaPage() {
   if (!watchlistLoaded || !watchedLoaded) return <WatchlistSkeleton />;
 
   const activeItems = activeTab === "lista" ? watchlist : watched;
+  const movies = activeItems.filter((item) => item.media_type === "movie");
+  const series = activeItems.filter((item) => item.media_type === "tv");
+
+  const renderGrid = (
+    items: BaseItem[],
+    onRemove: (id: number, mediaType: string) => void,
+  ) => {
+    if (items.length === 0) return null;
+
+    return (
+      <div className="watchlist-grid">
+        {items.map((item, index) => {
+          const href =
+            item.media_type === "tv"
+              ? `/series/${item.id}`
+              : `/movies/${item.id}`;
+          const key = `${item.media_type}-${item.id}`;
+          const localized = localizedData.get(key);
+          const displayTitle = localized?.title ?? item.title;
+          const displayPoster = localized?.poster_path ?? item.poster_path;
+
+          return (
+            <div
+              key={`${activeTab}-${item.media_type}-${item.id}`}
+              className="watchlist-card"
+              style={{ animationDelay: `${index * 40}ms` }}
+            >
+              <Link href={href} className="watchlist-card__poster-link">
+                <FadeImage
+                  src={posterUrl(displayPoster, "md")}
+                  alt={displayTitle}
+                  width={200}
+                  height={300}
+                  className="watchlist-card__poster"
+                  loading="lazy"
+                />
+                <div className="watchlist-card__overlay">
+                  {item.vote_average > 0 && (
+                    <span className="watchlist-card__rating">
+                      ⭐ {item.vote_average.toFixed(1)}
+                    </span>
+                  )}
+                </div>
+              </Link>
+              <div className="watchlist-card__info">
+                <Link href={href} className="watchlist-card__title">
+                  {displayTitle}
+                </Link>
+                <button
+                  onClick={() => onRemove(item.id, item.media_type)}
+                  className="watchlist-card__remove"
+                >
+                  <DeleteForeverRoundedIcon className="watchlist-card__remove-icon" />
+                  {t("removeItem")}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const onRemove =
+    activeTab === "lista" ? removeFromWatchlist : removeFromWatched;
 
   return (
     <div className="watchlist-page">
@@ -177,60 +243,25 @@ export default function TuListaPage() {
           </Link>
         </div>
       ) : (
-        <div className="watchlist-grid">
-          {activeItems.map((item, index) => {
-            const href =
-              item.media_type === "tv"
-                ? `/series/${item.id}`
-                : `/movies/${item.id}`;
-            const key = `${item.media_type}-${item.id}`;
-            const localized = localizedData.get(key);
-            const displayTitle = localized?.title ?? item.title;
-            const displayPoster = localized?.poster_path ?? item.poster_path;
-            const onRemove =
-              activeTab === "lista"
-                ? () => removeFromWatchlist(item.id, item.media_type)
-                : () => removeFromWatched(item.id, item.media_type);
+        <>
+          {movies.length > 0 && (
+            <div className="watchlist-section">
+              <h2 className="watchlist-section__title">
+                {t("movies")} ({movies.length})
+              </h2>
+              {renderGrid(movies, onRemove)}
+            </div>
+          )}
 
-            return (
-              <div
-                key={`${activeTab}-${item.media_type}-${item.id}`}
-                className="watchlist-card"
-                style={{ animationDelay: `${index * 40}ms` }}
-              >
-                <Link href={href} className="watchlist-card__poster-link">
-                  <FadeImage
-                    src={posterUrl(displayPoster, "md")}
-                    alt={displayTitle}
-                    width={200}
-                    height={300}
-                    className="watchlist-card__poster"
-                    loading="lazy"
-                  />
-                  <div className="watchlist-card__overlay">
-                    <span className="watchlist-card__type">
-                      {item.media_type === "tv" ? t("series") : t("movie")}
-                    </span>
-                    {item.vote_average > 0 && (
-                      <span className="watchlist-card__rating">
-                        ⭐ {item.vote_average.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-                <div className="watchlist-card__info">
-                  <Link href={href} className="watchlist-card__title">
-                    {displayTitle}
-                  </Link>
-                  <button onClick={onRemove} className="watchlist-card__remove">
-                    <DeleteForeverRoundedIcon className="watchlist-card__remove-icon" />
-                    {t("removeItem")}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+          {series.length > 0 && (
+            <div className="watchlist-section">
+              <h2 className="watchlist-section__title">
+                {t("series")} ({series.length})
+              </h2>
+              {renderGrid(series, onRemove)}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
