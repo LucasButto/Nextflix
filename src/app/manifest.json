@@ -1,7 +1,25 @@
 {
-  "name": "Nextflix",
+  "name": "Nextflix — Películas y Series",
   "short_name": "Nextflix",
+  "description": "Descubrí películas y series en tendencia. Tu plataforma de streaming favorita.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020202",
+  "theme_color": "#e50914",
+  "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
@@ -15,7 +33,20 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#000000",
-  "display": "standalone"
+  "screenshots": [
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home page showing trending content"
+    },
+    {
+      "src": "/screenshots/detail-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Movie detail page"
+    }
+  ]
 }
