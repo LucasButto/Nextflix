@@ -1,7 +1,6 @@
 {
-  "name": "Nextflix — Películas y Series",
+  "name": "Nextflix",
   "short_name": "Nextflix",
-  "description": "Descubrí películas y series en tendencia. Tu plataforma de streaming favorita.",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -16,9 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "display": "standalone",
-  "start_url": "/",
-  "orientation": "portrait-primary"
+  "theme_color": "#ffffff",
+  "background_color": "#000000",
+  "display": "standalone"
 }

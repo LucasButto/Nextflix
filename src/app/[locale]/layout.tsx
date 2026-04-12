@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Nextflix",
+  },
+  applicationName: "Nextflix",
 };
 
 export default async function LocaleLayout({
