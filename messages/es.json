@@ -14,8 +14,6 @@
     "popularMovies": "Películas Populares",
     "nowPlaying": "En Cartelera",
     "popularSeries": "Series Populares",
-    "topRatedMovies": "Mejor Valoradas — Películas",
-    "topRatedSeries": "Mejor Valoradas — Series",
     "metaTitle": "Nextflix — Películas y Series",
     "metaDesc": "Descubrí películas y series en tendencia. Tu plataforma de streaming favorita."
   },
@@ -26,7 +24,7 @@
   },
   "series": {
     "metaTitle": "Series — Nextflix",
-    "trendingWeek": "Series en Tendencia",
+    "trendingWeek": "Tendencia Esta Semana",
     "top100": "Top 100 Series — Mejor Valoradas"
   },
   "detail": {

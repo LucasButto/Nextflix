@@ -14,8 +14,6 @@
     "popularMovies": "Popular Movies",
     "nowPlaying": "Now Playing",
     "popularSeries": "Popular Series",
-    "topRatedMovies": "Top Rated — Movies",
-    "topRatedSeries": "Top Rated — Series",
     "metaTitle": "Nextflix — Movies & Series",
     "metaDesc": "Discover trending movies and series. Your favorite streaming platform."
   },
@@ -26,7 +24,7 @@
   },
   "series": {
     "metaTitle": "Series — Nextflix",
-    "trendingWeek": "Trending Series",
+    "trendingWeek": "Trending This Week",
     "top100": "Top 100 Series — Best Rated"
   },
   "detail": {

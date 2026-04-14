@@ -4,7 +4,7 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 
 ![Nextflix](public/Logo.png)
 
->[!NOTE]
+> [!NOTE]
 > Puedes visualizar una version de este proyecto en [Nextflix-Web](https://nextflix-web.vercel.app/).
 
 ---
@@ -28,6 +28,7 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 ## ✨ Características
 
 ### Contenido
+
 - **Hero Banner** rotativo con las películas y series más populares del día
 - **Carruseles** por categoría: Top 10, Populares, Mejor valoradas, En cartelera, por género
 - **Páginas de detalle** para películas y series con:
@@ -44,12 +45,14 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 - **Buscador** en tiempo real con debounce de películas, series y actores — ordenado por relevancia de TMDB
 
 ### Cuenta y listas
+
 - Login con Google (Firebase Auth)
 - Modo invitado con watchlist local en `localStorage`
 - **Tu Lista** — guardá películas y series para ver después (sincronizado en Firestore)
 - **Ya vistas** — marcá contenido como visto
 
 ### UX / UI
+
 - Diseño oscuro estilo Netflix con colores de marca
 - Skeleton loading en todas las páginas (sin spinners)
 - View Transitions API para navegación fluida entre páginas
@@ -60,18 +63,21 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 - Imágenes con fade-in progresivo
 
 ### Internacionalización
+
 - Soporte para **Español latino (es-MX)** e **Inglés (en-US)**
 - Switcher de idioma tipo toggle en la navbar
 - Todos los textos de la API de TMDB se obtienen en el idioma activo
 - URLs localizadas: `/` para español (default), `/en/` para inglés
 
 ### SEO y Open Graph
+
 - Open Graph images dinámicas para películas y series (backdrop + poster + info)
 - OG image estática para home y listados
 - `generateMetadata` con `openGraph` y `twitter` en todas las páginas de detalle
 - `metadataBase` configurable por variable de entorno
 
 ### Seguridad
+
 - Middleware de autenticación (`proxy.ts`) protege `/my-list` para usuarios no logueados
 - Cookie `nextflix_auth` como señal de sesión para el middleware (Edge-compatible)
 - Firestore como fuente de verdad para datos del usuario
@@ -80,18 +86,18 @@ Una plataforma de descubrimiento de películas y series inspirada en Netflix, co
 
 ## 🛠 Stack tecnológico
 
-| Categoría | Tecnología |
-|---|---|
-| Framework | Next.js 16.2 (App Router) |
-| UI | React 19 |
-| Lenguaje | TypeScript 5 |
-| Estilos | SCSS + BEM |
-| Iconos | Material UI Icons v7 |
-| Auth | Firebase Authentication (Google) |
-| Base de datos | Firebase Firestore |
-| API de contenido | TMDB (The Movie Database) |
-| i18n | next-intl 4 |
-| OG Images | @vercel/og (ImageResponse) |
+| Categoría        | Tecnología                       |
+| ---------------- | -------------------------------- |
+| Framework        | Next.js 16.2 (App Router)        |
+| UI               | React 19                         |
+| Lenguaje         | TypeScript 5                     |
+| Estilos          | SCSS + BEM                       |
+| Iconos           | Material UI Icons v7             |
+| Auth             | Firebase Authentication (Google) |
+| Base de datos    | Firebase Firestore               |
+| API de contenido | TMDB (The Movie Database)        |
+| i18n             | next-intl 4                      |
+| OG Images        | @vercel/og (ImageResponse)       |
 
 ---
 
@@ -180,17 +186,17 @@ nextflix/
 
 ## 📄 Páginas y rutas
 
-| Ruta | Descripción |
-|---|---|
-| `/` | Home con hero banner y carruseles |
-| `/movies` | Listado de películas por género |
-| `/movies/[id]` | Detalle de película |
-| `/series` | Listado de series por género |
-| `/series/[id]` | Detalle de serie con episodios |
-| `/actor/[id]` | Perfil y filmografía de actor |
-| `/search` | Búsqueda de películas, series y actores |
-| `/my-list` | Watchlist personal (requiere login) |
-| `/en/*` | Versión en inglés de cualquier ruta |
+| Ruta           | Descripción                             |
+| -------------- | --------------------------------------- |
+| `/`            | Home con hero banner y carruseles       |
+| `/movies`      | Listado de películas por género         |
+| `/movies/[id]` | Detalle de película                     |
+| `/series`      | Listado de series por género            |
+| `/series/[id]` | Detalle de serie con episodios          |
+| `/actor/[id]`  | Perfil y filmografía de actor           |
+| `/search`      | Búsqueda de películas, series y actores |
+| `/my-list`     | Watchlist personal (requiere login)     |
+| `/en/*`        | Versión en inglés de cualquier ruta     |
 
 ---
 
@@ -271,6 +277,7 @@ El proyecto usa **next-intl 4** con la configuración `localePrefix: "as-needed"
 El switcher de idioma en la navbar alterna entre los dos idiomas manteniendo la ruta actual.
 
 La API de TMDB se consulta en el idioma activo:
+
 - Español → `es-MX`
 - Inglés → `en-US`
 
@@ -282,11 +289,11 @@ Los archivos de traducción están en `messages/es.json` y `messages/en.json` co
 
 El sistema de auth tiene tres estados:
 
-| Estado | Acceso | Lista |
-|---|---|---|
-| Sin sesión | Solo lectura | — |
-| Invitado | Completo | `localStorage` |
-| Logueado (Google) | Completo + `/my-list` | Firestore |
+| Estado            | Acceso                | Lista          |
+| ----------------- | --------------------- | -------------- |
+| Sin sesión        | Solo lectura          | —              |
+| Invitado          | Completo              | `localStorage` |
+| Logueado (Google) | Completo + `/my-list` | Firestore      |
 
 El middleware (`proxy.ts`) protege la ruta `/my-list` verificando la cookie `nextflix_auth`. Esta cookie se setea al loguear con Google y se elimina al cerrar sesión.
 
@@ -332,11 +339,11 @@ Para producción, configurá `NEXT_PUBLIC_SITE_URL` para que los meta tags usen 
 
 ### Servicios de películas (`movies.ts`)
 
-`getTrendingMovies` · `getPopularMovies` · `getTopRatedMovies` · `getNowPlayingMovies` · `getUpcomingMovies` · `getTop100Movies` · `getMoviesByGenre` · `getMovieDetails` · `getCollectionDetails` · `getMovieGenreList`
+`getTrendingMovies` · `getPopularMovies` · `getNowPlayingMovies` · `getUpcomingMovies` · `getTop100Movies` · `getMoviesByGenre` · `getMovieDetails` · `getCollectionDetails` · `getMovieGenreList`
 
 ### Servicios de series (`series.ts`)
 
-`getTrendingSeries` · `getPopularSeries` · `getTopRatedSeries` · `getAiringTodaySeries` · `getOnTheAirSeries` · `getTop100Series` · `getSeriesByGenre` · `getSeriesDetails` · `getSeasonDetails` · `getTVGenreList`
+`getTrendingSeries` · `getPopularSeries` · `getAiringTodaySeries` · `getOnTheAirSeries` · `getTop100Series` · `getSeriesByGenre` · `getSeriesDetails` · `getSeasonDetails` · `getTVGenreList`
 
 ### Utilidades (`utils/`)
 

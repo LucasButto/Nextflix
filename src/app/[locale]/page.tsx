@@ -5,14 +5,9 @@ import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import {
   getTrendingMovies,
   getPopularMovies,
-  getTopRatedMovies,
   getNowPlayingMovies,
 } from "@/services/movies";
-import {
-  getTrendingSeries,
-  getPopularSeries,
-  getTopRatedSeries,
-} from "@/services/series";
+import { getTrendingSeries, getPopularSeries } from "@/services/series";
 import type { Movie, Series } from "@/types/tmdb";
 
 export async function generateMetadata({
@@ -32,18 +27,14 @@ export default async function HomePage() {
     trendingMovies,
     trendingSeries,
     popularMovies,
-    topRatedMovies,
     nowPlaying,
     popularSeries,
-    topRatedSeries,
   ] = await Promise.all([
     getTrendingMovies("day").catch(() => []) as Promise<Movie[]>,
     getTrendingSeries("day").catch(() => []) as Promise<Series[]>,
     getPopularMovies().catch(() => []) as Promise<Movie[]>,
-    getTopRatedMovies().catch(() => []) as Promise<Movie[]>,
     getNowPlayingMovies().catch(() => []) as Promise<Movie[]>,
     getPopularSeries().catch(() => []) as Promise<Series[]>,
-    getTopRatedSeries().catch(() => []) as Promise<Series[]>,
   ]);
 
   const heroItems = [
@@ -94,16 +85,6 @@ export default async function HomePage() {
       </Carousel>
       <Carousel title={t("popularSeries")}>
         {popularSeries.map((s: Series) => (
-          <MediaCard key={s.id} item={s} mediaType="tv" />
-        ))}
-      </Carousel>
-      <Carousel title={t("topRatedMovies")}>
-        {topRatedMovies.map((m: Movie) => (
-          <MediaCard key={m.id} item={m} mediaType="movie" />
-        ))}
-      </Carousel>
-      <Carousel title={t("topRatedSeries")}>
-        {topRatedSeries.map((s: Series) => (
           <MediaCard key={s.id} item={s} mediaType="tv" />
         ))}
       </Carousel>

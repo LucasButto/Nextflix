@@ -32,13 +32,6 @@ export async function getPopularSeries(page = 1) {
   return filterLatinScript(data.results);
 }
 
-export async function getTopRatedSeries(page = 1) {
-  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", {
-    page,
-  });
-  return filterLatinScript(data.results);
-}
-
 export async function getAiringTodaySeries(page = 1) {
   const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/airing_today", {
     page,

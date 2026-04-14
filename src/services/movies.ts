@@ -26,13 +26,6 @@ export async function getPopularMovies(page = 1) {
   return filterLatinScript(data.results);
 }
 
-export async function getTopRatedMovies(page = 1) {
-  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", {
-    page,
-  });
-  return filterLatinScript(data.results);
-}
-
 export async function getNowPlayingMovies(page = 1) {
   const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/now_playing", {
     page,
