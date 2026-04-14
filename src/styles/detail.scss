@@ -57,7 +57,9 @@
 
 .detail-poster-wrap {
   flex-shrink: 0;
+  position: relative;
   width: 220px;
+  aspect-ratio: 2 / 3;
   border-radius: $card-radius-lg;
   overflow: hidden;
   box-shadow:
@@ -72,9 +74,7 @@
 }
 
 .detail-poster {
-  width: 100%;
-  height: auto;
-  display: block;
+  object-fit: cover;
 }
 
 .detail-details {

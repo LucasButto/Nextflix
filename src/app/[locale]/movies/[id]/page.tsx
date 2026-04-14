@@ -146,9 +146,9 @@ export default async function PeliculaDetailPage({
           <FadeImage
             src={posterUrl(movie.poster_path, "lg")}
             alt={movie.title}
-            width={300}
-            height={450}
+            fill
             className="detail-poster"
+            sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
             priority
           />
         </div>

@@ -128,9 +128,9 @@ export default async function SerieDetailPage({
           <FadeImage
             src={posterUrl(series.poster_path, "lg")}
             alt={series.name}
-            width={300}
-            height={450}
+            fill
             className="detail-poster"
+            sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
             priority
           />
         </div>

@@ -58,18 +58,23 @@
 
 .watchlist-card {
   animation: fadeInUp 0.4s ease both;
+  display: flex;
+  flex-direction: column;
 
   &__poster-link {
     position: relative;
     display: block;
     border-radius: $card-radius-lg;
     overflow: hidden;
+    aspect-ratio: 2 / 3;
+    background: $bg-primary;
     @include card-hover;
   }
 
   &__poster {
     width: 100%;
     height: 100%;
+    object-fit: cover;
     display: block;
   }
 
@@ -106,16 +111,22 @@
   }
 
   &__info {
-    padding: 10px 2px;
+    padding: 10px 2px 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    flex: 1;
+    gap: 6px;
   }
 
   &__title {
     font-size: 0.85rem;
     font-weight: 500;
-    @include line-clamp(2);
+    min-height: 2.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
     transition: color 0.2s;
     &:hover {
       color: $accent-secondary;
@@ -130,6 +141,7 @@
     color: $text-muted;
     transition: color 0.2s;
     align-self: flex-start;
+    margin-top: auto;
     &:hover {
       color: $danger;
     }

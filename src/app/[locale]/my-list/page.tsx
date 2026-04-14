@@ -150,9 +150,9 @@ export default function TuListaPage() {
                 <FadeImage
                   src={posterUrl(displayPoster, "md")}
                   alt={displayTitle}
-                  width={200}
-                  height={300}
+                  fill
                   className="watchlist-card__poster"
+                  sizes="(max-width: 480px) 50vw, (max-width: 1024px) 25vw, 200px"
                   loading="lazy"
                 />
                 <div className="watchlist-card__overlay">
