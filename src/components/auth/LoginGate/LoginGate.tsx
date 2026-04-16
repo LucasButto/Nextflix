@@ -3,7 +3,6 @@ import { ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "@/navigation";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import "./LoginGate.scss";
 
 export default function LoginGate({ children }: { children: ReactNode }) {
@@ -46,12 +45,12 @@ function LoginScreen() {
     <div className="login-screen">
       <div className="login-screen__bg-overlay" />
       <div className="login-screen__card">
-        <Image src="/Logo.png" alt="Logo" width={300} height={90} priority />
+        <img src="/Logo.png" alt="Logo" width={300} height={90} />
         <h2 className="login-screen__heading">{t("welcome")}</h2>
         <p className="login-screen__sub">{t("subtitle")}</p>
         <div className="login-screen__buttons">
           <button onClick={handleGoogle} className="login-screen__google-btn">
-            <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
+            <img src="/google-icon.svg" alt="Google" width={20} height={20} />
             {t("google")}
           </button>
           <button onClick={handleGuest} className="login-screen__guest-btn">

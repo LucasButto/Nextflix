@@ -31,16 +31,19 @@
   &__poster-wrap {
     position: relative;
     width: 100%;
+    aspect-ratio: 2/3;
     border-radius: $card-radius;
     overflow: hidden;
     background: $bg-card;
   }
 
   &__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
-    display: block;
+    // display: block;
     transition: opacity 0.3s;
   }
 
@@ -74,6 +77,10 @@
       rgba(0, 0, 0, 0.4) 45%,
       transparent 70%
     );
+  }
+
+  &--wide .media-card__poster-wrap {
+    aspect-ratio: 16/9;
   }
 
   &__meta {

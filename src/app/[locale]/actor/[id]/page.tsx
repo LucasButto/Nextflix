@@ -56,8 +56,7 @@ export default async function ActorPage({
           <FadeImage
             src={profileUrl(actor.profile_path, "lg")}
             alt={actor.name}
-            width={300}
-            height={450}
+            fill
             className="actor-photo"
             priority
           />
