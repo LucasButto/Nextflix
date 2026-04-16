@@ -46,7 +46,7 @@ export async function getOnTheAirSeries(page = 1) {
   return filterLatinScript(data.results);
 }
 
-const TOP100_SERIES_MIN_VOTES = 1000;
+const TOP100_SERIES_MIN_VOTES = 1750;
 
 export async function getTop100Series() {
   const pages = await Promise.all(
