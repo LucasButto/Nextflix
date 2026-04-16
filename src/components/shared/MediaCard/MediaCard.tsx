@@ -81,8 +81,7 @@ export default function MediaCard({
               : posterUrl(posterPath, "sm")
           }
           alt={title}
-          width={variant === "wide" ? 400 : 220}
-          height={variant === "wide" ? 225 : 330}
+          fill
           className="media-card__img"
           sizes={
             variant === "wide"

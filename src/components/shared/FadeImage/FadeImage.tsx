@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import Image, { type ImageProps } from "next/image";
 import "./FadeImage.scss";
 
-type FadeImageProps = ImageProps & {
+type FadeImageProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "alt"> & {
+  alt: string;
   wrapperClassName?: string;
   /**
    * Variante de skeleton:
@@ -11,9 +11,13 @@ type FadeImageProps = ImageProps & {
    * - "circle": avatar redondo
    * - "fill": se adapta al contenedor (position absolute)
    *
-   * Si no se especifica y la Image usa fill={true}, se auto-detecta como "fill".
+   * Si no se especifica y se usa fill={true}, se auto-detecta como "fill".
    */
   skeletonVariant?: "rect" | "circle" | "fill";
+  /** Simula el comportamiento fill de next/image → posiciona la img absolutamente */
+  fill?: boolean;
+  /** Simula priority de next/image → convierte a loading="eager" */
+  priority?: boolean;
 };
 
 export default function FadeImage({
@@ -22,13 +26,15 @@ export default function FadeImage({
   className = "",
   alt,
   onLoad,
+  fill,
+  priority,
+  loading,
+  style,
   ...rest
 }: FadeImageProps) {
   const [loaded, setLoaded] = useState(false);
 
-  // Auto-detect: si la Image usa fill, el wrapper también debe ser fill
-  const isFill = "fill" in rest && rest.fill;
-  const variant = skeletonVariant ?? (isFill ? "fill" : "rect");
+  const variant = skeletonVariant ?? (fill ? "fill" : "rect");
 
   const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     setLoaded(true);
@@ -36,6 +42,16 @@ export default function FadeImage({
       (onLoad as (e: React.SyntheticEvent<HTMLImageElement>) => void)(e);
     }
   };
+
+  const fillStyle: React.CSSProperties = fill
+    ? {
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+      }
+    : {};
 
   return (
     <div
@@ -50,9 +66,15 @@ export default function FadeImage({
           } ${variant === "fill" ? "fade-image__skeleton--fill" : ""}`}
         />
       )}
-      <Image
+      <img
         {...rest}
         alt={alt}
+        loading={
+          priority
+            ? "eager"
+            : ((loading as "lazy" | "eager" | undefined) ?? "lazy")
+        }
+        style={{ ...fillStyle, ...style }}
         className={`${className} fade-image__img ${loaded ? "fade-image__img--visible" : ""}`}
         onLoad={handleLoad}
       />

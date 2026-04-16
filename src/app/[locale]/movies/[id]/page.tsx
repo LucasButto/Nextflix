@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getMovieDetails, getCollectionDetails } from "@/services/movies";
@@ -223,7 +222,6 @@ export default async function PeliculaDetailPage({
                 rel="noopener noreferrer"
                 className="detail-provider-badge detail-provider-badge"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/justwatch.svg"
                   alt="JustWatch"
@@ -244,7 +242,7 @@ export default async function PeliculaDetailPage({
                   rel="noopener noreferrer"
                   className="detail-provider-badge"
                 >
-                  <Image
+                  <img
                     src={`${IMG_BASE}/w45${p.logo_path}`}
                     alt={p.provider_name}
                     width={28}
@@ -255,7 +253,7 @@ export default async function PeliculaDetailPage({
                 </a>
               ) : (
                 <div key={p.provider_id} className="detail-provider-badge">
-                  <Image
+                  <img
                     src={`${IMG_BASE}/w45${p.logo_path}`}
                     alt={p.provider_name}
                     width={28}

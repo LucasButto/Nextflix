@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter, Link } from "@/navigation";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { usePathname, useRouter } from "@/navigation";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
+
 import { useAuth } from "@/contexts/AuthContext";
 import TransitionLink from "@/components/layout/TransitionLink/TransitionLink";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher/LanguageSwitcher";
@@ -39,18 +39,18 @@ export default function NavBar() {
     };
   }, [menuOpen]);
 
+  const closeAll = useCallback(() => {
+    setMenuOpen(false);
+    setProfileOpen(false);
+  }, []);
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeAll();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  function closeAll() {
-    setMenuOpen(false);
-    setProfileOpen(false);
-  }
+  }, [closeAll]);
 
   const handleLogout = () => {
     logout();
@@ -119,11 +119,12 @@ export default function NavBar() {
                 aria-label={t("search")}
               >
                 {isLoggedIn && user?.photoURL ? (
-                  <Image
+                  <img
                     src={user.photoURL}
                     alt="Avatar"
                     width={36}
                     height={36}
+                    referrerPolicy="no-referrer"
                     className="navbar__avatar-img"
                   />
                 ) : (
@@ -190,11 +191,12 @@ export default function NavBar() {
         <div className="navbar__drawer-user">
           <div className="navbar__drawer-avatar">
             {isLoggedIn && user?.photoURL ? (
-              <Image
+              <img
                 src={user.photoURL}
                 alt="Avatar"
                 width={56}
                 height={56}
+                referrerPolicy="no-referrer"
                 className="navbar__drawer-avatar-img"
               />
             ) : (

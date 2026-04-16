@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
 import { Link } from "@/navigation";
 import { backdropUrl, posterUrl } from "@/services/tmdb";
 import { useWatchlist } from "@/contexts/WatchlistContext";
@@ -11,6 +10,14 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import type { HeroBannerItem } from "@/types/tmdb";
 import "./HeroBanner.scss";
 
+const FILL_STYLE: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+};
+
 interface HeroBannerProps {
   items: HeroBannerItem[];
 }
@@ -19,6 +26,7 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
   const t = useTranslations("hero");
   const [current, setCurrent] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const [hoveringBtn, setHoveringBtn] = useState(false);
   const { addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
   const { isLoggedIn } = useAuth();
 
@@ -63,7 +71,6 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     const deltaX = Math.abs(e.touches[0].clientX - touchStartX.current);
     const deltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
-    // If horizontal movement is dominant, mark as swiping
     if (deltaX > deltaY && deltaX > 10) {
       isSwiping.current = true;
     }
@@ -98,7 +105,6 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
     item.media_type ?? ("first_air_date" in item ? "tv" : "movie");
   const href = mediaType === "tv" ? `/series/${item.id}` : `/movies/${item.id}`;
   const inList = isInWatchlist(item.id, mediaType);
-  const [hoveringBtn, setHoveringBtn] = useState(false);
 
   return (
     <section
@@ -125,24 +131,20 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
             }`}
           >
             {bgUrl && (
-              <Image
+              <img
                 src={bgUrl}
                 alt={slideTitle}
-                fill
-                priority={i === 0}
                 loading={i === 0 ? "eager" : "lazy"}
                 className="hero-banner__bg-image hero-banner__bg-image--desktop"
-                sizes="(max-width: 767px) 1px, 100vw"
+                style={FILL_STYLE}
               />
             )}
-            <Image
+            <img
               src={pUrl}
               alt={slideTitle}
-              fill
-              priority={i === 0}
               loading={i === 0 ? "eager" : "lazy"}
               className="hero-banner__bg-image hero-banner__bg-image--mobile"
-              sizes="(max-width: 767px) 100vw, 1px"
+              style={FILL_STYLE}
             />
             <div className="hero-banner__gradient-bottom" />
             <div className="hero-banner__gradient-left" />
