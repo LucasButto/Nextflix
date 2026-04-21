@@ -46,11 +46,14 @@ export async function getOnTheAirSeries(page = 1) {
   return filterLatinScript(data.results);
 }
 
-const TOP100_SERIES_MIN_VOTES = 1750;
+const TOP100_SERIES_MIN_VOTES = 2100;
 
 export async function getTop100Series() {
   const pages = await Promise.all(
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map((page) =>
+    [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+      22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    ].map((page) =>
       tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", { page })
         .then((d) => filterLatinScript(d.results))
         .catch(() => [] as Series[]),
@@ -73,14 +76,32 @@ export async function getTop100Series() {
     .slice(0, 100);
 }
 
-export async function getSeriesByGenre(genreId: number, page = 1) {
-  const data = await tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
-    with_genres: genreId,
-    sort_by: "popularity.desc",
-    "vote_count.gte": 50,
-    page,
+export async function getSeriesByGenre(genreId: number) {
+  const [page1, page2] = await Promise.all([
+    tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
+      with_genres: genreId,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      page: 1,
+    })
+      .then((d) => filterLatinScript(d.results))
+      .catch(() => [] as Series[]),
+    tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
+      with_genres: genreId,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      page: 2,
+    })
+      .then((d) => filterLatinScript(d.results))
+      .catch(() => [] as Series[]),
+  ]);
+
+  const seen = new Set<number>();
+  return [...page1, ...page2].filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
   });
-  return filterLatinScript(data.results);
 }
 
 export async function getSeriesDetails(

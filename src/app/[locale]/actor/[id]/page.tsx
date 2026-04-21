@@ -40,10 +40,12 @@ export default async function ActorPage({
   }
 
   const movies = [...(actor.movie_credits?.cast ?? [])]
+    .filter((m, idx, arr) => arr.findIndex((x) => x.id === m.id) === idx)
     .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
     .slice(0, 20);
 
   const tvShows = [...(actor.tv_credits?.cast ?? [])]
+    .filter((s, idx, arr) => arr.findIndex((x) => x.id === s.id) === idx)
     .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
     .slice(0, 20);
 
@@ -101,22 +103,14 @@ export default async function ActorPage({
       {movies.length > 0 && (
         <Carousel title={t("filmographyMovies")}>
           {movies.map((m: Movie & { credit_id: string }) => (
-            <MediaCard
-              key={`m-${m.id}-${m.credit_id}`}
-              item={m}
-              mediaType="movie"
-            />
+            <MediaCard key={`m-${m.id}`} item={m} mediaType="movie" />
           ))}
         </Carousel>
       )}
       {tvShows.length > 0 && (
         <Carousel title={t("filmographySeries")}>
           {tvShows.map((s: Series & { credit_id: string }) => (
-            <MediaCard
-              key={`t-${s.id}-${s.credit_id}`}
-              item={s}
-              mediaType="tv"
-            />
+            <MediaCard key={`t-${s.id}`} item={s} mediaType="tv" />
           ))}
         </Carousel>
       )}
