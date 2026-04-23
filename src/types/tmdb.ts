@@ -320,3 +320,51 @@ export interface SearchResponse {
 export interface PageParams {
   id: string;
 }
+
+// ─── Episode detail extras ───────────────────────────────────────────────────
+
+export interface EpisodeImage {
+  file_path: string;
+  aspect_ratio: number;
+  width: number;
+  height: number;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface EpisodeImages {
+  stills: EpisodeImage[];
+}
+
+export interface EpisodeExternalIds {
+  imdb_id: string | null;
+  tvdb_id: number | null;
+  wikidata_id: string | null;
+  freebase_mid: string | null;
+  freebase_id: string | null;
+  tvrage_id: number | null;
+}
+
+export interface GuestStar {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+  credit_id: string;
+  order: number;
+}
+
+export interface EpisodeDetails extends Episode {
+  crew?: CrewMember[];
+  guest_stars?: GuestStar[];
+  credits?: {
+    cast: CastMember[];
+    crew: CrewMember[];
+    guest_stars: GuestStar[];
+  };
+  images?: EpisodeImages;
+  videos?: Videos;
+  external_ids?: EpisodeExternalIds;
+  production_code?: string;
+  show_id?: number;
+}

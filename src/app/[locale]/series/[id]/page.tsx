@@ -1,18 +1,18 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getSeriesDetails } from "@/services/series";
-import { posterUrl, backdropUrl, profileUrl } from "@/services/tmdb";
+import { posterUrl, backdropUrl } from "@/services/tmdb";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
-import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
+import SeriesFullCast from "@/components/series/Seriesfullcast/Seriesfullcast";
 import SeasonEpisodes from "@/components/series/SeasonEpisodes/SeasonEpisodes";
 import WatchProviders from "@/components/shared/WatchProviders/WatchProviders";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import FunFacts from "@/components/shared/FunFacts/FunFacts";
-import { Link } from "@/navigation";
 import { formatLocalizedDate, isToday, isUpcoming } from "@/utils/dates";
 import { formatEpCode } from "@/utils/format";
 import { getUserTimezone } from "@/utils/timezone";
@@ -24,7 +24,7 @@ import {
 } from "@/utils/media";
 import { buildSeriesFunFacts } from "@/utils/funFacts";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
-import type { SeriesDetails, CastMember, Series } from "@/types/tmdb";
+import type { SeriesDetails, Series } from "@/types/tmdb";
 
 // Géneros de TV que TMDB no traduce correctamente al español
 const TV_GENRE_NAME_OVERRIDES_ES: Record<number, string> = {
@@ -69,6 +69,23 @@ export async function generateMetadata({
   }
 }
 
+function CastSkeleton() {
+  return (
+    <div className="sk-cast">
+      <div className="sk-cast__title" />
+      <div className="sk-cast__grid">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="sk-cast__item">
+            <div className="sk-cast__avatar" />
+            <div className="sk-cast__name" />
+            <div className="sk-cast__char" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function SerieDetailPage({
   params,
 }: {
@@ -98,7 +115,7 @@ export default async function SerieDetailPage({
     };
   }
 
-  const cast = series.credits?.cast?.slice(0, 20) ?? [];
+  const mainCast = series.credits?.cast ?? [];
   const allWatchProviders = series["watch/providers"]?.results ?? {};
   const trailerKey = getTrailerKey(series.videos);
   const certification = getCertification(series);
@@ -243,31 +260,19 @@ export default async function SerieDetailPage({
 
       <WatchProviders allProviders={allWatchProviders} locale={locale} />
 
-      {cast.length > 0 && (
-        <div className="detail-section">
-          <h3 className="section-title">{t("cast")}</h3>
-          <CastCarousel>
-            {cast.map((actor: CastMember) => (
-              <Link
-                key={actor.id}
-                href={`/actor/${actor.id}`}
-                className="detail-cast-card"
-              >
-                <FadeImage
-                  src={profileUrl(actor.profile_path, "sm")}
-                  alt={actor.name}
-                  width={100}
-                  height={100}
-                  className="detail-cast-img"
-                  skeletonVariant="circle"
-                  loading="lazy"
-                />
-                <p className="detail-cast-name">{actor.name}</p>
-                <p className="detail-cast-char">{actor.character}</p>
-              </Link>
-            ))}
-          </CastCarousel>
-        </div>
+      {/*
+        Reparto unificado: principal + invitados de todas las temporadas.
+        Se carga en streaming con Suspense para no bloquear el render inicial.
+      */}
+      {(mainCast.length > 0 || (series.seasons?.length ?? 0) > 0) && (
+        <Suspense fallback={<CastSkeleton />}>
+          <SeriesFullCast
+            seriesId={series.id}
+            mainCast={mainCast}
+            seasons={series.seasons ?? []}
+            title={t("cast")}
+          />
+        </Suspense>
       )}
 
       {trailerKey && (
