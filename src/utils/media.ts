@@ -67,14 +67,28 @@ interface StatusInfo {
   color: string;
 }
 
+interface StatusLabels {
+  onAir?: string;
+  ended?: string;
+  canceled?: string;
+}
+
 /**
- * Maps a TMDB series status to a Spanish label and display color.
+ * Maps a TMDB series status to a localised label and display color.
+ * Pass `labels` with translated strings to get locale-aware output;
+ * falls back to Spanish if omitted (backward-compatible).
  */
-export function getSeriesStatusInfo(status: string): StatusInfo {
+export function getSeriesStatusInfo(
+  status: string,
+  labels?: StatusLabels,
+): StatusInfo {
   const map: Record<string, StatusInfo> = {
-    "Returning Series": { label: "En emisión", color: "#46d369" },
-    Ended: { label: "Finalizada", color: "#b3b3b3" },
-    Canceled: { label: "Cancelada", color: "#b3b3b3" },
+    "Returning Series": {
+      label: labels?.onAir ?? "En emisión",
+      color: "#46d369",
+    },
+    Ended: { label: labels?.ended ?? "Finalizada", color: "#b3b3b3" },
+    Canceled: { label: labels?.canceled ?? "Cancelada", color: "#b3b3b3" },
   };
   return map[status] ?? { label: status, color: "#b3b3b3" };
 }
@@ -151,12 +165,12 @@ export function getCertification(
     // Series: buscar en content_ratings
     const results = detail.content_ratings.results ?? [];
     for (const region of PRIORITY) {
-      const rating = results.find((r) => r.iso_3166_1 === region)?.rating;
-      if (rating) return rating;
+      const regionData = results.find((r) => r.iso_3166_1 === region);
+      if (regionData?.rating) return regionData.rating;
     }
     // Fallback: primer rating disponible
     const first = results.find((r) => r.rating);
-    if (first) return first.rating;
+    if (first?.rating) return first.rating;
   }
 
   return null;

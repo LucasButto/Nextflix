@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getMovieDetails, getCollectionDetails } from "@/services/movies";
-import { posterUrl, backdropUrl, profileUrl, IMG_BASE } from "@/services/tmdb";
+import { posterUrl, backdropUrl, profileUrl } from "@/services/tmdb";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
+import WatchProviders from "@/components/shared/WatchProviders/WatchProviders";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
@@ -13,27 +14,17 @@ import VideoGrid from "@/components/shared/VideoGrid/VideoGrid";
 import FunFacts from "@/components/shared/FunFacts/FunFacts";
 import { Link } from "@/navigation";
 import {
-  formatSpanishDate,
+  formatLocalizedDate,
   isUpcoming,
   isToday,
   extractYear,
 } from "@/utils/dates";
 import { formatRuntime } from "@/utils/format";
-import {
-  getProviders,
-  getProviderHomepage,
-  getTrailerKey,
-  getCertification,
-} from "@/utils/media";
+import { getTrailerKey, getCertification } from "@/utils/media";
 import { buildMovieFunFacts } from "@/utils/funFacts";
 import { getUserTimezone } from "@/utils/timezone";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
-import type {
-  MovieDetails,
-  CastMember,
-  StreamingProvider,
-  Movie,
-} from "@/types/tmdb";
+import type { MovieDetails, CastMember, Movie } from "@/types/tmdb";
 
 export async function generateMetadata({
   params,
@@ -76,7 +67,7 @@ export default async function PeliculaDetailPage({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const [t, tz] = await Promise.all([
     getTranslations("detail"),
     getUserTimezone(),
@@ -90,7 +81,7 @@ export default async function PeliculaDetailPage({
   }
 
   const cast = movie.credits?.cast?.slice(0, 20) ?? [];
-  const { providers, link: watchLink } = getProviders(movie);
+  const allWatchProviders = movie["watch/providers"]?.results ?? {};
   const trailerKey = getTrailerKey(movie.videos);
   const extraVideos = (movie.videos?.results ?? []).filter(
     (v) => v.site === "YouTube" && v.key !== trailerKey,
@@ -189,7 +180,7 @@ export default async function PeliculaDetailPage({
                 /
               </span>
               <span className="detail-upcoming-release__date">
-                {formatSpanishDate(movie.release_date)}
+                {formatLocalizedDate(movie.release_date, locale)}
               </span>
             </div>
           )}
@@ -211,62 +202,7 @@ export default async function PeliculaDetailPage({
         </div>
       </div>
 
-      {providers.length > 0 && (
-        <div className="detail-providers-section">
-          <h3 className="section-title">{t("whereToWatch")}</h3>
-          <div className="detail-providers-list">
-            {watchLink && (
-              <a
-                href={watchLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="detail-provider-badge detail-provider-badge"
-              >
-                <img
-                  src="/justwatch.svg"
-                  alt="JustWatch"
-                  width={28}
-                  height={28}
-                  className="detail-provider-logo"
-                />
-                JustWatch
-              </a>
-            )}
-            {providers.map((p: StreamingProvider) => {
-              const href = getProviderHomepage(p.provider_id);
-              return href ? (
-                <a
-                  key={p.provider_id}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-provider-badge"
-                >
-                  <img
-                    src={`${IMG_BASE}/w45${p.logo_path}`}
-                    alt={p.provider_name}
-                    width={28}
-                    height={28}
-                    className="detail-provider-logo"
-                  />
-                  {p.provider_name}
-                </a>
-              ) : (
-                <div key={p.provider_id} className="detail-provider-badge">
-                  <img
-                    src={`${IMG_BASE}/w45${p.logo_path}`}
-                    alt={p.provider_name}
-                    width={28}
-                    height={28}
-                    className="detail-provider-logo"
-                  />
-                  {p.provider_name}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <WatchProviders allProviders={allWatchProviders} locale={locale} />
 
       {cast.length > 0 && (
         <div className="detail-section">

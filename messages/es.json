@@ -14,6 +14,8 @@
     "popularMovies": "Películas Populares",
     "nowPlaying": "En Cartelera",
     "popularSeries": "Series Populares",
+    "topRatedMovies": "Mejor Valoradas — Películas",
+    "topRatedSeries": "Mejor Valoradas — Series",
     "metaTitle": "Nextflix — Películas y Series",
     "metaDesc": "Descubrí películas y series en tendencia. Tu plataforma de streaming favorita."
   },
@@ -24,7 +26,7 @@
   },
   "series": {
     "metaTitle": "Series — Nextflix",
-    "trendingWeek": "Tendencia Esta Semana",
+    "trendingWeek": "Series en Tendencia",
     "top100": "Top 100 Series — Mejor Valoradas"
   },
   "detail": {
@@ -46,6 +48,10 @@
     "metaSeriesFallback": "Serie — Nextflix",
     "upcomingToday": "¡Estrena hoy!",
     "nextEpisodeToday": "¡Hoy!",
+    "statusOnAir": "En emisión",
+    "statusEnded": "Finalizada",
+    "statusCanceled": "Cancelada",
+    "loadingEpisodes": "Cargando episodios...",
     "funFacts": "Datos Destacados",
     "factDirector": "Dirección",
     "factWriter": "Guión",

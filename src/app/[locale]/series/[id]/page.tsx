@@ -1,36 +1,37 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getSeriesDetails } from "@/services/series";
-import { posterUrl, backdropUrl, profileUrl, IMG_BASE } from "@/services/tmdb";
+import { posterUrl, backdropUrl, profileUrl } from "@/services/tmdb";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
 import CastCarousel from "@/components/shared/CastCarousel/CastCarousel";
 import SeasonEpisodes from "@/components/series/SeasonEpisodes/SeasonEpisodes";
+import WatchProviders from "@/components/shared/WatchProviders/WatchProviders";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import FunFacts from "@/components/shared/FunFacts/FunFacts";
 import { Link } from "@/navigation";
-import { formatSpanishDate, isToday } from "@/utils/dates";
+import { formatLocalizedDate, isToday, isUpcoming } from "@/utils/dates";
 import { formatEpCode } from "@/utils/format";
 import { getUserTimezone } from "@/utils/timezone";
 import {
   getCertification,
-  getProviders,
-  getProviderHomepage,
   getSeriesStatusInfo,
   getSeriesYearDisplay,
   getTrailerKey,
 } from "@/utils/media";
 import { buildSeriesFunFacts } from "@/utils/funFacts";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
-import type {
-  SeriesDetails,
-  CastMember,
-  StreamingProvider,
-  Series,
-} from "@/types/tmdb";
+import type { SeriesDetails, CastMember, Series } from "@/types/tmdb";
+
+// Géneros de TV que TMDB no traduce correctamente al español
+const TV_GENRE_NAME_OVERRIDES_ES: Record<number, string> = {
+  10759: "Acción y Aventura",
+  10765: "Ciencia Ficción y Fantasía",
+  10768: "Bélica y Política",
+};
 
 export async function generateMetadata({
   params,
@@ -73,7 +74,7 @@ export default async function SerieDetailPage({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const [t, tz] = await Promise.all([
     getTranslations("detail"),
     getUserTimezone(),
@@ -86,8 +87,19 @@ export default async function SerieDetailPage({
     notFound();
   }
 
+  // Aplicar overrides de nombres de géneros que TMDB no traduce al español
+  if (locale === "es" && series.genres) {
+    series = {
+      ...series,
+      genres: series.genres.map((g) => ({
+        ...g,
+        name: TV_GENRE_NAME_OVERRIDES_ES[g.id] ?? g.name,
+      })),
+    };
+  }
+
   const cast = series.credits?.cast?.slice(0, 20) ?? [];
-  const { providers, link: watchLink } = getProviders(series);
+  const allWatchProviders = series["watch/providers"]?.results ?? {};
   const trailerKey = getTrailerKey(series.videos);
   const certification = getCertification(series);
   const recommendations = series.recommendations?.results?.slice(0, 15) ?? [];
@@ -98,6 +110,11 @@ export default async function SerieDetailPage({
   const totalSeasons = series.number_of_seasons ?? 0;
   const { label: statusLabel, color: statusColor } = getSeriesStatusInfo(
     series.status,
+    {
+      onAir: t("statusOnAir"),
+      ended: t("statusEnded"),
+      canceled: t("statusCanceled"),
+    },
   );
 
   const isReturning = series.status === "Returning Series";
@@ -169,34 +186,43 @@ export default async function SerieDetailPage({
             </span>
           </div>
 
-          {isReturning && nextEp && nextEp.air_date && (
-            <div
-              className={`detail-next-episode${todayEpisode ? " detail-next-episode--today" : ""}`}
-            >
-              <span className="detail-next-episode__dot-label">
-                <span className="detail-next-episode__dot" aria-hidden="true" />
-                <span className="detail-next-episode__label">
-                  {todayEpisode ? t("nextEpisodeToday") : t("nextEpisode")}
-                </span>
-              </span>
-              <span className="detail-next-episode__divider" aria-hidden="true">
-                /
-              </span>
-              <span className="detail-next-episode__info">
-                <span className="detail-next-episode__ep">
-                  {formatEpCode(nextEp)}
-                </span>
-                {nextEp.name && (
-                  <span className="detail-next-episode__name">
-                    {nextEp.name}
+          {isReturning &&
+            nextEp &&
+            nextEp.air_date &&
+            isUpcoming(nextEp.air_date, tz) && (
+              <div
+                className={`detail-next-episode${todayEpisode ? " detail-next-episode--today" : ""}`}
+              >
+                <span className="detail-next-episode__dot-label">
+                  <span
+                    className="detail-next-episode__dot"
+                    aria-hidden="true"
+                  />
+                  <span className="detail-next-episode__label">
+                    {todayEpisode ? t("nextEpisodeToday") : t("nextEpisode")}
                   </span>
-                )}
-                <span className="detail-next-episode__date">
-                  {formatSpanishDate(nextEp.air_date)}
                 </span>
-              </span>
-            </div>
-          )}
+                <span
+                  className="detail-next-episode__divider"
+                  aria-hidden="true"
+                >
+                  /
+                </span>
+                <span className="detail-next-episode__info">
+                  <span className="detail-next-episode__ep">
+                    {formatEpCode(nextEp)}
+                  </span>
+                  {nextEp.name && (
+                    <span className="detail-next-episode__name">
+                      {nextEp.name}
+                    </span>
+                  )}
+                  <span className="detail-next-episode__date">
+                    {formatLocalizedDate(nextEp.air_date, locale)}
+                  </span>
+                </span>
+              </div>
+            )}
 
           <div className="detail-genres">
             {series.genres?.map((g) => (
@@ -215,62 +241,7 @@ export default async function SerieDetailPage({
         </div>
       </div>
 
-      {providers.length > 0 && (
-        <div className="detail-providers-section">
-          <h3 className="section-title">{t("whereToWatch")}</h3>
-          <div className="detail-providers-list">
-            {watchLink && (
-              <a
-                href={watchLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="detail-provider-badge detail-provider-badge"
-              >
-                <img
-                  src="/justwatch.svg"
-                  alt="JustWatch"
-                  width={28}
-                  height={28}
-                  className="detail-provider-logo"
-                />
-                JustWatch
-              </a>
-            )}
-            {providers.map((p: StreamingProvider) => {
-              const href = getProviderHomepage(p.provider_id);
-              return href ? (
-                <a
-                  key={p.provider_id}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-provider-badge"
-                >
-                  <img
-                    src={`${IMG_BASE}/w45${p.logo_path}`}
-                    alt={p.provider_name}
-                    width={28}
-                    height={28}
-                    className="detail-provider-logo"
-                  />
-                  {p.provider_name}
-                </a>
-              ) : (
-                <div key={p.provider_id} className="detail-provider-badge">
-                  <img
-                    src={`${IMG_BASE}/w45${p.logo_path}`}
-                    alt={p.provider_name}
-                    width={28}
-                    height={28}
-                    className="detail-provider-logo"
-                  />
-                  {p.provider_name}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <WatchProviders allProviders={allWatchProviders} locale={locale} />
 
       {cast.length > 0 && (
         <div className="detail-section">
@@ -307,7 +278,11 @@ export default async function SerieDetailPage({
       )}
 
       {series.seasons?.length > 0 && (
-        <SeasonEpisodes seriesId={series.id} seasons={series.seasons} />
+        <SeasonEpisodes
+          seriesId={series.id}
+          seasons={series.seasons}
+          locale={locale}
+        />
       )}
 
       <FunFacts title={t("funFacts")} facts={funFacts} />

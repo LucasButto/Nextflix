@@ -11,28 +11,42 @@ export function formatDate(dateStr: string | null | undefined): string {
 }
 
 /**
- * Formats a TMDB date string ("YYYY-MM-DD") into a localised Spanish
- * label with weekday and month name.
- * Uses noon UTC to avoid timezone shifts flipping the day.
+ * Formats a TMDB date string ("YYYY-MM-DD") into a localised label
+ * with weekday and month name, in the given locale.
  *
- * Output examples:
+ * Output examples (locale "es"):
  *   - same year  → "martes, 1 de abril"
  *   - other year → "martes, 1 de abril de 2027"
+ *
+ * Output examples (locale "en"):
+ *   - same year  → "Tuesday, April 1"
+ *   - other year → "Tuesday, April 1, 2027"
  */
-export function formatSpanishDate(dateStr: string): string {
+export function formatLocalizedDate(
+  dateStr: string,
+  locale: string = "es",
+): string {
   const [year, month, day] = dateStr.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
   const now = new Date();
-
   const sameYear = date.getUTCFullYear() === now.getFullYear();
+  const intlLocale = locale === "en" ? "en-US" : "es-AR";
 
-  return date.toLocaleDateString("es-AR", {
+  return date.toLocaleDateString(intlLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",
     ...(sameYear ? {} : { year: "numeric" }),
     timeZone: "UTC",
   });
+}
+
+/**
+ * Formats a TMDB date string into a localised Spanish label.
+ * @deprecated Use formatLocalizedDate(dateStr, locale) instead.
+ */
+export function formatSpanishDate(dateStr: string): string {
+  return formatLocalizedDate(dateStr, "es");
 }
 
 /**

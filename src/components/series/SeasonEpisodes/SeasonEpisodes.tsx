@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import VideoGrid from "@/components/shared/VideoGrid/VideoGrid";
-import { getSeasonDetails, getSeasonVideos } from "@/services/series";
+import { getSeasonVideos } from "@/services/series";
+import { tmdbClientFetch } from "@/services/tmdb-client";
 import { posterUrl } from "@/services/tmdb";
 import { formatDate } from "@/utils/dates";
 import type { Season, Episode, SeasonDetails, Video } from "@/types/tmdb";
@@ -11,11 +12,13 @@ import type { Season, Episode, SeasonDetails, Video } from "@/types/tmdb";
 interface SeasonEpisodesProps {
   seriesId: number;
   seasons: Season[];
+  locale: string;
 }
 
 export default function SeasonEpisodes({
   seriesId,
   seasons,
+  locale,
 }: SeasonEpisodesProps) {
   const t = useTranslations("detail");
   const validSeasons = seasons.filter(
@@ -31,13 +34,17 @@ export default function SeasonEpisodes({
     let cancelled = false;
 
     Promise.all([
-      getSeasonDetails(seriesId, activeSeason),
+      // Usar tmdbClientFetch con locale explícito para que los nombres y
+      // descripciones de episodios se devuelvan en el idioma correcto.
+      tmdbClientFetch<SeasonDetails>(
+        `/tv/${seriesId}/season/${activeSeason}`,
+        locale,
+      ),
       getSeasonVideos(seriesId, activeSeason).catch(() => ({ results: [] })),
     ])
       .then(([seasonData, videosData]) => {
         if (cancelled) return;
-        const season = seasonData as SeasonDetails;
-        setEpisodes(season.episodes ?? []);
+        setEpisodes(seasonData.episodes ?? []);
         const ytVideos = (videosData.results ?? []).filter(
           (v) => v.site === "YouTube",
         );
@@ -53,7 +60,7 @@ export default function SeasonEpisodes({
     return () => {
       cancelled = true;
     };
-  }, [seriesId, activeSeason]);
+  }, [seriesId, activeSeason, locale]);
 
   const handleSeasonChange = (seasonNumber: number) => {
     setEpisodes(null);
@@ -82,7 +89,7 @@ export default function SeasonEpisodes({
 
       {episodes === null ? (
         <div style={{ padding: "2rem 0", color: "#737373" }}>
-          Cargando episodios...
+          {t("loadingEpisodes")}
         </div>
       ) : (
         <>
