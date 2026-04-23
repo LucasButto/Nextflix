@@ -1,0 +1,134 @@
+.detail-providers-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+
+  // Neutralizar el margin-bottom que el section-title tenga por defecto
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+// ── Country selector ──────────────────────────────────────────────────────────
+
+.wp-selector {
+  position: relative;
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0.75rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: #e5e5e5;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: inherit;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 0.13);
+      border-color: rgba(255, 255, 255, 0.28);
+      outline: none;
+    }
+  }
+
+  &__flag {
+    display: block;
+    border-radius: 2px;
+    flex-shrink: 0;
+    // Fallback en caso de que la imagen no cargue
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  &__name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+
+    &--up {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 200;
+    background: #181818;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 10px;
+    padding: 0.35rem;
+    min-width: 195px;
+    max-height: 268px;
+    overflow-y: auto;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+    list-style: none;
+    margin: 0;
+
+    // Scrollbar sutil
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.13) transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 4px;
+    }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.42rem 0.6rem;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background 0.12s,
+      color 0.12s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    &--active {
+      color: #fff;
+      background: rgba(229, 9, 20, 0.18);
+
+      &:hover {
+        background: rgba(229, 9, 20, 0.26);
+      }
+    }
+  }
+}
