@@ -32,6 +32,13 @@ export async function getPopularSeries(page = 1) {
   return filterLatinScript(data.results);
 }
 
+export async function getTopRatedSeries(page = 1) {
+  const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", {
+    page,
+  });
+  return filterLatinScript(data.results);
+}
+
 export async function getAiringTodaySeries(page = 1) {
   const data = await tmdbFetch<TmdbListResponse<Series>>("/tv/airing_today", {
     page,
@@ -93,6 +100,41 @@ export async function getSeriesByGenre(genreId: number) {
       page: 2,
     })
       .then((d) => filterLatinScript(d.results))
+      .catch(() => [] as Series[]),
+  ]);
+
+  const seen = new Set<number>();
+  return [...page1, ...page2].filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
+}
+
+/**
+ * Obtiene series de anime populares (animación japonesa).
+ * NO aplica filterLatinScript para permitir contenido en japonés.
+ * Excluido automáticamente del Top 100 y los carruseles de género por filterLatinScript.
+ */
+export async function getAnimeSeries() {
+  const [page1, page2] = await Promise.all([
+    tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
+      with_genres: 16,
+      with_original_language: "ja",
+      sort_by: "popularity.desc",
+      "vote_count.gte": 100,
+      page: 1,
+    })
+      .then((d) => d.results)
+      .catch(() => [] as Series[]),
+    tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
+      with_genres: 16,
+      with_original_language: "ja",
+      sort_by: "popularity.desc",
+      "vote_count.gte": 100,
+      page: 2,
+    })
+      .then((d) => d.results)
       .catch(() => [] as Series[]),
   ]);
 

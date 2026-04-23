@@ -5,6 +5,7 @@ import {
   getMoviesByGenre,
   getTrendingMovies,
   getTop100Movies,
+  getAnimeMovies,
   getMovieGenreList,
 } from "@/services/movies";
 import { MOVIE_GENRE_IDS } from "@/services/tmdb";
@@ -23,9 +24,10 @@ export async function generateMetadata({
 export default async function PeliculasPage() {
   const t = await getTranslations("movies");
 
-  const [trending, top100, genreList, genreResults] = await Promise.all([
+  const [trending, top100, anime, genreList, genreResults] = await Promise.all([
     getTrendingMovies("week").catch(() => []) as Promise<Movie[]>,
     getTop100Movies().catch(() => []) as Promise<Movie[]>,
+    getAnimeMovies().catch(() => []) as Promise<Movie[]>,
     getMovieGenreList(),
     Promise.all(
       MOVIE_GENRE_IDS.map(async (id) => ({
@@ -35,12 +37,17 @@ export default async function PeliculasPage() {
     ),
   ]);
 
-  // Combinar IDs con nombres traducidos de la API
   const genreNameMap = new Map(genreList.map((g) => [g.id, g.name]));
   const activeGenres = genreResults
     .filter((g) => g.movies.length > 0)
     .map((g) => ({ ...g, name: genreNameMap.get(g.id) ?? "" }))
     .filter((g) => g.name);
+
+  if (anime.length > 0) {
+    const animationIdx = activeGenres.findIndex((g) => g.id === 16);
+    const insertAt = animationIdx >= 0 ? animationIdx + 1 : activeGenres.length;
+    activeGenres.splice(insertAt, 0, { id: -1, name: "Anime", movies: anime });
+  }
 
   return (
     <div style={{ paddingTop: "2rem" }}>

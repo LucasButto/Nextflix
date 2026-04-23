@@ -26,6 +26,13 @@ export async function getPopularMovies(page = 1) {
   return filterLatinScript(data.results);
 }
 
+export async function getTopRatedMovies(page = 1) {
+  const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/top_rated", {
+    page,
+  });
+  return filterLatinScript(data.results);
+}
+
 export async function getNowPlayingMovies(page = 1) {
   const data = await tmdbFetch<TmdbListResponse<Movie>>("/movie/now_playing", {
     page,
@@ -75,6 +82,41 @@ export async function getMoviesByGenre(genreId: number, page = 1) {
     page,
   });
   return filterLatinScript(data.results);
+}
+
+/**
+ * Obtiene películas anime populares (animación japonesa).
+ * NO aplica filterLatinScript para permitir contenido en japonés.
+ * Excluido automáticamente del Top 100 y los carruseles de género por filterLatinScript.
+ */
+export async function getAnimeMovies() {
+  const [page1, page2] = await Promise.all([
+    tmdbFetch<TmdbListResponse<Movie>>("/discover/movie", {
+      with_genres: 16,
+      with_original_language: "ja",
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      page: 1,
+    })
+      .then((d) => d.results)
+      .catch(() => [] as Movie[]),
+    tmdbFetch<TmdbListResponse<Movie>>("/discover/movie", {
+      with_genres: 16,
+      with_original_language: "ja",
+      sort_by: "popularity.desc",
+      "vote_count.gte": 50,
+      page: 2,
+    })
+      .then((d) => d.results)
+      .catch(() => [] as Movie[]),
+  ]);
+
+  const seen = new Set<number>();
+  return [...page1, ...page2].filter((m) => {
+    if (seen.has(m.id)) return false;
+    seen.add(m.id);
+    return true;
+  });
 }
 
 export async function getMovieDetails(
