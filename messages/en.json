@@ -66,7 +66,14 @@
     "factCreatedBy": "Created By",
     "factNetwork": "Network",
     "factEpisodes": "Total Episodes",
-    "factType": "Type"
+    "factType": "Type",
+    "metaEpisodeFallback": "Episode — Nextflix",
+    "prevEpisode": "Previous",
+    "nextEpisodeNav": "Next",
+    "backToSeries": "Back to series",
+    "guestStars": "Guest stars",
+    "episodeVideos": "Episode videos",
+    "episodeStills": "Episode stills"
   },
   "watchlist": {
     "add": "Add to my list",

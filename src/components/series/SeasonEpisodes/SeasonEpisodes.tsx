@@ -7,6 +7,7 @@ import { getSeasonVideos } from "@/services/series";
 import { tmdbClientFetch } from "@/services/tmdb-client";
 import { posterUrl } from "@/services/tmdb";
 import { formatDate } from "@/utils/dates";
+import { Link } from "@/navigation";
 import type { Season, Episode, SeasonDetails, Video } from "@/types/tmdb";
 
 interface SeasonEpisodesProps {
@@ -95,7 +96,11 @@ export default function SeasonEpisodes({
         <>
           <div className="detail-episode-list">
             {episodes.map((ep) => (
-              <div key={ep.id} className="detail-episode-card">
+              <Link
+                key={ep.id}
+                href={`/series/${seriesId}/${ep.season_number}x${ep.episode_number}`}
+                className="detail-episode-card"
+              >
                 <div className="detail-ep-visual">
                   {ep.still_path && (
                     <FadeImage
@@ -131,7 +136,7 @@ export default function SeasonEpisodes({
                     <p className="detail-ep-overview">{ep.overview}</p>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 

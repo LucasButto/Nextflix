@@ -5,6 +5,7 @@ import type {
   SeriesDetails,
   SeasonDetails,
   Videos,
+  EpisodeDetails,
 } from "@/types/tmdb";
 
 export async function getTrendingSeries(timeWindow: "day" | "week" = "day") {
@@ -205,4 +206,26 @@ export async function getTVGenreList(): Promise<
     const { TV_GENRES } = await import("./tmdb");
     return TV_GENRES;
   }
+}
+
+/**
+ * Detalle completo de un episodio, incluyendo credits (guest stars + crew),
+ * images (stills), videos (YouTube) y external_ids (IMDB).
+ * Usa append_to_response para consolidar todo en una sola llamada.
+ */
+export async function getEpisodeDetails(
+  seriesId: string | number,
+  seasonNumber: number,
+  episodeNumber: number,
+  language?: string,
+) {
+  return tmdbFetch<EpisodeDetails>(
+    `/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,
+    {
+      append_to_response: "credits,images,videos,external_ids",
+      include_image_language: "en,null",
+      include_video_language: "en,null",
+    },
+    language,
+  );
 }
