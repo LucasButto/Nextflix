@@ -104,7 +104,7 @@ export default async function SerieDetailPage({
     notFound();
   }
 
-  // Aplicar overrides de nombres de géneros que TMDB no traduce al español
+  // Overrides de nombres de géneros que TMDB no traduce al español
   if (locale === "es" && series.genres) {
     series = {
       ...series,

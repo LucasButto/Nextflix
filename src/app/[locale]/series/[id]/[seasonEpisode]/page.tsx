@@ -19,6 +19,7 @@ import type {
   CrewMember,
   Season,
 } from "@/types/tmdb";
+import "@/styles/pages/episode/episode.scss";
 
 interface EpisodePageParams {
   locale: string;
@@ -58,7 +59,7 @@ export async function generateMetadata({
       getSeriesDetails(id) as Promise<SeriesDetails>,
       getEpisodeDetails(id, parsed.season, parsed.episode),
     ]);
-    const epCode = `T${episode.season_number}E${episode.episode_number}`;
+    const epCode = `${t("seasonPrefix")}${episode.season_number}E${episode.episode_number}`;
     const title = `${series.name} — ${epCode}: ${episode.name} — Nextflix`;
     const description = episode.overview
       ? episode.overview.slice(0, 155) +
@@ -104,19 +105,12 @@ export default async function EpisodeDetailPage({
     notFound();
   }
 
-  // Reparto invitado + crew del episodio. TMDB los devuelve en `guest_stars` y
-  // `crew` a nivel raíz al pedir con append_to_response=credits (y también en
-  // `credits.guest_stars` / `credits.crew`). Cubrimos ambas ubicaciones.
   const guestStars: GuestStar[] =
     episode.guest_stars ?? episode.credits?.guest_stars ?? [];
   const epCrew: CrewMember[] = episode.crew ?? episode.credits?.crew ?? [];
 
-  // Reparto principal de la serie
   const mainCast: CastMember[] = series.credits?.cast ?? [];
 
-  // Unificamos reparto principal + invitados deduplicando por id.
-  // El reparto principal va primero (son recurrentes / protagonistas).
-  // Cada entrada se tipa como CastMember | GuestStar para poder iterar uniforme.
   type CombinedCast = {
     id: number;
     name: string;
@@ -152,7 +146,6 @@ export default async function EpisodeDetailPage({
     });
   }
 
-  // Resumen rápido de crew clave (director y guionista)
   const directors = epCrew
     .filter((c) => c.job === "Director")
     .map((c) => c.name);
@@ -166,37 +159,22 @@ export default async function EpisodeDetailPage({
     )
     .map((c) => c.name);
 
-  // Videos del episodio en YouTube
   const episodeVideos = (episode.videos?.results ?? []).filter(
     (v) => v.site === "YouTube",
   );
 
-  // Stills del episodio
   const allStills = episode.images?.stills ?? [];
 
-  // Elegimos la imagen del hero y la del "poster" (still 16:9 a la izquierda).
-  // Si hay más de un still disponible además del still_path principal,
-  // usamos dos imágenes distintas para que no se vea repetitivo.
   const posterStillPath = episode.still_path;
-  // Candidatos para el hero: stills distintos al del poster.
+
   const heroAlternativeStill = allStills.find(
     (img) => img.file_path !== posterStillPath,
   );
   const heroStillPath =
     heroAlternativeStill?.file_path ?? episode.still_path ?? null;
 
-  // La grilla de stills excluye al del poster y al del hero para evitar repetir.
-  const stills = allStills.filter(
-    (img) =>
-      img.file_path !== posterStillPath && img.file_path !== heroStillPath,
-  );
+  const stills = allStills;
 
-  // Navegación prev/next dentro de la temporada con salto entre temporadas.
-  // Consideramos solo temporadas "reales" con episodios (excluimos specials S0
-  // y temporadas vacías). Si el episodio actual es el primero de una temporada
-  // y existe una temporada previa, "Anterior" lleva al último episodio de esa
-  // temporada previa. Análogamente "Siguiente" salta a S+1 E1 cuando estamos
-  // en el último episodio de la temporada.
   const validSeasons: Season[] = (series.seasons ?? [])
     .filter((s) => s.season_number > 0 && s.episode_count > 0)
     .sort((a, b) => a.season_number - b.season_number);
@@ -209,7 +187,6 @@ export default async function EpisodeDetailPage({
     (s) => s.season_number === seasonNum,
   );
 
-  // Previo
   let prevHref: string | null = null;
   if (epNum > 1) {
     prevHref = `/series/${series.id}/${seasonNum}x${epNum - 1}`;
@@ -218,7 +195,6 @@ export default async function EpisodeDetailPage({
     prevHref = `/series/${series.id}/${prevSeason.season_number}x${prevSeason.episode_count}`;
   }
 
-  // Siguiente
   let nextHref: string | null = null;
   if (epNum < totalEpsInSeason) {
     nextHref = `/series/${series.id}/${seasonNum}x${epNum + 1}`;
@@ -230,7 +206,7 @@ export default async function EpisodeDetailPage({
     nextHref = `/series/${series.id}/${nextSeason.season_number}x1`;
   }
 
-  const epCode = `T${episode.season_number}E${episode.episode_number}`;
+  const epCode = `${t("seasonPrefix")}${episode.season_number}E${episode.episode_number}`;
   const heroImg = heroStillPath
     ? `${IMG_BASE}/original${heroStillPath}`
     : series.backdrop_path
@@ -256,7 +232,7 @@ export default async function EpisodeDetailPage({
       </div>
 
       <div className="detail-info detail-info--episode">
-        {/* Still del episodio (mismo slot que el póster en la página de serie) */}
+        {/* Still del episodio */}
         <div className="detail-poster-wrap detail-poster-wrap--episode">
           <FadeImage
             src={
@@ -314,7 +290,6 @@ export default async function EpisodeDetailPage({
             ) : null}
           </div>
 
-          {/* Director / Guionista del episodio */}
           {(directors.length > 0 || writers.length > 0) && (
             <div className="detail-ep-crew-summary">
               {directors.length > 0 && (
@@ -344,7 +319,7 @@ export default async function EpisodeDetailPage({
             <p className="detail-overview">{episode.overview}</p>
           )}
 
-          {/* Navegación prev / next episodio (con salto entre temporadas) */}
+          {/* Navegación prev / next episodio*/}
           <div className="detail-episode-nav">
             {prevHref ? (
               <Link href={prevHref} className="detail-episode-nav__btn">
@@ -378,7 +353,7 @@ export default async function EpisodeDetailPage({
         </div>
       </div>
 
-      {/* Reparto: principal + invitados unificado */}
+      {/* Reparto */}
       {combinedCast.length > 0 && (
         <div className="detail-section">
           <h3 className="section-title">{t("cast")}</h3>
