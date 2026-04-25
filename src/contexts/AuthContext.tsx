@@ -9,12 +9,9 @@ import {
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signOut,
   onAuthStateChanged,
   User,
-  AuthError,
 } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
@@ -49,7 +46,7 @@ interface AuthContextType {
   isGuest: boolean;
   isLoggedIn: boolean;
   isAuthenticated: boolean;
-  loginWithGoogle: () => Promise<User | null>;
+  loginWithGoogle: () => Promise<User>;
   loginAsGuest: () => void;
   logout: () => Promise<void>;
 }
@@ -63,40 +60,12 @@ function getInitialGuest(): boolean {
   return localStorage.getItem("fw_guest") === "true";
 }
 
-/**
- * Errores donde tiene sentido reintentar con redirect en vez de popup.
- * - popup-blocked: el navegador / extensiones bloquearon la ventana hija.
- * - popup-closed-by-user: cerró el popup antes de loguear (suele pasar con
- *   privacy badgers que cierran ventanas no esperadas).
- * - cancelled-popup-request: se disparó otro popup mientras este pendía.
- * - operation-not-supported-in-this-environment: COOP/COEP estricto.
- * - web-storage-unsupported / unauthorized-domain: no aplican fallback,
- *   propagamos el error original.
- */
-const POPUP_FALLBACK_ERRORS = new Set([
-  "auth/popup-blocked",
-  "auth/popup-closed-by-user",
-  "auth/cancelled-popup-request",
-  "auth/operation-not-supported-in-this-environment",
-]);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState<boolean>(getInitialGuest);
 
   useEffect(() => {
-    // Procesar el resultado del redirect de Google. Si el último login fue
-    // por signInWithRedirect (porque el popup quedó bloqueado), Firebase
-    // resuelve la promesa al volver a esta página. Si no hubo redirect en
-    // curso, devuelve null y no hace nada.
-    getRedirectResult(auth).catch((error) => {
-      // No imprimimos ruido si no hay redirect pendiente.
-      if (error?.code !== "auth/no-auth-event") {
-        console.error("Error procesando redirect de Google:", error);
-      }
-    });
-
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser({
@@ -121,38 +90,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  /**
-   * Login con Google. Intenta popup primero (mejor UX, no recarga la página).
-   * Si el navegador o extensiones bloquean el popup, hace fallback automático
-   * a signInWithRedirect, que sale a la página de login de Google y vuelve.
-   * En el caso del redirect, esta función nunca resuelve a un User porque el
-   * navegador navega antes — devuelve null y la sesión se establece cuando
-   * el usuario vuelve a la app y se ejecuta getRedirectResult en el useEffect.
-   */
-  const loginWithGoogle = async (): Promise<User | null> => {
+  const loginWithGoogle = async (): Promise<User> => {
     const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      // onAuthStateChanged se encarga de setear la cookie
-      return result.user;
-    } catch (error) {
-      const code = (error as AuthError)?.code;
-      if (code && POPUP_FALLBACK_ERRORS.has(code)) {
-        // Fallback transparente: usar redirect. El navegador va a navegar
-        // a accounts.google.com y volver. La cookie se setea en el
-        // onAuthStateChanged que se dispara tras getRedirectResult.
-        await signInWithRedirect(auth, provider);
-        return null;
-      }
-      throw error;
-    }
+    const result = await signInWithPopup(auth, provider);
+    // onAuthStateChanged se encarga de setear la cookie
+    return result.user;
   };
 
   const loginAsGuest = () => {
     setIsGuest(true);
     setUser(null);
     localStorage.setItem("fw_guest", "true");
-    setAuthCookie(); // guests también pueden acceder a /tu-lista (lista local)
+    // No se setea la cookie → el middleware bloquea /tu-lista para invitados
   };
 
   const logout = async () => {
