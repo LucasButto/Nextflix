@@ -99,7 +99,22 @@
     "titles": "{count, plural, one {# title} other {# titles}}",
     "movies": "Movies",
     "series": "Series",
-    "removeItem": "Remove"
+    "removeItem": "Remove",
+    "randomPicker": {
+      "openButton": "Surprise me",
+      "title": "What to watch?",
+      "movies": "Movies",
+      "series": "Series",
+      "spin": "Spin",
+      "spinning": "Spinning...",
+      "again": "Again",
+      "viewDetail": "View detail",
+      "empty": "Nothing here yet",
+      "emptyForFilter": "Nothing matches those filters",
+      "needSelection": "Pick at least one option",
+      "placeholder": "Hit spin to find your next watch",
+      "close": "Close"
+    }
   },
   "search": {
     "metaTitle": "Search — Nextflix",

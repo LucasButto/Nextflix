@@ -1,0 +1,388 @@
+@use "@/styles/variables" as *;
+
+.random-picker {
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: fadeIn 0.2s ease;
+  }
+
+  &__modal {
+    width: 100%;
+    max-width: 440px;
+    max-height: calc(100svh - 2rem);
+    background: $bg-secondary;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    animation: pickerPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 14px 14px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: $font-display;
+    font-size: 1.3rem;
+    letter-spacing: 1.4px;
+    color: $text-primary;
+    line-height: 1;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      color: $accent-primary;
+    }
+  }
+
+  &__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: $text-secondary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background 0.18s,
+      color 0.18s;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+      color: $text-primary;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  &__body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  /* ─── Filtros tipo ─── */
+  &__filters {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__filter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: $bg-card;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+    position: relative;
+
+    input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &:hover:not(.random-picker__filter--disabled) {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    &--checked {
+      border-color: rgba($accent-primary, 0.5);
+      background: rgba($accent-primary, 0.08);
+
+      .random-picker__filter-icon {
+        background: rgba($accent-primary, 0.2);
+
+        svg {
+          color: $accent-secondary;
+        }
+      }
+
+      .random-picker__filter-label {
+        color: $text-primary;
+      }
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__filter-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.04);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.18s;
+    flex-shrink: 0;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      color: $text-muted;
+      transition: color 0.18s;
+    }
+  }
+
+  &__filter-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: $text-muted;
+    transition: color 0.18s;
+  }
+
+  /* ─── Ruleta / digit-slider ─── */
+  &__reel {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    background: $bg-card;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  &__strip {
+    will-change: transform;
+
+    &--animating {
+      transition: transform 3.6s cubic-bezier(0.1, 0.85, 0.15, 1);
+    }
+  }
+
+  &__strip-item {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+  }
+
+  &__strip-poster {
+    width: 36px;
+    height: 54px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: $bg-elevated;
+  }
+
+  &__strip-title {
+    flex: 1;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: $text-primary;
+    @include line-clamp(1);
+    line-height: 1.25;
+  }
+
+  &__strip-type {
+    width: 18px !important;
+    height: 18px !important;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  &__indicator {
+    position: absolute;
+    top: 60px;
+    left: 6px;
+    right: 6px;
+    height: 60px;
+    border-top: 2px solid $accent-primary;
+    border-bottom: 2px solid $accent-primary;
+    pointer-events: none;
+    box-shadow: 0 0 28px $accent-glow inset;
+    border-radius: 2px;
+    z-index: 2;
+
+    &--won {
+      animation: pickerPulse 0.7s ease;
+    }
+  }
+
+  &__fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    z-index: 1;
+
+    &--top {
+      top: 0;
+      background: linear-gradient(
+        to bottom,
+        $bg-card 0%,
+        rgba(26, 26, 26, 0.6) 60%,
+        rgba(26, 26, 26, 0) 100%
+      );
+    }
+
+    &--bottom {
+      bottom: 0;
+      background: linear-gradient(
+        to top,
+        $bg-card 0%,
+        rgba(26, 26, 26, 0.6) 60%,
+        rgba(26, 26, 26, 0) 100%
+      );
+    }
+  }
+
+  &__placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    padding: 0 20px;
+
+    p {
+      font-size: 0.85rem;
+      color: $text-muted;
+      line-height: 1.4;
+    }
+  }
+
+  &__placeholder-icon {
+    width: 38px !important;
+    height: 38px !important;
+    color: $text-muted;
+    opacity: 0.55;
+  }
+
+  /* ─── Hints ─── */
+  &__hint {
+    font-size: 0.85rem;
+    color: $text-muted;
+    text-align: center;
+    padding: 6px 0;
+
+    &--warn {
+      color: $warning;
+    }
+  }
+
+  /* ─── Acciones ─── */
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  &__btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    line-height: 1;
+
+    svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--primary {
+      background: $accent-primary;
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background: $accent-hover;
+        box-shadow: 0 6px 20px $accent-glow;
+        transform: translateY(-1px);
+      }
+    }
+
+    &--secondary {
+      background: rgba($accent-primary, 0.12);
+      color: $accent-secondary;
+      border: 1px solid rgba($accent-primary, 0.28);
+
+      &:hover {
+        background: rgba($accent-primary, 0.2);
+        border-color: rgba($accent-primary, 0.45);
+        color: $text-primary;
+      }
+    }
+  }
+
+  &__btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+}
+
+@keyframes pickerPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pickerPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 28px $accent-glow inset;
+  }
+  40% {
+    box-shadow: 0 0 50px rgba($accent-primary, 0.55) inset;
+  }
+}

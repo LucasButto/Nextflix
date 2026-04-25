@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWatchlist } from "@/contexts/WatchlistContext";
 import { useWatched } from "@/contexts/WatchedContext";
@@ -8,9 +8,11 @@ import { Link } from "@/navigation";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
 import { tmdbClientFetch } from "@/services/tmdb-client";
+import RandomPicker from "@/components/myList/RandomPicker/RandomPicker";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import LibraryAddCheckOutlinedIcon from "@mui/icons-material/LibraryAddCheckOutlined";
+import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
 import "@/styles/pages/my-list/watchlist.scss";
 import { BaseItem } from "@/types/tmdb";
 
@@ -55,6 +57,7 @@ export default function TuListaPage() {
   } = useWatchlist();
   const { watched, loaded: watchedLoaded, removeFromWatched } = useWatched();
   const [activeTab, setActiveTab] = useState<"lista" | "vistas">("lista");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Mapa de datos actualizados: `${media_type}-${id}` → LocalizedItem
   const [localizedData, setLocalizedData] = useState<
@@ -106,6 +109,22 @@ export default function TuListaPage() {
       setLocalizedData(map);
     });
   }, [watchlistLoaded, watchedLoaded, locale, watchlist, watched]);
+
+  // Items para el picker, con títulos y posters localizados ya aplicados
+  const pickerItems = useMemo(() => {
+    const source = activeTab === "lista" ? watchlist : watched;
+    return source.map((it) => {
+      const key = `${it.media_type}-${it.id}`;
+      const localized = localizedData.get(key);
+      return {
+        id: it.id,
+        media_type: it.media_type,
+        title: localized?.title ?? it.title,
+        poster_path: localized?.poster_path ?? it.poster_path,
+        vote_average: it.vote_average,
+      };
+    });
+  }, [activeTab, watchlist, watched, localizedData]);
 
   if (!isLoggedIn && !isGuest) {
     return (
@@ -188,13 +207,25 @@ export default function TuListaPage() {
   return (
     <div className="watchlist-page">
       <div className="watchlist-header">
-        <h1 className="section-title">
-          {activeTab === "lista" ? t("headingList") : t("headingWatched")}
-        </h1>
+        <div className="watchlist-header__title-group">
+          <h1 className="section-title">
+            {activeTab === "lista" ? t("headingList") : t("headingWatched")}
+          </h1>
+          {activeItems.length > 0 && (
+            <span className="watchlist-count">
+              {t("titles", { count: activeItems.length })}
+            </span>
+          )}
+        </div>
         {activeItems.length > 0 && (
-          <span className="watchlist-count">
-            {t("titles", { count: activeItems.length })}
-          </span>
+          <button
+            type="button"
+            className="watchlist-random-btn"
+            onClick={() => setPickerOpen(true)}
+          >
+            <CasinoRoundedIcon />
+            <span>{t("randomPicker.openButton")}</span>
+          </button>
         )}
       </div>
 
@@ -262,6 +293,13 @@ export default function TuListaPage() {
             </div>
           )}
         </>
+      )}
+
+      {pickerOpen && (
+        <RandomPicker
+          onClose={() => setPickerOpen(false)}
+          items={pickerItems}
+        />
       )}
     </div>
   );
