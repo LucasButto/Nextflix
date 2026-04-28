@@ -527,6 +527,29 @@
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
+
+  /* ─── Fila país + plataforma ─── */
+  &__filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  &__providers--country {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  &__providers--platform {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__flag {
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: block;
+  }
 }
 
 @keyframes pickerPop {

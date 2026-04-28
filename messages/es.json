@@ -119,7 +119,8 @@
       "popularPlatforms": "Más populares",
       "otherPlatforms": "Otras",
       "loadingPlatforms": "Cargando plataformas...",
-      "nPlatforms": "{count, plural, one {# plataforma} other {# plataformas}}"
+      "nPlatforms": "{count, plural, one {# plataforma} other {# plataformas}}",
+      "country": "País"
     }
   },
   "search": {

@@ -2,15 +2,10 @@
 import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
-import RandomPicker from "@/components/myList/RandomPicker/RandomPicker";
-import type {
-  RandomPickerItem,
-  PickerProvider,
-} from "@/components/myList/RandomPicker/RandomPicker";
+import RandomPicker from "@/components/shared/RandomPicker/RandomPicker";
+import { PickerProvider, RandomPickerItem } from "@/types/randomPicker";
 import { tmdbClientFetch } from "@/services/tmdb-client";
 import { IMG_BASE } from "@/services/tmdb";
-
-const PROVIDER_REGIONS = ["AR", "MX", "CO", "CL", "US", "GB"];
 
 interface WatchProviderEntry {
   provider_id: number;
@@ -63,27 +58,27 @@ export default function Top100PickerButton({ items }: Top100PickerButtonProps) {
     withConcurrency(
       items.map((item) => async (): Promise<RandomPickerItem> => {
         try {
-          // Cada item sabe su propio tipo — funciona para listas mixtas (My List)
           const tmdbType = item.media_type === "tv" ? "tv" : "movie";
           const data = await tmdbClientFetch<WatchProvidersResponse>(
             `/${tmdbType}/${item.id}/watch/providers`,
             "en",
           );
-          let providers: PickerProvider[] = [];
-          for (const region of PROVIDER_REGIONS) {
-            const flatrate = data.results?.[region]?.flatrate;
-            if (flatrate?.length) {
-              providers = flatrate.map((p) => ({
+
+          // Guardar TODAS las regiones disponibles (no solo la primera)
+          const providersByRegion: Record<string, PickerProvider[]> = {};
+          for (const [code, regionData] of Object.entries(data.results ?? {})) {
+            if (regionData.flatrate?.length) {
+              providersByRegion[code] = regionData.flatrate.map((p) => ({
                 id: p.provider_id,
                 name: p.provider_name,
                 logo_path: `${IMG_BASE}/w45${p.logo_path}`,
               }));
-              break;
             }
           }
-          return { ...item, providers };
+
+          return { ...item, providersByRegion, providers: [] };
         } catch {
-          return { ...item, providers: [] };
+          return { ...item, providersByRegion: {}, providers: [] };
         }
       }),
       15,

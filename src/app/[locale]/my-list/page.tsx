@@ -8,7 +8,7 @@ import { Link } from "@/navigation";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
 import { tmdbClientFetch } from "@/services/tmdb-client";
-import Top100PickerButton from "@/components/shared/Top100PickerButton/Top100PickerButton";
+import Top100PickerButton from "@/components/shared/RandomPicker/Top100PickerButton/Top100PickerButton";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import LibraryAddCheckOutlinedIcon from "@mui/icons-material/LibraryAddCheckOutlined";

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
-import Top100PickerButton from "@/components/shared/Top100PickerButton/Top100PickerButton";
+import Top100PickerButton from "@/components/shared/RandomPicker/Top100PickerButton/Top100PickerButton";
 import {
   getSeriesByGenre,
   getTrendingSeries,
