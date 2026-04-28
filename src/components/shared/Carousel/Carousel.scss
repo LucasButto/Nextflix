@@ -6,6 +6,20 @@
   margin-bottom: $section-gap;
 }
 
+/* ─── Header con título + acción opcional ─── */
+.carousel-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 0;
+
+  &__action {
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-bottom: 1rem;
+  }
+}
+
 .carousel-wrapper {
   position: relative;
 }

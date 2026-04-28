@@ -8,17 +8,15 @@ import { Link } from "@/navigation";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
 import { tmdbClientFetch } from "@/services/tmdb-client";
-import RandomPicker from "@/components/myList/RandomPicker/RandomPicker";
+import Top100PickerButton from "@/components/shared/Top100PickerButton/Top100PickerButton";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import LibraryAddCheckOutlinedIcon from "@mui/icons-material/LibraryAddCheckOutlined";
-import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
 import "@/styles/pages/my-list/watchlist.scss";
 import { BaseItem } from "@/types/tmdb";
 
 const SKELETON_COUNT = 12;
 
-// Datos actualizados desde TMDB para el locale actual
 interface LocalizedItem {
   id: number;
   media_type: string;
@@ -57,14 +55,10 @@ export default function TuListaPage() {
   } = useWatchlist();
   const { watched, loaded: watchedLoaded, removeFromWatched } = useWatched();
   const [activeTab, setActiveTab] = useState<"lista" | "vistas">("lista");
-  const [pickerOpen, setPickerOpen] = useState(false);
-
-  // Mapa de datos actualizados: `${media_type}-${id}` → LocalizedItem
   const [localizedData, setLocalizedData] = useState<
     Map<string, LocalizedItem>
   >(new Map());
 
-  // Re-fetchear títulos y posters en el locale actual
   useEffect(() => {
     if (!watchlistLoaded || !watchedLoaded) return;
 
@@ -110,7 +104,7 @@ export default function TuListaPage() {
     });
   }, [watchlistLoaded, watchedLoaded, locale, watchlist, watched]);
 
-  // Items para el picker, con títulos y posters localizados ya aplicados
+  // Items para el picker con títulos/posters localizados
   const pickerItems = useMemo(() => {
     const source = activeTab === "lista" ? watchlist : watched;
     return source.map((it) => {
@@ -218,14 +212,9 @@ export default function TuListaPage() {
           )}
         </div>
         {activeItems.length > 0 && (
-          <button
-            type="button"
-            className="watchlist-random-btn"
-            onClick={() => setPickerOpen(true)}
-          >
-            <CasinoRoundedIcon />
-            <span>{t("randomPicker.openButton")}</span>
-          </button>
+          // key={activeTab} fuerza remount al cambiar de tab → re-fetchea
+          // providers con los items correctos de cada lista
+          <Top100PickerButton key={activeTab} items={pickerItems} />
         )}
       </div>
 
@@ -283,7 +272,6 @@ export default function TuListaPage() {
               {renderGrid(movies, onRemove)}
             </div>
           )}
-
           {series.length > 0 && (
             <div className="watchlist-section">
               <h2 className="watchlist-section__title">
@@ -293,13 +281,6 @@ export default function TuListaPage() {
             </div>
           )}
         </>
-      )}
-
-      {pickerOpen && (
-        <RandomPicker
-          onClose={() => setPickerOpen(false)}
-          items={pickerItems}
-        />
       )}
     </div>
   );

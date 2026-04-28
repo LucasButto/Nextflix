@@ -110,10 +110,16 @@
       "again": "Again",
       "viewDetail": "View detail",
       "empty": "Nothing here yet",
-      "emptyForFilter": "Nothing matches those filters",
+      "emptyForFilter": "No content matches those filters",
       "needSelection": "Pick at least one option",
       "placeholder": "Hit spin to find your next watch",
-      "close": "Close"
+      "close": "Close",
+      "platforms": "Platforms",
+      "allPlatforms": "All platforms",
+      "popularPlatforms": "Most popular",
+      "otherPlatforms": "Others",
+      "loadingPlatforms": "Loading platforms...",
+      "nPlatforms": "{count, plural, one {# platform} other {# platforms}}"
     }
   },
   "search": {
