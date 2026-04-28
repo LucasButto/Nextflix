@@ -7,12 +7,14 @@ import "./Carousel.scss";
 
 interface CarouselProps {
   title?: string;
+  headerAction?: ReactNode;
   children: ReactNode;
   className?: string;
 }
 
 export default function Carousel({
   title,
+  headerAction,
   children,
   className = "",
 }: CarouselProps) {
@@ -44,12 +46,22 @@ export default function Carousel({
     const el = trackRef.current;
     if (!el) return;
     const amount = el.clientWidth * 0.85;
-    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    el.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
   return (
     <section className={`carousel-section ${className}`}>
-      {title && <h2 className="section-title">{title}</h2>}
+      {(title || headerAction) && (
+        <div className="carousel-header">
+          {title && <h2 className="section-title">{title}</h2>}
+          {headerAction && (
+            <div className="carousel-header__action">{headerAction}</div>
+          )}
+        </div>
+      )}
       <div className="carousel-wrapper">
         {canScrollLeft && (
           <button

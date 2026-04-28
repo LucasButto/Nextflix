@@ -107,13 +107,19 @@
       "series": "Series",
       "spin": "Girar",
       "spinning": "Girando...",
-      "again": "Otra",
+      "again": "Otra vez",
       "viewDetail": "Ver detalle",
       "empty": "No tenés nada en esta lista todavía",
-      "emptyForFilter": "No hay nada con esos filtros",
+      "emptyForFilter": "No hay contenido con esa combinación de filtros",
       "needSelection": "Elegí al menos una opción",
       "placeholder": "Apretá girar para descubrir tu próxima función",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "platforms": "Plataformas",
+      "allPlatforms": "Todas las plataformas",
+      "popularPlatforms": "Más populares",
+      "otherPlatforms": "Otras",
+      "loadingPlatforms": "Cargando plataformas...",
+      "nPlatforms": "{count, plural, one {# plataforma} other {# plataformas}}"
     }
   },
   "search": {

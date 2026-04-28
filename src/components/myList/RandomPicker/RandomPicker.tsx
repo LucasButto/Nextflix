@@ -8,9 +8,17 @@ import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
 import LiveTvRoundedIcon from "@mui/icons-material/LiveTvRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import { posterUrl } from "@/services/tmdb";
 import "./RandomPicker.scss";
+
+export interface PickerProvider {
+  id: number;
+  name: string;
+  logo_path: string;
+}
 
 export interface RandomPickerItem {
   id: number;
@@ -18,21 +26,44 @@ export interface RandomPickerItem {
   title: string;
   poster_path: string | null;
   vote_average: number;
+  providers?: PickerProvider[];
 }
 
 interface RandomPickerProps {
   onClose: () => void;
   items: RandomPickerItem[];
+  loadingProviders?: boolean;
 }
 
-// Cada fila de la tira mide 60px. El "viewport" muestra 3 filas (180px),
-// con el indicador centrado sobre la fila del medio.
 const ITEM_HEIGHT = 60;
 const STRIP_LENGTH = 50;
-const WINNER_INDEX = 46; // ganador cerca del final para que se vea harto scroll
+const WINNER_INDEX = 46;
 const SPIN_DURATION_MS = 3600;
 
-// Fisher-Yates: devuelve una copia barajada del array.
+const POPULAR_PROVIDER_IDS = new Set([
+  8,
+  1796, // Netflix
+  9,
+  119, // Amazon Prime Video
+  337, // Disney Plus
+  350, // Apple TV Plus
+  384,
+  1899, // HBO Max / Max
+  531, // Paramount Plus
+  619, // Star Plus
+]);
+
+function isPopularProvider(p: PickerProvider): boolean {
+  if (POPULAR_PROVIDER_IDS.has(p.id)) return true;
+  const name = p.name.toLowerCase();
+  return name.includes("claro video") || name.includes("claro tv");
+}
+
+/** Normaliza un nombre de plataforma para comparación */
+function normalizeName(name: string): string {
+  return name.toLowerCase().trim();
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -42,21 +73,38 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function RandomPicker({ onClose, items }: RandomPickerProps) {
+export default function RandomPicker({
+  onClose,
+  items,
+  loadingProviders = false,
+}: RandomPickerProps) {
   const t = useTranslations("myList.randomPicker");
+
+  // ─── Type filter ───────────────────────────────────────────────────────────
+  const hasMovies = useMemo(
+    () => items.some((i) => i.media_type === "movie"),
+    [items],
+  );
+  const hasSeries = useMemo(
+    () => items.some((i) => i.media_type === "tv"),
+    [items],
+  );
+  const showTypeFilters = hasMovies && hasSeries;
 
   const [includeMovies, setIncludeMovies] = useState(true);
   const [includeSeries, setIncludeSeries] = useState(true);
 
-  const [strip, setStrip] = useState<RandomPickerItem[]>([]);
-  const [translateY, setTranslateY] = useState(0);
-  const [transitionOn, setTransitionOn] = useState(false);
-  const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState<RandomPickerItem | null>(null);
+  // ─── Platform filter ───────────────────────────────────────────────────────
+  // null = "Todas las plataformas" / Set<normalizedName> = selección específica
+  const [selectedNames, setSelectedNames] = useState<Set<string> | null>(null);
+  const [platformListOpen, setPlatformListOpen] = useState(false);
 
-  const spinTimeoutRef = useRef<number | null>(null);
+  const hasProviderData = useMemo(
+    () => items.some((i) => i.providers !== undefined),
+    [items],
+  );
 
-  const pool = useMemo(
+  const typeFilteredItems = useMemo(
     () =>
       items.filter((it) => {
         if (it.media_type === "movie") return includeMovies;
@@ -66,7 +114,50 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
     [items, includeMovies, includeSeries],
   );
 
-  // Bloquear scroll del body mientras el modal vive
+  // Providers únicos por nombre normalizado (elimina duplicados como Prime 9/119)
+  const allProviders = useMemo(() => {
+    const seen = new Map<string, PickerProvider>();
+    for (const item of typeFilteredItems) {
+      for (const p of item.providers ?? []) {
+        const key = normalizeName(p.name);
+        if (!seen.has(key)) seen.set(key, p);
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }, [typeFilteredItems]);
+
+  const popularProviders = useMemo(
+    () => allProviders.filter(isPopularProvider),
+    [allProviders],
+  );
+  const otherProviders = useMemo(
+    () => allProviders.filter((p) => !isPopularProvider(p)),
+    [allProviders],
+  );
+
+  // Pool final: tipo + plataforma (matchea por nombre normalizado)
+  const pool = useMemo(() => {
+    return typeFilteredItems.filter((item) => {
+      if (!hasProviderData || selectedNames === null) return true;
+      if (item.providers === undefined) return true;
+      if (item.providers.length === 0) return false;
+      return item.providers.some((p) =>
+        selectedNames.has(normalizeName(p.name)),
+      );
+    });
+  }, [typeFilteredItems, hasProviderData, selectedNames]);
+
+  // ─── Reel ──────────────────────────────────────────────────────────────────
+  const [strip, setStrip] = useState<RandomPickerItem[]>([]);
+  const [translateY, setTranslateY] = useState(0);
+  const [transitionOn, setTransitionOn] = useState(false);
+  const [spinning, setSpinning] = useState(false);
+  const [result, setResult] = useState<RandomPickerItem | null>(null);
+  const spinTimeoutRef = useRef<number | null>(null);
+
+  // ─── Side effects ──────────────────────────────────────────────────────────
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -77,34 +168,71 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !spinning) onClose();
+      if (e.key === "Escape") {
+        if (platformListOpen) {
+          setPlatformListOpen(false);
+        } else if (!spinning) {
+          onClose();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, spinning]);
+  }, [onClose, spinning, platformListOpen]);
 
   useEffect(() => {
     return () => {
-      if (spinTimeoutRef.current !== null) {
+      if (spinTimeoutRef.current !== null)
         window.clearTimeout(spinTimeoutRef.current);
-      }
     };
   }, []);
 
+  // ─── Toggle plataforma ─────────────────────────────────────────────────────
+  const toggleProvider = (name: string) => {
+    const key = normalizeName(name);
+    setSelectedNames((prev) => {
+      if (prev === null) {
+        // De "todas" → seleccionar solo esta
+        return new Set([key]);
+      }
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+        // Si el Set queda vacío → volver a "todas"
+        return next.size === 0 ? null : next;
+      } else {
+        next.add(key);
+        return next;
+      }
+    });
+    // NO cerramos el dropdown — el usuario puede seguir eligiendo
+  };
+
+  const resetProviders = () => {
+    setSelectedNames(null);
+    setPlatformListOpen(false);
+  };
+
+  // ─── Derived display values ────────────────────────────────────────────────
+  const selectedCount = selectedNames?.size ?? 0;
+  const singleSelected =
+    selectedCount === 1
+      ? (allProviders.find((p) => selectedNames!.has(normalizeName(p.name))) ??
+        null)
+      : null;
+
+  // ─── Spin ──────────────────────────────────────────────────────────────────
   const canSpin = pool.length > 0 && !spinning;
-  const noFilter = !includeMovies && !includeSeries;
-  const emptyAll = items.length === 0;
-  const emptyForFilter = !emptyAll && !noFilter && pool.length === 0;
 
   const handleSpin = () => {
     if (!canSpin) return;
+    setPlatformListOpen(false);
 
     const shuffled = shuffle(pool);
     const newStrip: RandomPickerItem[] = Array.from(
       { length: STRIP_LENGTH },
       (_, i) => shuffled[i % shuffled.length],
     );
-
     const winner = newStrip[WINNER_INDEX];
 
     setResult(null);
@@ -120,9 +248,9 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
       });
     });
 
-    if (spinTimeoutRef.current !== null) {
+    if (spinTimeoutRef.current !== null)
       window.clearTimeout(spinTimeoutRef.current);
-    }
+
     spinTimeoutRef.current = window.setTimeout(() => {
       setSpinning(false);
       setResult(winner);
@@ -130,7 +258,15 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
     }, SPIN_DURATION_MS);
   };
 
-  const showStrip = strip.length > 0;
+  // ─── Hints ─────────────────────────────────────────────────────────────────
+  const emptyAll = items.length === 0;
+  const noTypeFilter = showTypeFilters && !includeMovies && !includeSeries;
+  const emptyForFilter =
+    !emptyAll && !noTypeFilter && pool.length === 0 && !loadingProviders;
+
+  const showProviderSection =
+    loadingProviders || (hasProviderData && allProviders.length > 0);
+
   const winnerHref = result
     ? result.media_type === "tv"
       ? `/series/${result.id}`
@@ -144,6 +280,10 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
       aria-modal="true"
       aria-labelledby="random-picker-title"
       onClick={() => {
+        if (platformListOpen) {
+          setPlatformListOpen(false);
+          return;
+        }
         if (!spinning) onClose();
       }}
     >
@@ -151,6 +291,7 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
         className="random-picker__modal"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="random-picker__header">
           <div id="random-picker-title" className="random-picker__title">
             <CasinoRoundedIcon />
@@ -167,57 +308,197 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
           </button>
         </div>
 
+        {/* Body */}
         <div className="random-picker__body">
           {emptyAll ? (
             <p className="random-picker__hint">{t("empty")}</p>
           ) : (
             <>
-              <div className="random-picker__filters">
-                <label
-                  className={`random-picker__filter ${
-                    includeMovies ? "random-picker__filter--checked" : ""
-                  } ${spinning ? "random-picker__filter--disabled" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={includeMovies}
-                    onChange={(e) => setIncludeMovies(e.target.checked)}
-                    disabled={spinning}
-                  />
-                  <span className="random-picker__filter-icon">
-                    <MovieRoundedIcon />
-                  </span>
-                  <span className="random-picker__filter-label">
-                    {t("movies")}
-                  </span>
-                </label>
-                <label
-                  className={`random-picker__filter ${
-                    includeSeries ? "random-picker__filter--checked" : ""
-                  } ${spinning ? "random-picker__filter--disabled" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={includeSeries}
-                    onChange={(e) => setIncludeSeries(e.target.checked)}
-                    disabled={spinning}
-                  />
-                  <span className="random-picker__filter-icon">
-                    <LiveTvRoundedIcon />
-                  </span>
-                  <span className="random-picker__filter-label">
-                    {t("series")}
-                  </span>
-                </label>
-              </div>
+              {/* Type filter */}
+              {showTypeFilters && (
+                <div className="random-picker__filters">
+                  <label
+                    className={`random-picker__filter ${includeMovies ? "random-picker__filter--checked" : ""} ${spinning ? "random-picker__filter--disabled" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={includeMovies}
+                      onChange={(e) => setIncludeMovies(e.target.checked)}
+                      disabled={spinning}
+                    />
+                    <span className="random-picker__filter-icon">
+                      <MovieRoundedIcon />
+                    </span>
+                    <span className="random-picker__filter-label">
+                      {t("movies")}
+                    </span>
+                  </label>
+                  <label
+                    className={`random-picker__filter ${includeSeries ? "random-picker__filter--checked" : ""} ${spinning ? "random-picker__filter--disabled" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={includeSeries}
+                      onChange={(e) => setIncludeSeries(e.target.checked)}
+                      disabled={spinning}
+                    />
+                    <span className="random-picker__filter-icon">
+                      <LiveTvRoundedIcon />
+                    </span>
+                    <span className="random-picker__filter-label">
+                      {t("series")}
+                    </span>
+                  </label>
+                </div>
+              )}
 
+              {/* Platform selector */}
+              {showProviderSection && (
+                <div className="random-picker__providers">
+                  <span className="random-picker__providers-label">
+                    {t("platforms")}
+                  </span>
+
+                  {loadingProviders ? (
+                    <div className="random-picker__platform-trigger random-picker__platform-trigger--loading">
+                      <span className="random-picker__btn-spinner" />
+                      <span className="random-picker__platform-trigger-name">
+                        {t("loadingPlatforms")}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Trigger */}
+                      <button
+                        type="button"
+                        className={`random-picker__platform-trigger ${platformListOpen ? "random-picker__platform-trigger--open" : ""}`}
+                        onClick={() => setPlatformListOpen((v) => !v)}
+                        disabled={spinning}
+                      >
+                        {selectedNames === null ? (
+                          <span className="random-picker__platform-trigger-name">
+                            {t("allPlatforms")}
+                          </span>
+                        ) : singleSelected ? (
+                          <>
+                            <img
+                              src={singleSelected.logo_path}
+                              alt=""
+                              className="random-picker__platform-logo"
+                            />
+                            <span className="random-picker__platform-trigger-name">
+                              {singleSelected.name}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="random-picker__platform-trigger-name">
+                            {t("nPlatforms", { count: selectedCount })}
+                          </span>
+                        )}
+                        <KeyboardArrowDownRoundedIcon
+                          className={`random-picker__platform-chevron ${platformListOpen ? "random-picker__platform-chevron--open" : ""}`}
+                        />
+                      </button>
+
+                      {/* Inline list — stays open for multi-select */}
+                      {platformListOpen && (
+                        <div className="random-picker__platform-list">
+                          {/* All option */}
+                          <button
+                            type="button"
+                            className={`random-picker__platform-option ${selectedNames === null ? "random-picker__platform-option--active" : ""}`}
+                            onClick={resetProviders}
+                          >
+                            <span className="random-picker__platform-option-name">
+                              {t("allPlatforms")}
+                            </span>
+                            {selectedNames === null && (
+                              <CheckRoundedIcon className="random-picker__platform-check" />
+                            )}
+                          </button>
+
+                          {/* Popular */}
+                          {popularProviders.length > 0 && (
+                            <>
+                              <div className="random-picker__platform-divider" />
+                              <div className="random-picker__platform-section-title">
+                                {t("popularPlatforms")}
+                              </div>
+                              {popularProviders.map((p) => {
+                                const isActive =
+                                  selectedNames !== null &&
+                                  selectedNames.has(normalizeName(p.name));
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    className={`random-picker__platform-option ${isActive ? "random-picker__platform-option--active" : ""}`}
+                                    onClick={() => toggleProvider(p.name)}
+                                  >
+                                    <img
+                                      src={p.logo_path}
+                                      alt=""
+                                      className="random-picker__platform-logo"
+                                    />
+                                    <span className="random-picker__platform-option-name">
+                                      {p.name}
+                                    </span>
+                                    {isActive && (
+                                      <CheckRoundedIcon className="random-picker__platform-check" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </>
+                          )}
+
+                          {/* Others */}
+                          {otherProviders.length > 0 && (
+                            <>
+                              <div className="random-picker__platform-divider" />
+                              <div className="random-picker__platform-section-title">
+                                {t("otherPlatforms")}
+                              </div>
+                              {otherProviders.map((p) => {
+                                const isActive =
+                                  selectedNames !== null &&
+                                  selectedNames.has(normalizeName(p.name));
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    className={`random-picker__platform-option ${isActive ? "random-picker__platform-option--active" : ""}`}
+                                    onClick={() => toggleProvider(p.name)}
+                                  >
+                                    <img
+                                      src={p.logo_path}
+                                      alt=""
+                                      className="random-picker__platform-logo"
+                                    />
+                                    <span className="random-picker__platform-option-name">
+                                      {p.name}
+                                    </span>
+                                    {isActive && (
+                                      <CheckRoundedIcon className="random-picker__platform-check" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Reel */}
               <div className="random-picker__reel">
-                {showStrip ? (
+                {strip.length > 0 ? (
                   <>
                     <div
-                      className={`random-picker__strip ${
-                        transitionOn ? "random-picker__strip--animating" : ""
-                      }`}
+                      className={`random-picker__strip ${transitionOn ? "random-picker__strip--animating" : ""}`}
                       style={{ transform: `translateY(${translateY}px)` }}
                     >
                       {strip.map((it, idx) => (
@@ -245,9 +526,7 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
                     <div className="random-picker__fade random-picker__fade--top" />
                     <div className="random-picker__fade random-picker__fade--bottom" />
                     <div
-                      className={`random-picker__indicator ${
-                        result ? "random-picker__indicator--won" : ""
-                      }`}
+                      className={`random-picker__indicator ${result ? "random-picker__indicator--won" : ""}`}
                     />
                   </>
                 ) : (
@@ -258,12 +537,19 @@ export default function RandomPicker({ onClose, items }: RandomPickerProps) {
                 )}
               </div>
 
-              {(noFilter || emptyForFilter) && (
+              {/* Hints */}
+              {noTypeFilter && (
                 <p className="random-picker__hint random-picker__hint--warn">
-                  {noFilter ? t("needSelection") : t("emptyForFilter")}
+                  {t("needSelection")}
+                </p>
+              )}
+              {!noTypeFilter && emptyForFilter && (
+                <p className="random-picker__hint random-picker__hint--warn">
+                  {t("emptyForFilter")}
                 </p>
               )}
 
+              {/* Actions */}
               <div className="random-picker__actions">
                 {result && (
                   <Link

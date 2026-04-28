@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
+import Top100PickerButton from "@/components/shared/Top100PickerButton/Top100PickerButton";
 import {
   getSeriesByGenre,
   getTrendingSeries,
@@ -49,6 +50,14 @@ export default async function SeriesPage() {
     activeGenres.splice(insertAt, 0, { id: -1, name: "Anime", series: anime });
   }
 
+  const top100PickerItems = top100.map((s) => ({
+    id: s.id,
+    media_type: "tv" as const,
+    title: s.name,
+    poster_path: s.poster_path,
+    vote_average: s.vote_average,
+  }));
+
   return (
     <div style={{ paddingTop: "2rem" }}>
       <Carousel title={t("trendingWeek")}>
@@ -56,7 +65,10 @@ export default async function SeriesPage() {
           <MediaCard key={s.id} item={s} mediaType="tv" variant="wide" />
         ))}
       </Carousel>
-      <Carousel title={t("top100")}>
+      <Carousel
+        title={t("top100")}
+        headerAction={<Top100PickerButton items={top100PickerItems} />}
+      >
         {top100.map((s: Series, i: number) => (
           <MediaCard
             key={s.id}
