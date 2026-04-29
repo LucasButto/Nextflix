@@ -14,7 +14,7 @@
   align-items: flex-start;
 
   @media (max-width: 768px) {
-    margin-top: -90px;
+    margin-top: -120px !important;
   }
 }
 
@@ -124,7 +124,10 @@
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    justify-content: center;
+    /* Botones uno debajo del otro en mobile */
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
   }
 
   &__btn {
@@ -141,6 +144,12 @@
     border: 1px solid transparent;
     transition: all 0.2s ease;
     cursor: pointer;
+
+    @media (max-width: 768px) {
+      /* Cada botón ocupa todo el ancho disponible */
+      width: 100%;
+      justify-content: center;
+    }
 
     &:hover:not(&--disabled):not(&--center) {
       background: rgba($success, 0.15);
@@ -234,7 +243,9 @@
   flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
   }
 
   &__btn {
@@ -245,6 +256,11 @@
 
     &:nth-child(2) {
       width: 130px;
+    }
+
+    @media (max-width: 768px) {
+      width: 100% !important;
+      height: 44px;
     }
   }
 }

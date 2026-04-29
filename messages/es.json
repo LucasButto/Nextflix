@@ -73,7 +73,11 @@
     "backToSeries": "Volver a la serie",
     "guestStars": "Reparto invitado",
     "episodeVideos": "Videos del episodio",
-    "episodeStills": "Imágenes del episodio"
+    "episodeStills": "Imágenes del episodio",
+    "episodeRatings": "Calificaciones por temporada",
+    "episodeRatingsAvg": "Prom.",
+    "episodeRatingsShowMore": "Mostrar más",
+    "episodeRatingsShowLess": "Mostrar menos"
   },
   "watchlist": {
     "add": "Agregar a mi lista",

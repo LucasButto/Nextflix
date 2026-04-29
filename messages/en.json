@@ -73,7 +73,11 @@
     "backToSeries": "Back to series",
     "guestStars": "Guest stars",
     "episodeVideos": "Episode videos",
-    "episodeStills": "Episode stills"
+    "episodeStills": "Episode stills",
+    "episodeRatings": "Seasons Ratings",
+    "episodeRatingsAvg": "Avg.",
+    "episodeRatingsShowMore": "Show more",
+    "episodeRatingsShowLess": "Show less"
   },
   "watchlist": {
     "add": "Add to my list",

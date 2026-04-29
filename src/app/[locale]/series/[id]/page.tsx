@@ -8,6 +8,9 @@ import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
 import SeriesFullCast from "@/components/series/Seriesfullcast/Seriesfullcast";
 import SeasonEpisodes from "@/components/series/SeasonEpisodes/SeasonEpisodes";
+import EpisodeRatingGrid, {
+  EpisodeRatingGridSkeleton,
+} from "@/components/series/EpisodeRatingGrid/EpisodeRatingGrid";
 import WatchProviders from "@/components/shared/WatchProviders/WatchProviders";
 import Carousel from "@/components/shared/Carousel/Carousel";
 import MediaCard from "@/components/shared/MediaCard/MediaCard";
@@ -279,6 +282,20 @@ export default async function SerieDetailPage({
         <div className="detail-section">
           <h3 className="section-title">{t("trailer")}</h3>
           <TrailerPlayer videoKey={trailerKey} title={series.name} />
+        </div>
+      )}
+
+      {(series.seasons?.length ?? 0) > 0 && (
+        <div className="detail-section egrid-section">
+          <h3 className="section-title">{t("episodeRatings")}</h3>
+          <Suspense fallback={<EpisodeRatingGridSkeleton />}>
+            <EpisodeRatingGrid
+              seriesId={series.id}
+              seasons={series.seasons ?? []}
+              averageLabel={t("episodeRatingsAvg")}
+              seasonPrefix={t("seasonPrefix")}
+            />
+          </Suspense>
         </div>
       )}
 

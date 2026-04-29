@@ -267,7 +267,9 @@ export default async function EpisodeDetailPage({
           </nav>
 
           <div className="detail-title-row">
-            <h1 className="detail-title">{episode.name}</h1>
+            <h1 className="detail-title">
+              {episode.episode_number}. {episode.name}
+            </h1>
           </div>
 
           <div className="detail-meta">

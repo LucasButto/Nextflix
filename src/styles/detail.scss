@@ -297,6 +297,10 @@
 .detail-providers-section {
   padding: 0 $page-padding;
   margin: 2rem 0;
+
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+  }
 }
 
 .detail-providers-list {
@@ -398,7 +402,7 @@ a.detail-provider-badge {
 
 .detail-season-btn {
   padding: 8px 18px;
-  min-width: 4.2rem;
+  min-width: 4rem;
   text-align: center;
   border-radius: 8px;
   font-size: 0.82rem;
