@@ -55,6 +55,9 @@ export default function TuListaPage() {
   } = useWatchlist();
   const { watched, loaded: watchedLoaded, removeFromWatched } = useWatched();
   const [activeTab, setActiveTab] = useState<"lista" | "vistas">("lista");
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<
+    "all" | "movie" | "tv"
+  >("all");
   const [localizedData, setLocalizedData] = useState<
     Map<string, LocalizedItem>
   >(new Map());
@@ -135,6 +138,9 @@ export default function TuListaPage() {
   const movies = activeItems.filter((item) => item.media_type === "movie");
   const series = activeItems.filter((item) => item.media_type === "tv");
 
+  // Show the filter only when both types coexist
+  const showMediaFilter = movies.length > 0 && series.length > 0;
+
   const renderGrid = (
     items: BaseItem[],
     onRemove: (id: number, mediaType: string) => void,
@@ -198,6 +204,9 @@ export default function TuListaPage() {
   const onRemove =
     activeTab === "lista" ? removeFromWatchlist : removeFromWatched;
 
+  const showMovies = mediaTypeFilter !== "tv";
+  const showSeries = mediaTypeFilter !== "movie";
+
   return (
     <div className="watchlist-page">
       <div className="watchlist-header">
@@ -212,8 +221,6 @@ export default function TuListaPage() {
           )}
         </div>
         {activeItems.length > 0 && (
-          // key={activeTab} fuerza remount al cambiar de tab → re-fetchea
-          // providers con los items correctos de cada lista
           <Top100PickerButton key={activeTab} items={pickerItems} />
         )}
       </div>
@@ -221,7 +228,10 @@ export default function TuListaPage() {
       <div className="watchlist-tabs">
         <button
           className={`watchlist-tab ${activeTab === "lista" ? "watchlist-tab--active" : ""}`}
-          onClick={() => setActiveTab("lista")}
+          onClick={() => {
+            setActiveTab("lista");
+            setMediaTypeFilter("all");
+          }}
         >
           <QueuePlayNextRoundedIcon />
           {t("tabMyList")}
@@ -231,7 +241,10 @@ export default function TuListaPage() {
         </button>
         <button
           className={`watchlist-tab ${activeTab === "vistas" ? "watchlist-tab--active" : ""}`}
-          onClick={() => setActiveTab("vistas")}
+          onClick={() => {
+            setActiveTab("vistas");
+            setMediaTypeFilter("all");
+          }}
         >
           <LibraryAddCheckOutlinedIcon />
           {t("tabWatched")}
@@ -264,7 +277,39 @@ export default function TuListaPage() {
         </div>
       ) : (
         <>
-          {movies.length > 0 && (
+          {showMediaFilter && (
+            <div className="watchlist-media-filter">
+              <button
+                className={`watchlist-media-filter__btn ${mediaTypeFilter === "all" ? "watchlist-media-filter__btn--active" : ""}`}
+                onClick={() => setMediaTypeFilter("all")}
+              >
+                {t("all")}
+                <span className="watchlist-media-filter__count">
+                  {activeItems.length}
+                </span>
+              </button>
+              <button
+                className={`watchlist-media-filter__btn ${mediaTypeFilter === "tv" ? "watchlist-media-filter__btn--active" : ""}`}
+                onClick={() => setMediaTypeFilter("tv")}
+              >
+                {t("series")}
+                <span className="watchlist-media-filter__count">
+                  {series.length}
+                </span>
+              </button>
+              <button
+                className={`watchlist-media-filter__btn ${mediaTypeFilter === "movie" ? "watchlist-media-filter__btn--active" : ""}`}
+                onClick={() => setMediaTypeFilter("movie")}
+              >
+                {t("movies")}
+                <span className="watchlist-media-filter__count">
+                  {movies.length}
+                </span>
+              </button>
+            </div>
+          )}
+
+          {showMovies && movies.length > 0 && (
             <div className="watchlist-section">
               <h2 className="watchlist-section__title">
                 {t("movies")} ({movies.length})
@@ -272,7 +317,7 @@ export default function TuListaPage() {
               {renderGrid(movies, onRemove)}
             </div>
           )}
-          {series.length > 0 && (
+          {showSeries && series.length > 0 && (
             <div className="watchlist-section">
               <h2 className="watchlist-section__title">
                 {t("series")} ({series.length})
