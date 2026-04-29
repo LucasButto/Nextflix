@@ -1,0 +1,508 @@
+@use "@/styles/variables" as *;
+
+/* ────────────────────────────────────────────────────────────────────────
+   Episode Rating Grid
+   ────────────────────────────────────────────────────────────────────────
+   Desktop: CSS Grid 3 columnas (EpisodeRatingGridDesktop)
+   Mobile:  tabla en wrapper div + botones debajo (EpisodeRatingGridMobile)
+   ──────────────────────────────────────────────────────────────────────── */
+
+$cell-h: 38px;
+$cell-w: 52px;
+$cell-gap: 6px;
+$head-h: 30px;
+
+/* ────────────────────────────────────────────────────────────────────────
+   DESKTOP — CSS Grid
+   ──────────────────────────────────────────────────────────────────────── */
+.egrid-desktop {
+  display: none;
+
+  @include respond(md) {
+    display: grid;
+    grid-template-columns: max-content auto max-content;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "left  scroll right"
+      ".     buttons  .";
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 4px;
+    gap: 5px;
+  }
+}
+
+.egrid-desktop__col--left {
+  grid-area: left;
+}
+.egrid-desktop__scroll {
+  grid-area: scroll;
+}
+.egrid-desktop__col--right {
+  grid-area: right;
+}
+.egrid-desktop__footer-buttons {
+  grid-area: buttons;
+}
+
+.egrid-desktop__col {
+  display: flex;
+  flex-direction: column;
+
+  &--left {
+    z-index: 2;
+    background: $bg-primary;
+    padding-right: 4px;
+    box-shadow: 6px 0 14px -4px rgba(0, 0, 0, 0.7);
+  }
+
+  &--right {
+    z-index: 2;
+    background: $bg-primary;
+    padding-left: 4px;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 100%;
+      width: 25px;
+      background: linear-gradient(to right, transparent 0%, $bg-primary 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
+}
+
+.egrid-desktop__head-spacer {
+  height: $head-h;
+  margin-bottom: $cell-gap;
+}
+
+.egrid-desktop__head-avg {
+  height: $head-h;
+  margin-bottom: $cell-gap;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 8px 4px;
+  font-family: $font-display;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+.egrid-desktop__season-label {
+  height: $cell-h;
+  margin-bottom: $cell-gap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-family: $font-display;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+  min-width: 44px;
+}
+
+.egrid-desktop__avg-wrap {
+  height: $cell-h;
+  margin-bottom: $cell-gap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.egrid-desktop__scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0px 10px 10px 10px;
+
+  &::-webkit-scrollbar {
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $bg-elevated;
+    border-radius: 3px;
+    &:hover {
+      background: $text-muted;
+    }
+  }
+}
+
+.egrid-desktop__ep-row {
+  display: flex;
+  gap: $cell-gap;
+  margin-bottom: $cell-gap;
+}
+
+.egrid-desktop__ep-head {
+  width: $cell-w;
+  height: $head-h;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  font-family: $font-display;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: $text-secondary;
+}
+
+.egrid-desktop__ep-cell {
+  width: $cell-w;
+  height: $cell-h;
+  flex-shrink: 0;
+
+  &--phantom {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+.egrid-desktop__footer-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 4px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   MOBILE — wrapper div + tabla + botones externos
+   ────────────────────────────────────────────────────────────────────────
+   .egrid-mobile-wrapper  → scroll container (overflow-x: auto)
+   .egrid--mobile         → la tabla, scroll natural sin overflow propio
+   .egrid-mobile-buttons  → botones fuera del scroll, siempre visibles
+   ──────────────────────────────────────────────────────────────────────── */
+.egrid-mobile-wrapper {
+  display: none;
+
+  @media (max-width: $bp-md) {
+    display: block;
+    width: calc(100% + #{$page-padding});
+    margin-right: calc(-1 * #{$page-padding});
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+    margin-top: 4px;
+    padding-right: $page-padding;
+
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 20px),
+      transparent 100%
+    );
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: $bg-elevated;
+      border-radius: 2px;
+    }
+  }
+}
+
+/* Botones debajo del wrapper — fuera del scroll, siempre visibles */
+.egrid-mobile-buttons {
+  display: none;
+
+  @media (max-width: $bp-md) {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+}
+
+.egrid {
+  border-collapse: separate;
+  border-spacing: 4px;
+
+  th,
+  td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  &--mobile {
+    display: table;
+  }
+}
+
+/* ── Sticky primera columna en mobile (E1, E2...) ── */
+@media (max-width: $bp-md) {
+  .egrid--mobile {
+    --egrid-mobile-bg: #{$bg-primary};
+
+    .egrid__corner {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: var(--egrid-mobile-bg);
+    }
+
+    .egrid__row-head {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: var(--egrid-mobile-bg);
+      box-shadow: 4px 0 8px -4px rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+.egrid__corner {
+  width: 36px;
+  height: 24px;
+}
+
+.egrid__head {
+  font-family: $font-display;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: $text-secondary;
+  padding: 0 3px 5px;
+  min-width: 44px;
+}
+
+.egrid__row-head {
+  font-family: $font-display;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: $text-secondary;
+  padding: 0 8px 0 4px;
+  text-align: right;
+  white-space: nowrap;
+
+  &--avg {
+    color: $text-primary;
+    font-weight: 400;
+    padding-top: 6px;
+  }
+}
+
+.egrid__cell-wrap {
+  padding: 0;
+}
+.egrid__avg-row td {
+  padding-top: 6px;
+}
+
+@media (max-width: $bp-md) {
+  .egrid--mobile .egrid__cell {
+    width: 44px;
+    height: 32px;
+    font-size: 0.76rem;
+    border-radius: 6px;
+
+    &--avg {
+      height: 26px;
+      font-size: 0.76rem;
+      border-bottom-width: 2px;
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   Celdas de rating — compartidas
+   ──────────────────────────────────────────────────────────────────────── */
+.egrid__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $cell-w;
+  height: $cell-h;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+
+  @media (hover: hover) {
+    &:hover:not(.egrid__cell--empty):not(.egrid__cell--missing):not(
+        .egrid__cell--avg
+      ) {
+      transform: scale(1.1);
+      box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      z-index: 2;
+      filter: brightness(1.08);
+    }
+  }
+
+  &--cinema {
+    background: $info;
+    color: #fff;
+  }
+  &--awesome {
+    background: #2c8a4a;
+    color: #fff;
+  }
+  &--great {
+    background: $success;
+    color: #08220f;
+  }
+  &--good {
+    background: $warning;
+    color: #3a2d00;
+  }
+  &--regular {
+    background: #e89635;
+    color: #2d1c00;
+  }
+  &--bad {
+    background: $danger;
+    color: #fff;
+  }
+  &--garbage {
+    background: #8e44ad;
+    color: #fff;
+  }
+
+  &--empty,
+  &--missing {
+    background: rgba(255, 255, 255, 0.04);
+    color: $text-muted;
+    box-shadow: none;
+    cursor: default;
+    font-weight: 500;
+  }
+
+  &--avg {
+    background: transparent;
+    color: $text-primary;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    cursor: default;
+    height: 32px;
+    width: auto;
+    padding: 0 4px 4px;
+
+    &.egrid__cell--cinema {
+      border-bottom-color: $info;
+    }
+    &.egrid__cell--awesome {
+      border-bottom-color: #2c8a4a;
+    }
+    &.egrid__cell--great {
+      border-bottom-color: $success;
+    }
+    &.egrid__cell--good {
+      border-bottom-color: $warning;
+    }
+    &.egrid__cell--regular {
+      border-bottom-color: #e89635;
+    }
+    &.egrid__cell--bad {
+      border-bottom-color: $danger;
+    }
+    &.egrid__cell--garbage {
+      border-bottom-color: #8e44ad;
+    }
+    &.egrid__cell--empty {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+      color: $text-muted;
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   Botones compartidos (desktop footer + mobile external)
+   ──────────────────────────────────────────────────────────────────────── */
+.egrid__more-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  background: $bg-card;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+
+  @media (hover: hover) {
+    &:hover {
+      background: rgba($success, 0.15);
+      color: $success;
+      border-color: rgba($success, 0.35);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba($success, 0.5);
+    outline-offset: 2px;
+  }
+
+  &--secondary {
+    @media (hover: hover) {
+      &:hover {
+        background: rgba($danger, 0.15);
+        color: $danger;
+        border-color: rgba($danger, 0.35);
+      }
+    }
+
+    &:focus-visible {
+      outline-color: rgba($danger, 0.5);
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   Skeleton
+   ──────────────────────────────────────────────────────────────────────── */
+.sk-egrid {
+  display: grid;
+  grid-template-columns: repeat(8, 52px);
+  gap: 6px;
+  margin-top: 4px;
+
+  @media (max-width: $bp-md) {
+    grid-template-columns: repeat(6, 44px);
+    gap: 4px;
+  }
+}
+
+.sk-egrid__cell {
+  height: 38px;
+  border-radius: 8px;
+
+  @media (max-width: $bp-md) {
+    height: 32px;
+    border-radius: 6px;
+  }
+}

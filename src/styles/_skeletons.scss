@@ -486,3 +486,169 @@
     border-radius: 4px;
   }
 }
+
+.ep-sk {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ── Hero backdrop ── */
+.ep-sk__hero {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ep-sk__hero-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+}
+
+.ep-sk__hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, $bg-primary 85%);
+}
+
+/* ── Contenido sobre el hero ── */
+.ep-sk__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 22vh $page-padding 4rem;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 38vw;
+    gap: 1.2rem;
+  }
+}
+
+.ep-sk__still {
+  flex-shrink: 0;
+  width: 440px;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+
+  @media (max-width: $bp-lg) {
+    width: 340px;
+  }
+
+  @media (max-width: $bp-md) {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 8px;
+  }
+}
+
+.ep-sk__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-sk__bar {
+  border-radius: 6px;
+  @include shimmer;
+
+  &--breadcrumb {
+    height: 14px;
+    width: 160px;
+    margin-bottom: 0.75rem;
+  }
+
+  &--title {
+    height: 36px;
+    width: 90%;
+    margin-bottom: 0.5rem;
+
+    @media (max-width: $bp-md) {
+      height: 28px;
+    }
+
+    &-short {
+      width: 60%;
+      margin-bottom: 1.2rem;
+    }
+  }
+
+  &--credit {
+    height: 13px;
+    width: 280px;
+    margin-bottom: 0.4rem;
+
+    @media (max-width: $bp-md) {
+      width: 200px;
+    }
+
+    &:last-of-type {
+      margin-bottom: 1.2rem;
+    }
+  }
+
+  &--body {
+    height: 14px;
+    width: 95%;
+    margin-bottom: 0.45rem;
+
+    &-short {
+      width: 70%;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.ep-sk__badges {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.ep-sk__badge {
+  height: 28px;
+  width: 56px;
+  border-radius: 6px;
+  @include shimmer;
+
+  &--wide {
+    width: 120px;
+  }
+}
+
+.ep-sk__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.8rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+  }
+}
+
+.ep-sk__action-btn {
+  height: 40px;
+  width: 100px;
+  border-radius: 8px;
+  @include shimmer;
+
+  &--wide {
+    width: 150px;
+  }
+
+  @media (max-width: $bp-md) {
+    width: 100% !important;
+    height: 44px;
+  }
+}
