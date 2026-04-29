@@ -72,7 +72,7 @@ export default function PlatformSelector({
           </span>
         </div>
       ) : (
-        <>
+        <div className="random-picker__dropdown-wrapper">
           <button
             type="button"
             className={`random-picker__platform-trigger ${
@@ -83,7 +83,7 @@ export default function PlatformSelector({
           >
             {selectedNames === null ? (
               <span className="random-picker__platform-trigger-name">
-                {t("allPlatforms")}
+                {t("allPlatformsShort")}
               </span>
             ) : singleSelected ? (
               <>
@@ -119,8 +119,9 @@ export default function PlatformSelector({
                 }`}
                 onClick={onResetProviders}
               >
+                {/* Same short label as trigger — dropdown width = trigger width */}
                 <span className="random-picker__platform-option-name">
-                  {t("allPlatforms")}
+                  {t("allPlatformsShort")}
                 </span>
                 {selectedNames === null && (
                   <CheckRoundedIcon className="random-picker__platform-check" />
@@ -148,7 +149,7 @@ export default function PlatformSelector({
               )}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

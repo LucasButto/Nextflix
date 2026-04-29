@@ -249,6 +249,11 @@
 
   /* Collapsible list */
   &__platform-list {
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    right: -1px;
+    z-index: 50;
     background: $bg-card;
     border: 1px solid rgba($accent-primary, 0.5);
     border-top: none;
@@ -536,7 +541,7 @@
   }
 
   &__providers--country {
-    flex: 0 0 auto;
+    flex: 0 0 160px;
     min-width: 0;
   }
 
@@ -549,6 +554,10 @@
     border-radius: 2px;
     flex-shrink: 0;
     display: block;
+  }
+
+  &__dropdown-wrapper {
+    position: relative;
   }
 }
 

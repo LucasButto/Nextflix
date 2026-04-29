@@ -25,12 +25,14 @@ interface RandomPickerProps {
   onClose: () => void;
   items: RandomPickerItem[];
   loadingProviders?: boolean;
+  titleOverride?: string;
 }
 
 export default function RandomPicker({
   onClose,
   items,
   loadingProviders = false,
+  titleOverride,
 }: RandomPickerProps) {
   const t = useTranslations("myList.randomPicker");
 
@@ -151,7 +153,7 @@ export default function RandomPicker({
         <header className="random-picker__header">
           <div id="random-picker-title" className="random-picker__title">
             <CasinoRoundedIcon />
-            {t("title")}
+            {titleOverride ?? t("title")}
           </div>
           <button
             type="button"

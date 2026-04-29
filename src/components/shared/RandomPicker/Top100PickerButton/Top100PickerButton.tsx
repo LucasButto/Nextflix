@@ -88,6 +88,15 @@ export default function Top100PickerButton({ items }: Top100PickerButtonProps) {
     });
   };
 
+  // Derive title based on the media type of the items
+  const allMovies = items.every((i) => i.media_type === "movie");
+  const allSeries = items.every((i) => i.media_type === "tv");
+  const pickerTitle = allMovies
+    ? t("titleMovies")
+    : allSeries
+      ? t("titleSeries")
+      : t("title");
+
   return (
     <>
       <button
@@ -103,6 +112,7 @@ export default function Top100PickerButton({ items }: Top100PickerButtonProps) {
           items={enrichedItems ?? items}
           loadingProviders={loadingProviders}
           onClose={() => setOpen(false)}
+          titleOverride={pickerTitle}
         />
       )}
     </>

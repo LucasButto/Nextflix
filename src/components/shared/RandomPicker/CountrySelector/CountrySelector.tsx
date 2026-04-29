@@ -35,7 +35,7 @@ export default function CountrySelector({
           <span className="random-picker__btn-spinner" />
         </div>
       ) : (
-        <>
+        <div className="random-picker__dropdown-wrapper">
           <button
             type="button"
             className={`random-picker__platform-trigger ${
@@ -91,7 +91,7 @@ export default function CountrySelector({
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

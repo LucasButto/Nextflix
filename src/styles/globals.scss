@@ -189,10 +189,15 @@ textarea {
   }
 
   @media (max-width: $bp-sm) {
-    padding: 9px 12px;
+    padding: 12px 14px;
 
     span {
       display: none;
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
     }
   }
 }
