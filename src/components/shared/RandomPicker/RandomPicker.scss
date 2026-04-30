@@ -16,6 +16,7 @@
   }
 
   &__modal {
+    position: relative;
     width: 100%;
     max-width: 460px;
     max-height: calc(100svh - 2rem);
@@ -204,8 +205,7 @@
 
     &--open {
       border-color: rgba($accent-primary, 0.5);
-      border-bottom-color: transparent;
-      border-radius: 10px 10px 0 0;
+      border-radius: 10px;
       background: $bg-card;
     }
 
@@ -247,19 +247,18 @@
     }
   }
 
-  /* Collapsible list */
+  /* Collapsible list — full-width of filter row */
   &__platform-list {
     position: absolute;
-    top: 100%;
-    left: -1px;
-    right: -1px;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
     z-index: 50;
     background: $bg-card;
     border: 1px solid rgba($accent-primary, 0.5);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
+    border-radius: 10px;
     overflow: hidden;
-    max-height: 240px;
+    max-height: 200px;
     overflow-y: auto;
     animation: fadeIn 0.15s ease;
     @include scrollbar-hidden;
@@ -538,6 +537,7 @@
     display: flex;
     gap: 10px;
     align-items: flex-start;
+    position: relative;
   }
 
   &__providers--country {
@@ -557,7 +557,7 @@
   }
 
   &__dropdown-wrapper {
-    position: relative;
+    position: static;
   }
 }
 

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CasinoRoundedIcon from "@mui/icons-material/CasinoRounded";
@@ -92,10 +92,41 @@ export default function RandomPicker({
   const [countryListOpen, setCountryListOpen] = useState(false);
   const [platformListOpen, setPlatformListOpen] = useState(false);
 
+  const platformRef = useRef<HTMLDivElement>(null);
+  const countryRef = useRef<HTMLDivElement>(null);
+
   const closeDropdowns = useCallback(() => {
     setCountryListOpen(false);
     setPlatformListOpen(false);
   }, []);
+
+  // Close dropdowns on click outside their wrapper
+  useEffect(() => {
+    if (!platformListOpen && !countryListOpen) return;
+
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+
+      if (
+        platformListOpen &&
+        platformRef.current &&
+        !platformRef.current.contains(target)
+      ) {
+        setPlatformListOpen(false);
+      }
+
+      if (
+        countryListOpen &&
+        countryRef.current &&
+        !countryRef.current.contains(target)
+      ) {
+        setCountryListOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [platformListOpen, countryListOpen]);
 
   // ─── Side effects ──────────────────────────────────────────────────────────
   useBodyScrollLock();
@@ -184,36 +215,46 @@ export default function RandomPicker({
               {(showCountrySection || showProviderSection) && (
                 <div className="random-picker__filter-row">
                   {showProviderSection && (
-                    <PlatformSelector
-                      popularProviders={popularProviders}
-                      otherProviders={otherProviders}
-                      selectedNames={selectedNames}
-                      selectedCount={selectedCount}
-                      singleSelected={singleSelected}
-                      loading={loadingProviders}
-                      open={platformListOpen}
-                      onToggle={() => {
-                        setPlatformListOpen((v) => !v);
-                        setCountryListOpen(false);
-                      }}
-                      onSelectProvider={toggleProvider}
-                      onResetProviders={handleResetProviders}
-                      disabled={spinning}
-                    />
+                    <div
+                      ref={platformRef}
+                      className="random-picker__providers random-picker__providers--platform"
+                    >
+                      <PlatformSelector
+                        popularProviders={popularProviders}
+                        otherProviders={otherProviders}
+                        selectedNames={selectedNames}
+                        selectedCount={selectedCount}
+                        singleSelected={singleSelected}
+                        loading={loadingProviders}
+                        open={platformListOpen}
+                        onToggle={() => {
+                          setPlatformListOpen((v) => !v);
+                          setCountryListOpen(false);
+                        }}
+                        onSelectProvider={toggleProvider}
+                        onResetProviders={handleResetProviders}
+                        disabled={spinning}
+                      />
+                    </div>
                   )}
                   {showCountrySection && (
-                    <CountrySelector
-                      effectiveCountry={effectiveCountry}
-                      availableCountries={availableCountries}
-                      loading={loadingProviders}
-                      open={countryListOpen}
-                      onToggle={() => {
-                        setCountryListOpen((v) => !v);
-                        setPlatformListOpen(false);
-                      }}
-                      onSelect={handleSelectCountry}
-                      disabled={spinning}
-                    />
+                    <div
+                      ref={countryRef}
+                      className="random-picker__providers random-picker__providers--country"
+                    >
+                      <CountrySelector
+                        effectiveCountry={effectiveCountry}
+                        availableCountries={availableCountries}
+                        loading={loadingProviders}
+                        open={countryListOpen}
+                        onToggle={() => {
+                          setCountryListOpen((v) => !v);
+                          setPlatformListOpen(false);
+                        }}
+                        onSelect={handleSelectCountry}
+                        disabled={spinning}
+                      />
+                    </div>
                   )}
                 </div>
               )}

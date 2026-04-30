@@ -61,14 +61,14 @@ export default function PlatformSelector({
   };
 
   return (
-    <div className="random-picker__providers random-picker__providers--platform">
+    <>
       <span className="random-picker__providers-label">{t("platforms")}</span>
 
       {loading ? (
         <div className="random-picker__platform-trigger random-picker__platform-trigger--loading">
           <span className="random-picker__btn-spinner" />
           <span className="random-picker__platform-trigger-name">
-            {t("loadingPlatforms")}
+            {t("loading")}
           </span>
         </div>
       ) : (
@@ -119,7 +119,6 @@ export default function PlatformSelector({
                 }`}
                 onClick={onResetProviders}
               >
-                {/* Same short label as trigger — dropdown width = trigger width */}
                 <span className="random-picker__platform-option-name">
                   {t("allPlatformsShort")}
                 </span>
@@ -151,6 +150,6 @@ export default function PlatformSelector({
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -27,12 +27,15 @@ export default function CountrySelector({
   const locale = useLocale();
 
   return (
-    <div className="random-picker__providers random-picker__providers--country">
+    <>
       <span className="random-picker__providers-label">{t("country")}</span>
 
       {loading ? (
         <div className="random-picker__platform-trigger random-picker__platform-trigger--loading">
           <span className="random-picker__btn-spinner" />
+          <span className="random-picker__platform-trigger-name">
+            {t("loading")}
+          </span>
         </div>
       ) : (
         <div className="random-picker__dropdown-wrapper">
@@ -93,6 +96,6 @@ export default function CountrySelector({
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
