@@ -77,7 +77,11 @@
     "episodeRatings": "Calificaciones por temporada",
     "episodeRatingsAvg": "Prom.",
     "episodeRatingsShowMore": "Mostrar más",
-    "episodeRatingsShowLess": "Mostrar menos"
+    "episodeRatingsShowLess": "Mostrar menos",
+    "movieImages": "Imágenes",
+    "galleryShowMore": "Ver más ({count})",
+    "galleryShowLess": "Ver menos",
+    "galleryShowAll": "Mostrar todo ({count})"
   },
   "watchlist": {
     "add": "Agregar a mi lista",
@@ -128,7 +132,8 @@
       "otherPlatforms": "Otras",
       "loadingPlatforms": "Cargando plataformas...",
       "nPlatforms": "{count, plural, one {# plataforma} other {# plataformas}}",
-      "country": "País"
+      "country": "País",
+      "loading": "Cargando..."
     }
   },
   "search": {

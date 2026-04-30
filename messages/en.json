@@ -77,7 +77,11 @@
     "episodeRatings": "Seasons Ratings",
     "episodeRatingsAvg": "Avg.",
     "episodeRatingsShowMore": "Show more",
-    "episodeRatingsShowLess": "Show less"
+    "episodeRatingsShowLess": "Show less",
+    "movieImages": "Images",
+    "galleryShowMore": "Show more ({count})",
+    "galleryShowLess": "Show less",
+    "galleryShowAll": "Show all ({count})"
   },
   "watchlist": {
     "add": "Add to my list",
@@ -128,7 +132,8 @@
       "otherPlatforms": "Others",
       "loadingPlatforms": "Loading platforms...",
       "nPlatforms": "{count, plural, one {# platform} other {# platforms}}",
-      "country": "Country"
+      "country": "Country",
+      "loading": "Loading..."
     }
   },
   "search": {

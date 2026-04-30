@@ -176,6 +176,7 @@ export interface MovieDetails extends Movie {
   production_countries?: ProductionCountry[];
   spoken_languages?: SpokenLanguage[];
   homepage?: string;
+  images?: MovieImages;
 }
 
 // ─── Series ───────────────────────────────────────────────────────────────────
@@ -319,6 +320,22 @@ export interface SearchResponse {
 
 export interface PageParams {
   id: string;
+}
+
+// ─── Movie Images ─────────────────────────────────────────────────────────────
+export interface TmdbImage {
+  file_path: string;
+  aspect_ratio: number;
+  width: number;
+  height: number;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface MovieImages {
+  backdrops: TmdbImage[];
+  posters: TmdbImage[];
+  logos: TmdbImage[];
 }
 
 // ─── Episode detail extras ───────────────────────────────────────────────────

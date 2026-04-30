@@ -127,8 +127,9 @@ export async function getMovieDetails(
     `/movie/${movieId}`,
     {
       append_to_response:
-        "credits,watch/providers,videos,recommendations,release_dates",
+        "credits,watch/providers,videos,recommendations,release_dates,images",
       include_video_language: "en,null",
+      include_image_language: "en,null",
     },
     language,
   );

@@ -12,6 +12,7 @@ import MediaCard from "@/components/shared/MediaCard/MediaCard";
 import TrailerPlayer from "@/components/shared/TrailerPlayer/TrailerPlayer";
 import VideoGrid from "@/components/shared/VideoGrid/VideoGrid";
 import FunFacts from "@/components/shared/FunFacts/FunFacts";
+import ImageGallery from "@/components/shared/ImageGallery/ImageGallery";
 import { Link } from "@/navigation";
 import {
   formatLocalizedDate,
@@ -113,6 +114,7 @@ export default async function PeliculaDetailPage({
   const filteredRecs = regularRecs.filter((m) => !collectionIds.has(m.id));
   const recommendations = [...collectionMovies, ...filteredRecs].slice(0, 15);
   const funFacts = buildMovieFunFacts(movie, t);
+  const movieBackdrops = movie.images?.backdrops ?? [];
 
   return (
     <div className="detail-page">
@@ -245,6 +247,13 @@ export default async function PeliculaDetailPage({
       )}
 
       <FunFacts title={t("funFacts")} facts={funFacts} />
+
+      {movieBackdrops.length > 0 && (
+        <div className="detail-section">
+          <h3 className="section-title">{t("movieImages")}</h3>
+          <ImageGallery images={movieBackdrops} alt={movie.title} />
+        </div>
+      )}
 
       {recommendations.length > 0 && (
         <Carousel title={t("recommendations")}>
