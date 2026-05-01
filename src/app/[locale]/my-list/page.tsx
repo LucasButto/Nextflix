@@ -135,8 +135,12 @@ export default function TuListaPage() {
   if (!watchlistLoaded || !watchedLoaded) return <WatchlistSkeleton />;
 
   const activeItems = activeTab === "lista" ? watchlist : watched;
-  const movies = activeItems.filter((item) => item.media_type === "movie");
-  const series = activeItems.filter((item) => item.media_type === "tv");
+  const movies = activeItems
+    .filter((item) => item.media_type === "movie")
+    .reverse();
+  const series = activeItems
+    .filter((item) => item.media_type === "tv")
+    .reverse();
 
   // Show the filter only when both types coexist
   const showMediaFilter = movies.length > 0 && series.length > 0;
