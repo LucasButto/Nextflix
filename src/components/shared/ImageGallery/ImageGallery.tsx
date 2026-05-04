@@ -11,7 +11,7 @@ import { IMG_BASE } from "@/services/tmdb";
 import type { TmdbImage } from "@/types/tmdb";
 import "./ImageGallery.scss";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 interface ImageGalleryProps {
   images: TmdbImage[];
@@ -64,6 +64,7 @@ export default function ImageGallery({
   const canShowMore = visibleCount < images.length;
   const canShowLess = visibleCount > PAGE_SIZE;
   const remaining = images.length - visibleCount;
+  const onlyAll = PAGE_SIZE > remaining;
 
   const close = useCallback(() => setOpenIndex(null), []);
   const prev = useCallback(() => {
@@ -135,7 +136,7 @@ export default function ImageGallery({
               {t("galleryShowAll", { count: remaining })}
             </button>
           )}
-          {canShowMore && (
+          {canShowMore && !onlyAll && (
             <button
               type="button"
               className="image-gallery__toggle image-gallery__toggle--more"
@@ -144,7 +145,9 @@ export default function ImageGallery({
               }
             >
               <AddRoundedIcon />
-              {t("galleryShowMore", { count: PAGE_SIZE })}
+              {t("galleryShowMore", {
+                count: remaining > PAGE_SIZE ? PAGE_SIZE : remaining,
+              })}
             </button>
           )}
         </div>
