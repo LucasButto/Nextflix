@@ -5,7 +5,7 @@ import Top100PickerButton from "@/components/shared/RandomPicker/Top100PickerBut
 import {
   getMoviesByGenre,
   getTrendingMovies,
-  getTop100Movies,
+  getTop100MoviesEnhanced,
   getAnimeMovies,
   getMovieGenreList,
 } from "@/services/movies";
@@ -27,7 +27,7 @@ export default async function PeliculasPage() {
 
   const [trending, top100, anime, genreList, genreResults] = await Promise.all([
     getTrendingMovies("week").catch(() => []) as Promise<Movie[]>,
-    getTop100Movies().catch(() => []) as Promise<Movie[]>,
+    getTop100MoviesEnhanced().catch(() => []) as Promise<Movie[]>,
     getAnimeMovies().catch(() => []) as Promise<Movie[]>,
     getMovieGenreList(),
     Promise.all(
@@ -55,7 +55,7 @@ export default async function PeliculasPage() {
     media_type: "movie" as const,
     title: m.title,
     poster_path: m.poster_path,
-    vote_average: m.vote_average,
+    vote_average: m.imdb_rating ?? m.vote_average,
   }));
 
   return (

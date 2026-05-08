@@ -1,4 +1,5 @@
 import { tmdbFetch, TmdbListResponse, filterLatinScript } from "./tmdb";
+import { getOmdbRating } from "./omdb";
 import { getLocale } from "next-intl/server";
 import type {
   Series,
@@ -6,6 +7,7 @@ import type {
   SeasonDetails,
   Videos,
   EpisodeDetails,
+  ExternalIds,
 } from "@/types/tmdb";
 
 export async function getTrendingSeries(timeWindow: "day" | "week" = "day") {
@@ -84,6 +86,106 @@ export async function getTop100Series() {
     .slice(0, 100);
 }
 
+// ─── Top 100 series enriquecido con IMDb (vía OMDb) ────────────────────────
+//
+// Mismo diseño que getTop100MoviesEnhanced pero con umbrales adaptados a series:
+// - Pool más grande (series tienen más variación)
+// - Umbral de votos IMDb más bajo (50k vs 100k de movies)
+//
+// Las series suelen tener menos votos que las películas en IMDb.
+const TOP100_SERIES_POOL_PAGES = 20;
+const TOP100_SERIES_MIN_TMDB_VOTES = 1000;
+const TOP100_SERIES_MIN_IMDB_VOTES = 50_000;
+const TOP100_SERIES_MIN_IMDB_VOTES_RELAXED = 20_000;
+const TOP100_SERIES_TARGET = 100;
+const TOP100_SERIES_HEALTHCHECK_MIN = 50;
+
+/**
+ * Top 100 series con criterios cercanos al Top 100 real de IMDb.
+ * Ver `getTop100MoviesEnhanced` en movies.ts para detalles del algoritmo.
+ */
+export async function getTop100SeriesEnhanced(): Promise<Series[]> {
+  // 1. Pool amplio desde TMDB top_rated
+  const pages = await Promise.all(
+    Array.from({ length: TOP100_SERIES_POOL_PAGES }, (_, i) => i + 1).map(
+      (page) =>
+        tmdbFetch<TmdbListResponse<Series>>("/tv/top_rated", { page })
+          .then((d) => filterLatinScript(d.results))
+          .catch(() => [] as Series[]),
+    ),
+  );
+
+  const seen = new Set<number>();
+  const pool = pages.flat().filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return s.vote_count >= TOP100_SERIES_MIN_TMDB_VOTES;
+  });
+
+  if (pool.length === 0) return [];
+
+  // 2. Enriquecemos con imdb_id + rating IMDb
+  const BATCH = 15;
+  const enriched: Series[] = [];
+  for (let i = 0; i < pool.length; i += BATCH) {
+    const batch = pool.slice(i, i + BATCH);
+    const results = await Promise.all(
+      batch.map(async (s): Promise<Series> => {
+        let imdbId: string | null = null;
+        try {
+          const ext = await tmdbFetch<ExternalIds>(`/tv/${s.id}/external_ids`);
+          imdbId = ext?.imdb_id ?? null;
+        } catch {
+          imdbId = null;
+        }
+        const omdb = await getOmdbRating(imdbId);
+        return {
+          ...s,
+          imdb_rating: omdb?.rating ?? null,
+          imdb_votes: omdb?.votes ?? 0,
+        };
+      }),
+    );
+    enriched.push(...results);
+  }
+
+  // 3. Healthcheck OMDb → fallback al ranking TMDB puro si no hay datos
+  const withImdb = enriched.filter((s) => s.imdb_rating !== null);
+  if (withImdb.length < TOP100_SERIES_HEALTHCHECK_MIN) {
+    return enriched
+      .sort((a, b) => {
+        const diff =
+          Math.round(b.vote_average * 10) - Math.round(a.vote_average * 10);
+        return diff !== 0 ? diff : b.vote_count - a.vote_count;
+      })
+      .slice(0, TOP100_SERIES_TARGET);
+  }
+
+  // 4. Filtro adaptativo por cantidad de votos en IMDb
+  let qualifying = withImdb.filter(
+    (s) => (s.imdb_votes ?? 0) >= TOP100_SERIES_MIN_IMDB_VOTES,
+  );
+  if (qualifying.length < TOP100_SERIES_TARGET) {
+    qualifying = withImdb.filter(
+      (s) => (s.imdb_votes ?? 0) >= TOP100_SERIES_MIN_IMDB_VOTES_RELAXED,
+    );
+  }
+  if (qualifying.length < TOP100_SERIES_TARGET) {
+    qualifying = withImdb;
+  }
+
+  // 5. Ordenamos por rating IMDb desc, votos como desempate
+  return qualifying
+    .sort((a, b) => {
+      const ratingDiff =
+        Math.round((b.imdb_rating ?? 0) * 10) -
+        Math.round((a.imdb_rating ?? 0) * 10);
+      if (ratingDiff !== 0) return ratingDiff;
+      return (b.imdb_votes ?? 0) - (a.imdb_votes ?? 0);
+    })
+    .slice(0, TOP100_SERIES_TARGET);
+}
+
 export async function getSeriesByGenre(genreId: number) {
   const [page1, page2] = await Promise.all([
     tmdbFetch<TmdbListResponse<Series>>("/discover/tv", {
@@ -155,7 +257,7 @@ export async function getSeriesDetails(
     `/tv/${seriesId}`,
     {
       append_to_response:
-        "credits,watch/providers,videos,recommendations,content_ratings",
+        "credits,watch/providers,videos,recommendations,content_ratings,external_ids",
       include_video_language: "en,null",
     },
     language,

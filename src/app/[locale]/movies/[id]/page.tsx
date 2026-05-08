@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getMovieDetails, getCollectionDetails } from "@/services/movies";
 import { posterUrl, backdropUrl, profileUrl } from "@/services/tmdb";
+import { getOmdbRating } from "@/services/omdb";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
@@ -81,6 +82,11 @@ export default async function PeliculaDetailPage({
     notFound();
   }
 
+  // ─── Rating IMDb (OMDb) ─────────────────────────────────────────────
+  const omdbRating = await getOmdbRating(movie.imdb_id ?? null);
+  const displayRating = omdbRating?.rating ?? movie.vote_average;
+  const ratingSource = omdbRating ? "IMDb" : "TMDB";
+
   const cast = movie.credits?.cast?.slice(0, 20) ?? [];
   const allWatchProviders = movie["watch/providers"]?.results ?? {};
   const trailerKey = getTrailerKey(movie.videos);
@@ -158,10 +164,13 @@ export default async function PeliculaDetailPage({
             {certification && (
               <span className="detail-certification">{certification}</span>
             )}
-            {movie.vote_average > 0 && (
-              <span className="detail-rating">
+            {displayRating > 0 && (
+              <span
+                className="detail-rating"
+                title={`${ratingSource} · ${displayRating.toFixed(1)}`}
+              >
                 <StarRateRoundedIcon />
-                {movie.vote_average.toFixed(1)}
+                {displayRating.toFixed(1)}
               </span>
             )}
             {year && <span className="detail-year">{year}</span>}

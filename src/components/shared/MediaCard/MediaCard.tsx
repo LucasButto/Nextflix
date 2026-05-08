@@ -33,7 +33,12 @@ export default function MediaCard({
   const releaseDate =
     "release_date" in item ? item.release_date : item.first_air_date;
   const year = extractYear(releaseDate);
-  const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
+
+  const hasImdb = typeof item.imdb_rating === "number" && item.imdb_rating > 0;
+  const ratingValue = hasImdb ? item.imdb_rating! : item.vote_average;
+  const rating = ratingValue > 0 ? ratingValue.toFixed(1) : null;
+  const ratingSource = hasImdb ? "IMDb" : "TMDB";
+
   const posterPath = item.poster_path;
   const backdropPath = "backdrop_path" in item ? item.backdrop_path : null;
 
@@ -56,7 +61,10 @@ export default function MediaCard({
           />
           <div className="media-card-top10__overlay">
             {rating && (
-              <span className="media-card-top10__rating">
+              <span
+                className="media-card-top10__rating"
+                title={`${ratingSource} · ${rating}`}
+              >
                 <StarRateRoundedIcon /> {rating}
               </span>
             )}
@@ -93,7 +101,10 @@ export default function MediaCard({
         <div className="media-card__overlay">
           <div className="media-card__meta">
             {rating && (
-              <span className="media-card__rating">
+              <span
+                className="media-card__rating"
+                title={`${ratingSource} · ${rating}`}
+              >
                 <StarRateRoundedIcon /> {rating}
               </span>
             )}

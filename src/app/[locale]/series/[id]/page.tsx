@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getSeriesDetails } from "@/services/series";
 import { posterUrl, backdropUrl } from "@/services/tmdb";
+import { getOmdbRating } from "@/services/omdb";
 import FadeImage from "@/components/shared/FadeImage/FadeImage";
 import WatchlistButton from "@/components/shared/WatchlistButton/WatchlistButton";
 import WatchedButton from "@/components/shared/WatchedButton/WatchedButton";
@@ -107,6 +108,16 @@ export default async function SerieDetailPage({
     notFound();
   }
 
+  // ─── Rating IMDb (OMDb) ─────────────────────────────────────────────
+  const seriesImdbId = series.external_ids?.imdb_id ?? null;
+  const omdbRating = await getOmdbRating(seriesImdbId);
+  const displayRating = omdbRating?.rating ?? series.vote_average;
+  const ratingSource = omdbRating ? "IMDb" : "TMDB";
+  // console.log("seriesImdbId", seriesImdbId);
+  // console.log("omdbRating", omdbRating);
+  // console.log("displayRating", displayRating);
+  // console.log("ratingSource", ratingSource);
+
   // Overrides de nombres de géneros que TMDB no traduce al español
   if (locale === "es" && series.genres) {
     series = {
@@ -184,10 +195,13 @@ export default async function SerieDetailPage({
             {certification && (
               <span className="detail-certification">{certification}</span>
             )}
-            {series.vote_average > 0 && (
-              <span className="detail-rating">
+            {displayRating > 0 && (
+              <span
+                className="detail-rating"
+                title={`${ratingSource} · ${displayRating.toFixed(1)}`}
+              >
                 <StarRateRoundedIcon />
-                {series.vote_average.toFixed(1)}
+                {displayRating.toFixed(1)}
               </span>
             )}
             {yearDisplay && <span className="detail-year">{yearDisplay}</span>}
@@ -294,6 +308,7 @@ export default async function SerieDetailPage({
               seasons={series.seasons ?? []}
               averageLabel={t("episodeRatingsAvg")}
               seasonPrefix={t("seasonPrefix")}
+              imdbId={seriesImdbId}
             />
           </Suspense>
         </div>

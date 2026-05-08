@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getSeasonDetails } from "@/services/series";
+import { getOmdbSeasonRatings, type OmdbEpisodeRating } from "@/services/omdb";
 import type { Season, SeasonDetails } from "@/types/tmdb";
 import EpisodeRatingGridDesktop, {
   type SlimSeason,
@@ -12,6 +13,7 @@ interface EpisodeRatingGridProps {
   seasons: Season[];
   averageLabel: string;
   seasonPrefix: string;
+  imdbId?: string | null;
 }
 
 const DESKTOP_INITIAL = 8;
@@ -35,6 +37,7 @@ export default async function EpisodeRatingGrid({
   seasons,
   averageLabel,
   seasonPrefix,
+  imdbId,
 }: EpisodeRatingGridProps) {
   const t = await getTranslations("detail");
 
@@ -44,20 +47,43 @@ export default async function EpisodeRatingGrid({
 
   if (validSeasons.length === 0) return null;
 
+  // Si OMDb falla o la cuota está agotada, getOmdbSeasonRatings devuelve null
+  // y cada episodio cae automáticamente al rating de TMDB.
   const results = await Promise.allSettled(
-    validSeasons.map((s) => getSeasonDetails(seriesId, s.season_number)),
+    validSeasons.map(async (s) => {
+      const [tmdbSeason, omdbSeason] = await Promise.all([
+        getSeasonDetails(seriesId, s.season_number),
+        getOmdbSeasonRatings(imdbId, s.season_number),
+      ]);
+      return { tmdbSeason, omdbSeason };
+    }),
   );
 
   const seasonData: SlimSeason[] = results
     .map((res, i): SlimSeason | null => {
       const season = validSeasons[i];
       if (res.status !== "fulfilled") return null;
-      const episodes = (res.value as SeasonDetails).episodes ?? [];
+      const { tmdbSeason, omdbSeason } = res.value as {
+        tmdbSeason: SeasonDetails;
+        omdbSeason: Map<number, OmdbEpisodeRating> | null;
+      };
+      const episodes = tmdbSeason.episodes ?? [];
       const lastEpNumber =
         episodes.length > 0
           ? Math.max(...episodes.map((e) => e.episode_number))
           : 0;
-      const rated = episodes.filter((e) => e.vote_average > 0);
+
+      const merged = episodes.map((e) => {
+        const omdbEp = omdbSeason?.get(e.episode_number);
+        const finalRating = omdbEp?.rating ?? e.vote_average;
+        return {
+          episode_number: e.episode_number,
+          name: e.name,
+          vote_average: finalRating,
+        };
+      });
+
+      const rated = merged.filter((e) => e.vote_average > 0);
       const average =
         rated.length > 0
           ? rated.reduce((sum, e) => sum + e.vote_average, 0) / rated.length
@@ -68,11 +94,7 @@ export default async function EpisodeRatingGrid({
         average,
         averageTier:
           average !== null ? ratingTier(average) : "egrid__cell--empty",
-        episodes: episodes.map((e) => ({
-          episode_number: e.episode_number,
-          name: e.name,
-          vote_average: e.vote_average,
-        })),
+        episodes: merged,
       };
     })
     .filter((s): s is SlimSeason => s !== null);

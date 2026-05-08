@@ -107,6 +107,9 @@ export interface Movie {
   tagline?: string;
   production_companies?: ProductionCompany[];
   media_type?: string;
+  // ─── Enriquecimiento opcional con datos de OMDb / IMDb ───
+  imdb_rating?: number | null;
+  imdb_votes?: number;
 }
 
 // ─── Content Ratings / Certifications ────────────────────────────────────────
@@ -177,6 +180,8 @@ export interface MovieDetails extends Movie {
   spoken_languages?: SpokenLanguage[];
   homepage?: string;
   images?: MovieImages;
+  // ─── IMDb ID que viene en el endpoint /movie/{id} ───
+  imdb_id?: string | null;
 }
 
 // ─── Series ───────────────────────────────────────────────────────────────────
@@ -222,6 +227,22 @@ export interface Series {
   number_of_episodes?: number;
   status?: string;
   media_type?: string;
+  // ─── Enriquecimiento opcional con datos de OMDb / IMDb ───
+  imdb_rating?: number | null;
+  imdb_votes?: number;
+}
+
+// ─── External IDs (devuelto por TMDB con append_to_response=external_ids) ───
+export interface ExternalIds {
+  imdb_id: string | null;
+  freebase_mid?: string | null;
+  freebase_id?: string | null;
+  tvdb_id?: number | null;
+  tvrage_id?: number | null;
+  wikidata_id?: string | null;
+  facebook_id?: string | null;
+  instagram_id?: string | null;
+  twitter_id?: string | null;
 }
 
 export interface SeriesDetails extends Series {
@@ -247,6 +268,8 @@ export interface SeriesDetails extends Series {
   origin_country?: string[];
   homepage?: string;
   type?: string;
+  // ─── External IDs (incluye IMDb ID) ───
+  external_ids?: ExternalIds;
 }
 
 export interface SeasonDetails {

@@ -5,7 +5,7 @@ import Top100PickerButton from "@/components/shared/RandomPicker/Top100PickerBut
 import {
   getSeriesByGenre,
   getTrendingSeries,
-  getTop100Series,
+  getTop100SeriesEnhanced,
   getAnimeSeries,
   getTVGenreList,
 } from "@/services/series";
@@ -27,7 +27,7 @@ export default async function SeriesPage() {
 
   const [trending, top100, anime, genreList, genreResults] = await Promise.all([
     getTrendingSeries("week").catch(() => []) as Promise<Series[]>,
-    getTop100Series().catch(() => []) as Promise<Series[]>,
+    getTop100SeriesEnhanced().catch(() => []) as Promise<Series[]>,
     getAnimeSeries().catch(() => []) as Promise<Series[]>,
     getTVGenreList(),
     Promise.all(
@@ -55,7 +55,7 @@ export default async function SeriesPage() {
     media_type: "tv" as const,
     title: s.name,
     poster_path: s.poster_path,
-    vote_average: s.vote_average,
+    vote_average: s.imdb_rating ?? s.vote_average,
   }));
 
   return (
