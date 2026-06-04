@@ -1,6 +1,8 @@
 // Versión client-safe de tmdbFetch para usar en componentes "use client".
 // No importa next-intl/server — recibe el locale como parámetro explícito.
 
+import { normalizeTmdbResponse } from "@/utils/normalizedRating";
+
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
@@ -27,5 +29,8 @@ export async function tmdbClientFetch<T = any>(
 
   const res = await fetch(`${BASE_URL}${endpoint}?${queryParams}`);
   if (!res.ok) throw new Error(`TMDB Error: ${res.status}`);
-  return res.json() as Promise<T>;
+  const raw = (await res.json()) as T;
+
+  // Normaliza vote_average para alinearlo con escala IMDB (ver normalizeRating.ts)
+  return normalizeTmdbResponse(raw);
 }
