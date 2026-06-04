@@ -40,58 +40,101 @@ interface WatchlistContextType {
 
 const WatchlistContext = createContext<WatchlistContextType | null>(null);
 
+/**
+ * Mergea dos listas sin duplicados por (id + media_type).
+ * Los items de `primary` ganan prioridad y van primero (preservar orden
+ * de cambios optimistas locales).
+ */
+function mergeUnique(
+  primary: WatchlistItem[],
+  secondary: WatchlistItem[],
+): WatchlistItem[] {
+  const keyOf = (i: WatchlistItem) => `${i.media_type}-${i.id}`;
+  const seen = new Set(primary.map(keyOf));
+  const newOnes = secondary.filter((i) => !seen.has(keyOf(i)));
+  return [...primary, ...newOnes];
+}
+
 export function WatchlistProvider({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isGuest, loading: authLoading } = useAuth();
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  // Identidad de quién está cargado: uid | "guest" | "anonymous" | null.
+  // null significa "carga falló o aún no cargada" → bloquea el guardado.
   const loadedForRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
 
+    const newIdentity =
+      isLoggedIn && user?.uid ? user.uid : isGuest ? "guest" : "anonymous";
+
+    const prevIdentity = loadedForRef.current;
+    loadedForRef.current = null;
+
+    let cancelled = false;
+
     async function load() {
+      if (prevIdentity !== null && prevIdentity !== newIdentity) {
+        setWatchlist([]);
+      }
       setLoaded(false);
+
       if (isLoggedIn && user?.uid) {
         try {
           const docRef = doc(db, "watchlists", user.uid);
           const snap = await getDoc(docRef);
-          if (snap.exists()) {
-            setWatchlist(snap.data().items || []);
-          } else {
-            const local = getLocalWatchlist();
-            if (local.length > 0) {
-              setWatchlist(local);
-              await setDoc(docRef, { items: local });
-              localStorage.removeItem("fw_watchlist");
-            } else {
-              setWatchlist([]);
-            }
+          if (cancelled) return;
+
+          const firestoreItems: WatchlistItem[] = snap.exists()
+            ? snap.data().items || []
+            : [];
+          const localToMigrate: WatchlistItem[] = !snap.exists()
+            ? getLocalWatchlist()
+            : [];
+
+          setWatchlist((current) =>
+            mergeUnique(current, [...firestoreItems, ...localToMigrate]),
+          );
+
+          if (!snap.exists() && localToMigrate.length > 0) {
+            localStorage.removeItem("fw_watchlist");
           }
+
           loadedForRef.current = user.uid;
-        } catch {
-          setWatchlist(getLocalWatchlist());
-          loadedForRef.current = user.uid;
+        } catch (err) {
+          console.error("Failed to load watchlist from Firestore:", err);
+          // NO setear loadedForRef → bloquea el guardado automático
         }
       } else if (isGuest) {
-        setWatchlist(getLocalWatchlist());
+        setWatchlist((current) => mergeUnique(current, getLocalWatchlist()));
         loadedForRef.current = "guest";
       } else {
-        setWatchlist([]);
         loadedForRef.current = "anonymous";
       }
-      setLoaded(true);
+
+      if (!cancelled) setLoaded(true);
     }
-    loadedForRef.current = null;
+
     load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLoggedIn, isGuest, user?.uid, authLoading]);
 
+  // Efecto de guardado: el guard `loadedForRef.current !== user.uid` ya
+  // estaba; ahora es efectivo porque el catch NO setea loadedForRef.
   useEffect(() => {
     if (!loaded) return;
+    if (loadedForRef.current === null) return; // Load falló → no guardar
 
     if (isLoggedIn && user?.uid) {
       if (loadedForRef.current !== user.uid) return;
       const docRef = doc(db, "watchlists", user.uid);
-      setDoc(docRef, { items: watchlist }).catch(console.error);
+      setDoc(docRef, { items: watchlist }).catch((err) =>
+        console.error("Failed to save watchlist:", err),
+      );
     } else if (isGuest) {
       if (loadedForRef.current !== "guest") return;
       saveLocalWatchlist(watchlist);
