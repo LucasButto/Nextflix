@@ -1,5 +1,3 @@
-import "@/styles/_skeletons.scss";
-
 export default function EpisodeDetailLoading() {
   return (
     <div className="ep-sk">

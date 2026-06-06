@@ -1,9 +1,24 @@
-const SLOPE = 1.035;
-const INTERCEPT = -0.094;
+// Calibración TMDB → IMDB.
+//
+// IMDB y TMDB son poblaciones de votantes distintas: no hay una recta que
+// las iguale título por título. Pero en el contenido popular que muestra la
+// app se observa un patrón consistente: en el extremo bajo/medio ambas
+// escalas coinciden, mientras que en el extremo alto IMDB tiende a puntuar
+// más al contenido aclamado. Por eso usamos una calibración por tramos:
+//   - rating <= PIVOT  → se mantiene (zona donde coinciden).
+//   - rating  > PIVOT  → se eleva con pendiente HIGH_SLOPE hacia IMDB.
+// Es continua en PIVOT (sin saltos) y se clampa a [0, 10].
+const PIVOT = 6.0;
+const HIGH_SLOPE = 1.2;
 
 // Umbral debajo del cual NO aplicamos la fórmula: con pocos votos TMDB
 // es ruidoso y la transformación amplificaría ese ruido.
 const MIN_VOTE_COUNT = 20;
+
+function calibrate(rating: number): number {
+  if (rating <= PIVOT) return rating;
+  return PIVOT + (rating - PIVOT) * HIGH_SLOPE;
+}
 
 /**
  * Normaliza un rating de TMDB hacia escala IMDB.
@@ -20,7 +35,7 @@ export function normalizeRating(rating: number, voteCount?: number): number {
     return Math.round(rating * 10) / 10;
   }
 
-  const adjusted = SLOPE * rating + INTERCEPT;
+  const adjusted = calibrate(rating);
   const clamped = Math.max(0, Math.min(10, adjusted));
   return Math.round(clamped * 10) / 10;
 }

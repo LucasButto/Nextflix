@@ -294,6 +294,7 @@ export default async function SerieDetailPage({
               seasons={series.seasons ?? []}
               averageLabel={t("episodeRatingsAvg")}
               seasonPrefix={t("seasonPrefix")}
+              imdbId={series.external_ids?.imdb_id ?? null}
             />
           </Suspense>
         </div>

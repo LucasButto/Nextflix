@@ -182,7 +182,7 @@ export async function getSeriesDetails(
     `/tv/${seriesId}`,
     {
       append_to_response:
-        "credits,watch/providers,videos,recommendations,content_ratings",
+        "credits,watch/providers,videos,recommendations,content_ratings,external_ids",
       include_video_language: "en,null",
     },
     language,

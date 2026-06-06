@@ -1,4 +1,9 @@
+// Home page loading skeleton
+// Refleja el contenido real: Hero + Top 10 (pelis/series) + fila wide + filas normales
+
 export default function Loading() {
+  const top10 = Array.from({ length: 8 });
+  const wide = Array.from({ length: 5 });
   const cards = Array.from({ length: 8 });
 
   return (
@@ -23,9 +28,39 @@ export default function Loading() {
         </div>
       </div>
 
-      {/* ── Carousels ── */}
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="sk-carousel">
+      {/* ── Top 10 (películas + series) ── */}
+      {[0, 1].map((i) => (
+        <div key={`top-${i}`} className="sk-carousel">
+          <div className="sk-carousel__title" />
+          <div className="sk-carousel__row">
+            {top10.map((_, j) => (
+              <div
+                key={j}
+                className="sk-carousel__card sk-carousel__card--top10"
+              >
+                <div className="sk-carousel__rank" />
+                <div className="sk-carousel__poster" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* ── Fila wide (en cartelera) ── */}
+      <div className="sk-carousel">
+        <div className="sk-carousel__title" />
+        <div className="sk-carousel__row">
+          {wide.map((_, j) => (
+            <div key={j} className="sk-carousel__card sk-carousel__card--wide">
+              <div className="sk-carousel__img" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Filas normales (populares) ── */}
+      {[0, 1].map((i) => (
+        <div key={`row-${i}`} className="sk-carousel">
           <div className="sk-carousel__title" />
           <div className="sk-carousel__row">
             {cards.map((_, j) => (

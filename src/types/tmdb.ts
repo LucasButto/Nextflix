@@ -239,6 +239,7 @@ export interface SeriesDetails extends Series {
   next_episode_to_air: Episode | null;
   last_episode_to_air: Episode | null;
   content_ratings?: ContentRatings;
+  external_ids?: { imdb_id?: string | null };
   created_by?: CreatedBy[];
   networks?: NetworkInfo[];
   production_countries?: ProductionCountry[];

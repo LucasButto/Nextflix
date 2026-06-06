@@ -30,13 +30,20 @@ function WatchlistSkeleton() {
       <div className="sk-watchlist__header">
         <div className="sk-watchlist__title" />
         <div className="sk-watchlist__count" />
+        <div className="sk-watchlist__picker" />
       </div>
+      <div className="sk-watchlist__tabs">
+        <div className="sk-watchlist__tab" />
+        <div className="sk-watchlist__tab" />
+      </div>
+      <div className="sk-watchlist__section-title" />
       <div className="sk-watchlist__grid">
         {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
           <div key={i}>
             <div className="sk-watchlist__card-img" />
             <div className="sk-watchlist__card-title" />
-            <div className="sk-watchlist__card-sub" />
+            <div className="sk-watchlist__card-title sk-watchlist__card-title--short" />
+            <div className="sk-watchlist__card-remove" />
           </div>
         ))}
       </div>
