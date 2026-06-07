@@ -16,6 +16,25 @@ import type {
 } from "@/types/tmdb";
 import "@/styles/pages/search/search.scss";
 
+function SearchSkeleton() {
+  return (
+    <div className="search-grid">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="sk-search-result">
+          <div className="sk-search-result__img" />
+          <div className="sk-search-result__info">
+            <div className="sk-search-result__type" />
+            <div className="sk-search-result__title" />
+            <div className="sk-search-result__meta" />
+            <div className="sk-search-result__line" />
+            <div className="sk-search-result__line sk-search-result__line--short" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function BuscarPage() {
   const t = useTranslations("search");
   const locale = useLocale();
@@ -92,6 +111,8 @@ export default function BuscarPage() {
       </div>
 
       {loading && <div className="search-loading-bar" />}
+
+      {loading && results.length === 0 && <SearchSkeleton />}
 
       {showHint && (
         <div className="search-hint">

@@ -17,7 +17,7 @@ interface EpisodeRatingGridMobileProps {
 
 function ratingTier(rating: number): string {
   if (rating <= 0) return "egrid__cell--empty";
-  if (rating >= 9.5) return "egrid__cell--cinema";
+  if (rating >= 9.6) return "egrid__cell--cinema";
   if (rating >= 9.0) return "egrid__cell--awesome";
   if (rating >= 8.0) return "egrid__cell--great";
   if (rating >= 7.0) return "egrid__cell--good";

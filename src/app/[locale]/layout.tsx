@@ -1,5 +1,6 @@
 import "@/styles/globals.scss";
 import "@/styles/detail.scss";
+import "@/styles/_skeletons.scss";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";

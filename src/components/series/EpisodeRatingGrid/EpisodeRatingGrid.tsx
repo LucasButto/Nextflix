@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getSeasonDetails } from "@/services/series";
+import { getOmdbSeasonRatings } from "@/services/omdb";
 import type { Season, SeasonDetails } from "@/types/tmdb";
 import EpisodeRatingGridDesktop, {
   type SlimSeason,
@@ -12,6 +13,9 @@ interface EpisodeRatingGridProps {
   seasons: Season[];
   averageLabel: string;
   seasonPrefix: string;
+  /** ID de IMDb de la serie. Si está, el grid usa ratings reales de IMDb
+   *  (vía OMDb) con fallback a TMDB cuando OMDb no responde / sin cuota. */
+  imdbId?: string | null;
 }
 
 const DESKTOP_INITIAL = 8;
@@ -21,7 +25,7 @@ const MOBILE_STEP = 10;
 
 function ratingTier(rating: number): string {
   if (rating <= 0) return "egrid__cell--empty";
-  if (rating >= 9.5) return "egrid__cell--cinema";
+  if (rating >= 9.6) return "egrid__cell--cinema";
   if (rating >= 9.0) return "egrid__cell--awesome";
   if (rating >= 8.0) return "egrid__cell--great";
   if (rating >= 7.0) return "egrid__cell--good";
@@ -35,6 +39,7 @@ export default async function EpisodeRatingGrid({
   seasons,
   averageLabel,
   seasonPrefix,
+  imdbId,
 }: EpisodeRatingGridProps) {
   const t = await getTranslations("detail");
 
@@ -44,20 +49,47 @@ export default async function EpisodeRatingGrid({
 
   if (validSeasons.length === 0) return null;
 
-  const results = await Promise.allSettled(
-    validSeasons.map((s) => getSeasonDetails(seriesId, s.season_number)),
-  );
+  // Detalle de temporadas (TMDB) + ratings de IMDb (OMDb) en paralelo.
+  // Si no hay imdbId/cuota, omdbMaps queda en null y se usa TMDB.
+  const [results, omdbMaps] = await Promise.all([
+    Promise.allSettled(
+      validSeasons.map((s) => getSeasonDetails(seriesId, s.season_number)),
+    ),
+    Promise.all(
+      validSeasons.map((s) =>
+        imdbId
+          ? getOmdbSeasonRatings(imdbId, s.season_number)
+          : Promise.resolve(null),
+      ),
+    ),
+  ]);
 
   const seasonData: SlimSeason[] = results
     .map((res, i): SlimSeason | null => {
       const season = validSeasons[i];
       if (res.status !== "fulfilled") return null;
       const episodes = (res.value as SeasonDetails).episodes ?? [];
+      const omdb = omdbMaps[i]; // Map<episode_number, imdbRating> | null
+
+      // Por episodio: rating real de IMDb si está, si no TMDB normalizado.
+      const slimEpisodes = episodes.map((e) => {
+        const imdbRating = omdb?.get(e.episode_number);
+        const rating =
+          imdbRating !== undefined && imdbRating > 0
+            ? imdbRating
+            : e.vote_average;
+        return {
+          episode_number: e.episode_number,
+          name: e.name,
+          vote_average: rating,
+        };
+      });
+
       const lastEpNumber =
-        episodes.length > 0
-          ? Math.max(...episodes.map((e) => e.episode_number))
+        slimEpisodes.length > 0
+          ? Math.max(...slimEpisodes.map((e) => e.episode_number))
           : 0;
-      const rated = episodes.filter((e) => e.vote_average > 0);
+      const rated = slimEpisodes.filter((e) => e.vote_average > 0);
       const average =
         rated.length > 0
           ? rated.reduce((sum, e) => sum + e.vote_average, 0) / rated.length
@@ -68,11 +100,7 @@ export default async function EpisodeRatingGrid({
         average,
         averageTier:
           average !== null ? ratingTier(average) : "egrid__cell--empty",
-        episodes: episodes.map((e) => ({
-          episode_number: e.episode_number,
-          name: e.name,
-          vote_average: e.vote_average,
-        })),
+        episodes: slimEpisodes,
       };
     })
     .filter((s): s is SlimSeason => s !== null);

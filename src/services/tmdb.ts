@@ -1,5 +1,5 @@
 import { getLocale } from "next-intl/server";
-
+import { normalizeTmdbResponse } from "@/utils/normalizedRating";
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 export const IMG_BASE = "https://image.tmdb.org/t/p";
@@ -96,7 +96,11 @@ export async function tmdbFetch<T = any>(
 
   const res = await fetch(url, { next: { revalidate: 600 } } as RequestInit);
   if (!res.ok) throw new Error(`TMDB Error: ${res.status}`);
-  const data = (await res.json()) as T;
+  const raw = (await res.json()) as T;
+
+  // Normaliza recursivamente todos los vote_average para acercarlos a la
+  // escala de IMDB. Ver src/utils/normalizeRating.ts para la calibración.
+  const data = normalizeTmdbResponse(raw);
 
   cache.set(url, { data, timestamp: Date.now() });
   return data;

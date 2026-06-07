@@ -40,6 +40,16 @@ interface WatchedContextType {
 
 const WatchedContext = createContext<WatchedContextType | null>(null);
 
+function mergeUnique(
+  primary: WatchedItem[],
+  secondary: WatchedItem[],
+): WatchedItem[] {
+  const keyOf = (i: WatchedItem) => `${i.media_type}-${i.id}`;
+  const seen = new Set(primary.map(keyOf));
+  const newOnes = secondary.filter((i) => !seen.has(keyOf(i)));
+  return [...primary, ...newOnes];
+}
+
 export function WatchedProvider({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isGuest, loading: authLoading } = useAuth();
   const [watched, setWatched] = useState<WatchedItem[]>([]);
@@ -49,49 +59,72 @@ export function WatchedProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (authLoading) return;
 
+    const newIdentity =
+      isLoggedIn && user?.uid ? user.uid : isGuest ? "guest" : "anonymous";
+
+    const prevIdentity = loadedForRef.current;
+    loadedForRef.current = null;
+
+    let cancelled = false;
+
     async function load() {
+      if (prevIdentity !== null && prevIdentity !== newIdentity) {
+        setWatched([]);
+      }
       setLoaded(false);
+
       if (isLoggedIn && user?.uid) {
         try {
           const docRef = doc(db, "watched", user.uid);
           const snap = await getDoc(docRef);
-          if (snap.exists()) {
-            setWatched(snap.data().items || []);
-          } else {
-            const local = getLocalWatched();
-            if (local.length > 0) {
-              setWatched(local);
-              await setDoc(docRef, { items: local });
-              localStorage.removeItem("fw_watched");
-            } else {
-              setWatched([]);
-            }
+          if (cancelled) return;
+
+          const firestoreItems: WatchedItem[] = snap.exists()
+            ? snap.data().items || []
+            : [];
+          const localToMigrate: WatchedItem[] = !snap.exists()
+            ? getLocalWatched()
+            : [];
+
+          setWatched((current) =>
+            mergeUnique(current, [...firestoreItems, ...localToMigrate]),
+          );
+
+          if (!snap.exists() && localToMigrate.length > 0) {
+            localStorage.removeItem("fw_watched");
           }
+
           loadedForRef.current = user.uid;
-        } catch {
-          setWatched(getLocalWatched());
-          loadedForRef.current = user.uid;
+        } catch (err) {
+          console.error("Failed to load watched from Firestore:", err);
         }
       } else if (isGuest) {
-        setWatched(getLocalWatched());
+        setWatched((current) => mergeUnique(current, getLocalWatched()));
         loadedForRef.current = "guest";
       } else {
-        setWatched([]);
         loadedForRef.current = "anonymous";
       }
-      setLoaded(true);
+
+      if (!cancelled) setLoaded(true);
     }
-    loadedForRef.current = null;
+
     load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLoggedIn, isGuest, user?.uid, authLoading]);
 
   useEffect(() => {
     if (!loaded) return;
+    if (loadedForRef.current === null) return;
 
     if (isLoggedIn && user?.uid) {
       if (loadedForRef.current !== user.uid) return;
       const docRef = doc(db, "watched", user.uid);
-      setDoc(docRef, { items: watched }).catch(console.error);
+      setDoc(docRef, { items: watched }).catch((err) =>
+        console.error("Failed to save watched:", err),
+      );
     } else if (isGuest) {
       if (loadedForRef.current !== "guest") return;
       saveLocalWatched(watched);

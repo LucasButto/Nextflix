@@ -1,30 +1,43 @@
-// Series page loading skeleton (Hero + genre carousels)
+// Series page loading skeleton
+// La página no tiene hero: fila wide (tendencias) + Top 100 + filas de géneros
 
 export default function Loading() {
+  const wide = Array.from({ length: 6 });
+  const top10 = Array.from({ length: 8 });
   const cards = Array.from({ length: 8 });
 
   return (
     <>
-      <div className="sk-hero">
-        <div className="sk-hero__gradient" />
-        <div className="sk-hero__content">
-          <div className="sk-hero__badge" />
-          <div className="sk-hero__title" />
-          <div className="sk-hero__meta">
-            <div className="sk-hero__meta-item" />
-            <div className="sk-hero__meta-item" />
-          </div>
-          <div className="sk-hero__overview" />
-          <div className="sk-hero__overview" />
-          <div className="sk-hero__overview" />
-          <div className="sk-hero__btns">
-            <div className="sk-hero__btn" />
-            <div className="sk-hero__btn" />
-          </div>
+      {/* ── Tendencias (wide) ── */}
+      <div className="sk-carousel">
+        <div className="sk-carousel__title" />
+        <div className="sk-carousel__row">
+          {wide.map((_, j) => (
+            <div key={j} className="sk-carousel__card sk-carousel__card--wide">
+              <div className="sk-carousel__img" />
+            </div>
+          ))}
         </div>
       </div>
 
-      {[0, 1, 2, 3, 4].map((i) => (
+      {/* ── Top 100 (top10 + botón de acción) ── */}
+      <div className="sk-carousel">
+        <div className="sk-carousel__header">
+          <div className="sk-carousel__title" />
+          <div className="sk-carousel__action" />
+        </div>
+        <div className="sk-carousel__row">
+          {top10.map((_, j) => (
+            <div key={j} className="sk-carousel__card sk-carousel__card--top10">
+              <div className="sk-carousel__rank" />
+              <div className="sk-carousel__poster" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Géneros (filas normales) ── */}
+      {[0, 1, 2, 3].map((i) => (
         <div key={i} className="sk-carousel">
           <div className="sk-carousel__title" />
           <div className="sk-carousel__row">
