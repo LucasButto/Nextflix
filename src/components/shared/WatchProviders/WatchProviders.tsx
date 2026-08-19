@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { getProviderHomepage } from "@/utils/media";
 import type { WatchProviderRegion, StreamingProvider } from "@/types/tmdb";
 import "./WatchProviders.scss";
@@ -130,22 +131,10 @@ export default function WatchProviders({
             <span className="wp-selector__name">
               {getCountryName(selectedCountry, locale)}
             </span>
-            <svg
+            <KeyboardArrowDownRoundedIcon
               className={`wp-selector__chevron${isOpen ? " wp-selector__chevron--up" : ""}`}
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
               aria-hidden="true"
-            >
-              <path
-                d="M2 4l4 4 4-4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            />
           </button>
 
           {isOpen && (
