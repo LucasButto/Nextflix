@@ -115,8 +115,17 @@
   }
 
   &__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
     font-size: 0.8rem;
     font-weight: 500;
+
+    svg {
+      width: 17px;
+      height: 17px;
+      color: $star;
+    }
   }
 
   &__info {

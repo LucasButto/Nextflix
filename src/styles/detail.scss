@@ -472,15 +472,29 @@ a.detail-provider-badge {
   }
 }
 
+.detail-ep-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  svg {
+    width: 15px;
+    height: 15px;
+    color: $star;
+  }
+}
+
 .detail-ep-meta {
   font-size: 0.72rem;
   color: $text-muted;
   display: flex;
+  align-items: center;
   gap: 10px;
   white-space: nowrap;
 
   &--mobile {
     flex-direction: column;
+    align-items: flex-start;
     gap: 3px;
     padding-top: 2px;
     @include respond(md) {

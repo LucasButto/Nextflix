@@ -93,13 +93,20 @@
   }
 
   &__badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: $accent-secondary;
     margin-bottom: 10px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   &__title {
@@ -131,8 +138,17 @@
   }
 
   &__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-weight: 500;
     font-size: 0.95rem;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: $star;
+    }
   }
   &__year {
     color: $text-secondary;
@@ -175,6 +191,12 @@
     font-weight: 500;
     font-size: 0.9rem;
     transition: all 0.25s ease;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
 
     &:hover {
       background: rgba(255, 255, 255, 0.15);

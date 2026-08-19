@@ -58,9 +58,12 @@
   }
 
   &__chevron {
+    width: 18px !important;
+    height: 18px !important;
     flex-shrink: 0;
     opacity: 0.6;
-    transition: transform 0.2s ease;
+    // !important porque MuiSvgIcon-root define su propia transition
+    transition: transform 0.2s ease !important;
 
     &--up {
       transform: rotate(180deg);

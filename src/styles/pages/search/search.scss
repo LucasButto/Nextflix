@@ -42,9 +42,16 @@
   &__clear {
     position: absolute;
     right: 16px;
+    display: inline-flex;
+    align-items: center;
     color: $text-muted;
-    font-size: 1.1rem;
     transition: color 0.2s;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
     &:hover {
       color: $text-primary;
     }
@@ -137,9 +144,22 @@
   }
   &__meta {
     display: flex;
+    align-items: center;
     gap: 12px;
     font-size: 0.78rem;
     color: $text-muted;
+  }
+
+  &__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $star;
+    }
   }
   &__sub {
     font-size: 0.8rem;
