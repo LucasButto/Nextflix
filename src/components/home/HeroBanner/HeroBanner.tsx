@@ -7,6 +7,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations } from "next-intl";
 import { extractYear } from "@/utils/dates";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
+import LiveTvRoundedIcon from "@mui/icons-material/LiveTvRounded";
+import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import type { HeroBannerItem } from "@/types/tmdb";
 import "./HeroBanner.scss";
 
@@ -156,6 +162,7 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
         className={`hero-banner__content ${transitioning ? "hero-banner__content--fade-out" : "hero-banner__content--fade-in"}`}
       >
         <span className="hero-banner__badge">
+          {mediaType === "tv" ? <LiveTvRoundedIcon /> : <MovieRoundedIcon />}
           {mediaType === "tv" ? t("trendingSeries") : t("trendingMovie")}
         </span>
         <h1 className="hero-banner__title">{title}</h1>
@@ -163,7 +170,8 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
         <div className="hero-banner__meta">
           {voteAverage > 0 && (
             <span className="hero-banner__rating">
-              ⭐ {voteAverage.toFixed(1)}
+              <StarRateRoundedIcon />
+              {voteAverage.toFixed(1)}
             </span>
           )}
           <span className="hero-banner__year">{extractYear(releaseDate)}</span>
@@ -183,6 +191,15 @@ export default function HeroBanner({ items = [] }: HeroBannerProps) {
               onMouseEnter={() => setHoveringBtn(true)}
               onMouseLeave={() => setHoveringBtn(false)}
             >
+              {inList ? (
+                hoveringBtn ? (
+                  <CloseRoundedIcon />
+                ) : (
+                  <CheckRoundedIcon />
+                )
+              ) : (
+                <AddRoundedIcon />
+              )}
               {inList
                 ? hoveringBtn
                   ? t("removeFromList")

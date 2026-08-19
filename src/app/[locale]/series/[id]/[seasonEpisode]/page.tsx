@@ -11,6 +11,7 @@ import { formatLocalizedDate } from "@/utils/dates";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import type {
   EpisodeDetails,
   GuestStar,
@@ -257,9 +258,10 @@ export default async function EpisodeDetailPage({
             >
               {series.name}
             </Link>
-            <span className="detail-breadcrumb__sep" aria-hidden="true">
-              ›
-            </span>
+            <ChevronRightRoundedIcon
+              className="detail-breadcrumb__sep"
+              aria-hidden="true"
+            />
             <span className="detail-breadcrumb__current">
               {t("seasonPrefix")}
               {episode.season_number}

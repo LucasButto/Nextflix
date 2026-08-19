@@ -12,6 +12,7 @@ import Top100PickerButton from "@/components/shared/RandomPicker/Top100PickerBut
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import LibraryAddCheckOutlinedIcon from "@mui/icons-material/LibraryAddCheckOutlined";
+import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import "@/styles/pages/my-list/watchlist.scss";
 import { BaseItem } from "@/types/tmdb";
 
@@ -188,7 +189,8 @@ export default function TuListaPage() {
                 <div className="watchlist-card__overlay">
                   {item.vote_average > 0 && (
                     <span className="watchlist-card__rating">
-                      ⭐ {item.vote_average.toFixed(1)}
+                      <StarRateRoundedIcon />
+                      {item.vote_average.toFixed(1)}
                     </span>
                   )}
                 </div>

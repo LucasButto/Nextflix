@@ -141,6 +141,7 @@
     "placeholder": "Search movies, series or actors...",
     "hint": "Search movies, series or actors by name",
     "noResults": "No results found for \"{query}\"",
+    "clear": "Clear search",
     "actor": "Actor",
     "movie": "Movie",
     "series": "Series"
@@ -163,12 +164,12 @@
     "loading": "Loading..."
   },
   "hero": {
-    "trendingSeries": "📺 Trending Series",
-    "trendingMovie": "🎬 Trending Movie",
+    "trendingSeries": "Trending Series",
+    "trendingMovie": "Trending Movie",
     "viewDetails": "View Details",
-    "addToList": "+ My List",
-    "inList": "✓ In your list",
-    "removeFromList": "✕ Remove"
+    "addToList": "My List",
+    "inList": "In your list",
+    "removeFromList": "Remove"
   },
   "carousel": {
     "prev": "Previous",

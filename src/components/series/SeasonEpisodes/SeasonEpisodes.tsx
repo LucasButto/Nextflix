@@ -8,6 +8,7 @@ import { tmdbClientFetch } from "@/services/tmdb-client";
 import { posterUrl } from "@/services/tmdb";
 import { formatDate } from "@/utils/dates";
 import { Link } from "@/navigation";
+import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type { Season, Episode, SeasonDetails, Video } from "@/types/tmdb";
 
 interface SeasonEpisodesProps {
@@ -116,7 +117,10 @@ export default function SeasonEpisodes({
                   <div className="detail-ep-meta detail-ep-meta--mobile">
                     {ep.air_date && <span>{formatDate(ep.air_date)}</span>}
                     {ep.vote_average > 0 && (
-                      <span>⭐ {ep.vote_average.toFixed(1)}</span>
+                      <span className="detail-ep-rating">
+                        <StarRateRoundedIcon />
+                        {ep.vote_average.toFixed(1)}
+                      </span>
                     )}
                     {ep.runtime && <span>{ep.runtime} min</span>}
                   </div>
@@ -128,7 +132,10 @@ export default function SeasonEpisodes({
                   <div className="detail-ep-meta detail-ep-meta--desktop">
                     {ep.air_date && <span>{formatDate(ep.air_date)}</span>}
                     {ep.vote_average > 0 && (
-                      <span>⭐ {ep.vote_average.toFixed(1)}</span>
+                      <span className="detail-ep-rating">
+                        <StarRateRoundedIcon />
+                        {ep.vote_average.toFixed(1)}
+                      </span>
                     )}
                     {ep.runtime && <span>{ep.runtime} min</span>}
                   </div>

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/navigation";
+import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
 
 export default async function NotFound() {
   const t = await getTranslations("notFound");
@@ -17,7 +18,7 @@ export default async function NotFound() {
         gap: "1rem",
       }}
     >
-      <span style={{ fontSize: "4rem" }}>🎬</span>
+      <MovieRoundedIcon style={{ fontSize: "4rem", color: "#a855f7" }} />
       <h1
         style={{
           fontFamily: "'Bebas Neue', sans-serif",

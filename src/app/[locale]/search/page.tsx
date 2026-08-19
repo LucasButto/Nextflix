@@ -7,6 +7,8 @@ import { tmdbClientFetch } from "@/services/tmdb-client";
 import { posterUrl, profileUrl } from "@/services/tmdb";
 import { extractYear } from "@/utils/dates";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import type {
   SearchResult,
   SearchResponse,
@@ -104,8 +106,12 @@ export default function BuscarPage() {
           autoFocus
         />
         {query && (
-          <button onClick={handleClear} className="search-box__clear">
-            ✕
+          <button
+            onClick={handleClear}
+            className="search-box__clear"
+            aria-label={t("clear")}
+          >
+            <CloseRoundedIcon />
           </button>
         )}
       </div>
@@ -180,7 +186,10 @@ export default function BuscarPage() {
                   <div className="search-result__meta">
                     {year && <span>{year}</span>}
                     {series.vote_average > 0 && (
-                      <span>⭐ {series.vote_average.toFixed(1)}</span>
+                      <span className="search-result__rating">
+                        <StarRateRoundedIcon />
+                        {series.vote_average.toFixed(1)}
+                      </span>
                     )}
                   </div>
                   {series.overview && (
@@ -212,7 +221,10 @@ export default function BuscarPage() {
                 <div className="search-result__meta">
                   {year && <span>{year}</span>}
                   {movie.vote_average > 0 && (
-                    <span>⭐ {movie.vote_average.toFixed(1)}</span>
+                    <span className="search-result__rating">
+                      <StarRateRoundedIcon />
+                      {movie.vote_average.toFixed(1)}
+                    </span>
                   )}
                 </div>
                 {movie.overview && (
